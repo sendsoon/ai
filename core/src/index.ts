@@ -1,4 +1,10 @@
-export { SendSoonClient, defaultClient, sendEmail } from './client.js';
+export {
+  SendSoonClient,
+  defaultClient,
+  ipLookup,
+  markitdownConvert,
+  sendEmail,
+} from './client.js';
 export { loadConfig, type SendSoonConfig } from './config.js';
 export {
   SendSoonErrorCode,
@@ -10,6 +16,25 @@ export {
   type SendSoonErrorCode as SendSoonErrorCodeType,
 } from './errors.js';
 export { httpRequest, type HttpRequestOptions, type HttpResponse } from './http.js';
+export {
+  ipLookupFailureResult,
+  ipLookupSuccessResult,
+  type IpLookupRequest,
+  type IpLookupResult,
+  type IpLookupResultFailure,
+  type IpLookupResultSuccess,
+  type IpNetworkInfo,
+  type IpRegionInfo,
+} from './types/ip-lookup.js';
+export {
+  MAX_MARKITDOWN_FILE_BYTES,
+  markitdownFailureResult,
+  markitdownSuccessResult,
+  type MarkitdownConvertRequest,
+  type MarkitdownConvertResult,
+  type MarkitdownConvertResultFailure,
+  type MarkitdownConvertResultSuccess,
+} from './types/markitdown.js';
 export {
   MAX_BODY_LENGTH,
   MAX_FROM_ALIAS_LENGTH,

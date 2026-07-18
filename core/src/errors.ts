@@ -86,6 +86,7 @@ function parseApiErrorMessage(body: string): string | undefined {
     const parsed = JSON.parse(body) as {
       message?: string;
       error?: string | { message?: string };
+      detail?: string;
     };
 
     if (typeof parsed.message === 'string') {
@@ -102,6 +103,10 @@ function parseApiErrorMessage(body: string): string | undefined {
       typeof parsed.error.message === 'string'
     ) {
       return sanitizeApiMessage(parsed.error.message);
+    }
+
+    if (typeof parsed.detail === 'string') {
+      return sanitizeApiMessage(parsed.detail);
     }
   } catch {
     return sanitizeApiMessage(body);
