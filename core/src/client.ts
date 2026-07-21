@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { loadConfig } from './config.js';
 import {
   SendSoonErrorCode,
@@ -5,7 +6,7 @@ import {
   mapHttpError,
   mapNetworkError,
 } from './errors.js';
-import { httpRequest } from './http.js';
+import { httpRequest, type HttpRequestOptions, type HttpResponse } from './http.js';
 import type {
   IpLookupRequest,
   IpLookupResult,
@@ -30,6 +31,12 @@ import {
   successResult,
   type SendResult,
 } from './types/send-result.js';
+import {
+  validateBaseUrl,
+  validateMarkitdownRequest,
+  validatePublicIp,
+  validateSendRequest,
+} from './validation.js';
 
 interface ApiSendEmailResponse {
   message_id?: string;
@@ -49,15 +56,96 @@ interface ApiMarkitdownConvertResponse {
   markdown: string;
 }
 
+export interface SendSoonClientOptions {
+  apiKey?: string;
+  baseUrl?: string;
+  request?: (options: HttpRequestOptions) => Promise<HttpResponse>;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function parseJson(body: string): unknown {
+  try {
+    return JSON.parse(body) as unknown;
+  } catch {
+    return undefined;
+  }
+}
+
+function parseSendEmailResponse(body: string): ApiSendEmailResponse | null {
+  const value = parseJson(body);
+  if (!isRecord(value)) return null;
+  const messageId = value.message_id ?? value.id;
+  return typeof messageId === 'string' && messageId.trim()
+    ? { message_id: messageId }
+    : null;
+}
+
+function isStringRecord(value: unknown, keys: string[]): value is Record<string, string> {
+  return isRecord(value) && keys.every((key) => typeof value[key] === 'string');
+}
+
+function parseIpLookupResponse(body: string): ApiIpLookupResponse | null {
+  const value = parseJson(body);
+  if (!isRecord(value) || typeof value.ip !== 'string' || typeof value.source !== 'string') {
+    return null;
+  }
+  const regionKeys = ['country', 'countryCode', 'region', 'city', 'postalCode', 'timezone'];
+  const networkKeys = ['isp', 'asn', 'organization'];
+  if (!isStringRecord(value.ip2region, regionKeys) || !isStringRecord(value.network, networkKeys)) {
+    return null;
+  }
+  const { latitude, longitude } = value.ip2region;
+  const validCoordinate = (coordinate: unknown) => coordinate === null || typeof coordinate === 'number';
+  if (!validCoordinate(latitude) || !validCoordinate(longitude)) return null;
+  return value as unknown as ApiIpLookupResponse;
+}
+
+function parseMarkitdownResponse(body: string): ApiMarkitdownConvertResponse | null {
+  const value = parseJson(body);
+  return isRecord(value) &&
+    typeof value.filename === 'string' && value.filename.trim().length > 0 &&
+    typeof value.markdown === 'string' && value.markdown.trim().length > 0
+    ? { filename: value.filename, markdown: value.markdown }
+    : null;
+}
+
+function invalidResponseError() {
+  return createError(SendSoonErrorCode.INVALID_RESPONSE);
+}
+
 export class SendSoonClient {
+  private readonly options: SendSoonClientOptions;
+  private readonly request: (options: HttpRequestOptions) => Promise<HttpResponse>;
+
+  constructor(options: SendSoonClientOptions = {}) {
+    this.options = options;
+    this.request = options.request ?? httpRequest;
+  }
+
+  private config() {
+    const environment = loadConfig();
+    return {
+      apiKey: this.options.apiKey?.trim() || environment.apiKey,
+      baseUrl: this.options.baseUrl?.trim() || environment.baseUrl,
+    };
+  }
+
   sendEmail(request: SendRequest): Promise<SendResult> {
-    const config = loadConfig();
+    const validationError = validateSendRequest(request);
+    if (validationError) return Promise.resolve(failureResult(validationError));
+
+    const config = this.config();
 
     if (!config.apiKey) {
       return Promise.resolve(
         failureResult(createError(SendSoonErrorCode.AUTH_ERROR)),
       );
     }
+    const configError = validateBaseUrl(config.baseUrl);
+    if (configError) return Promise.resolve(failureResult(configError));
 
     const payload: Record<string, string> = {
       to: request.to,
@@ -72,13 +160,14 @@ export class SendSoonClient {
 
     const url = `${config.baseUrl.replace(/\/$/, '')}/v1/emails/send`;
 
-    return httpRequest({
+    return this.request({
       method: 'POST',
       url,
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
         Authorization: `Bearer ${config.apiKey}`,
+        'Idempotency-Key': request.idempotency_key?.trim() || randomUUID(),
       },
       body: JSON.stringify(payload),
     })
@@ -87,40 +176,32 @@ export class SendSoonClient {
           return failureResult(mapHttpError(response.status, response.body));
         }
 
-        let data: ApiSendEmailResponse = {};
-        try {
-          data = JSON.parse(response.body) as ApiSendEmailResponse;
-        } catch {
-          return failureResult(
-            createError(
-              SendSoonErrorCode.SERVER_ERROR,
-              'SendSoon API returned an invalid response.',
-            ),
-          );
-        }
-
-        const messageId = data.message_id ?? data.id ?? 'pending';
-        if (messageId === 'pending') {
-          console.warn('[sendsoon-connect] API response missing message_id');
-        }
-
-        return successResult(messageId);
+        const data = parseSendEmailResponse(response.body);
+        return data
+          ? successResult(data.message_id as string)
+          : failureResult(invalidResponseError());
       })
-      .catch(() => Promise.resolve(failureResult(mapNetworkError())));
+      .catch((error: unknown) => failureResult(mapNetworkError(error)));
   }
 
   ipLookup(request: IpLookupRequest): Promise<IpLookupResult> {
-    const config = loadConfig();
+    const ip = request.ip.trim();
+    const validationError = validatePublicIp(ip);
+    if (validationError) return Promise.resolve(ipLookupFailureResult(validationError));
+
+    const config = this.config();
 
     if (!config.apiKey) {
       return Promise.resolve(
         ipLookupFailureResult(createError(SendSoonErrorCode.AUTH_ERROR)),
       );
     }
+    const configError = validateBaseUrl(config.baseUrl);
+    if (configError) return Promise.resolve(ipLookupFailureResult(configError));
 
-    const url = `${config.baseUrl.replace(/\/$/, '')}/v1/ip/lookup?ip=${encodeURIComponent(request.ip)}`;
+    const url = `${config.baseUrl.replace(/\/$/, '')}/v1/ip/lookup?ip=${encodeURIComponent(ip)}`;
 
-    return httpRequest({
+    return this.request({
       method: 'GET',
       url,
       headers: {
@@ -133,17 +214,8 @@ export class SendSoonClient {
           return ipLookupFailureResult(mapHttpError(response.status, response.body));
         }
 
-        let data: ApiIpLookupResponse;
-        try {
-          data = JSON.parse(response.body) as ApiIpLookupResponse;
-        } catch {
-          return ipLookupFailureResult(
-            createError(
-              SendSoonErrorCode.SERVER_ERROR,
-              'SendSoon API returned an invalid response.',
-            ),
-          );
-        }
+        const data = parseIpLookupResponse(response.body);
+        if (!data) return ipLookupFailureResult(invalidResponseError());
 
         return ipLookupSuccessResult({
           ip: data.ip,
@@ -152,23 +224,28 @@ export class SendSoonClient {
           source: data.source,
         });
       })
-      .catch(() => Promise.resolve(ipLookupFailureResult(mapNetworkError())));
+      .catch((error: unknown) => ipLookupFailureResult(mapNetworkError(error)));
   }
 
   markitdownConvert(
     request: MarkitdownConvertRequest,
   ): Promise<MarkitdownConvertResult> {
-    const config = loadConfig();
+    const validationError = validateMarkitdownRequest(request);
+    if (validationError) return Promise.resolve(markitdownFailureResult(validationError));
+
+    const config = this.config();
 
     if (!config.apiKey) {
       return Promise.resolve(
         markitdownFailureResult(createError(SendSoonErrorCode.AUTH_ERROR)),
       );
     }
+    const configError = validateBaseUrl(config.baseUrl);
+    if (configError) return Promise.resolve(markitdownFailureResult(configError));
 
     const url = `${config.baseUrl.replace(/\/$/, '')}/v1/markitdown/convert`;
 
-    return httpRequest({
+    return this.request({
       method: 'POST',
       url,
       headers: {
@@ -186,21 +263,12 @@ export class SendSoonClient {
           return markitdownFailureResult(mapHttpError(response.status, response.body));
         }
 
-        let data: ApiMarkitdownConvertResponse;
-        try {
-          data = JSON.parse(response.body) as ApiMarkitdownConvertResponse;
-        } catch {
-          return markitdownFailureResult(
-            createError(
-              SendSoonErrorCode.SERVER_ERROR,
-              'SendSoon API returned an invalid response.',
-            ),
-          );
-        }
+        const data = parseMarkitdownResponse(response.body);
+        if (!data) return markitdownFailureResult(invalidResponseError());
 
         return markitdownSuccessResult(data.filename, data.markdown);
       })
-      .catch(() => Promise.resolve(markitdownFailureResult(mapNetworkError())));
+      .catch((error: unknown) => markitdownFailureResult(mapNetworkError(error)));
   }
 }
 

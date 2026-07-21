@@ -1,14 +1,13 @@
 import {
   ipLookupFailureResult,
-  SendSoonClient,
-  SendSoonErrorCode,
-  createError,
+  validatePublicIp,
   type IpLookupResult,
+  type SendSoonClient,
 } from '@sendsoon/core';
 import * as z from 'zod/v4';
 
 const ipLookupInputSchema = {
-  ip: z.string().describe('Public IPv4 or IPv6 address to look up'),
+  ip: z.string().trim().min(1).describe('Public IPv4 or IPv6 address to look up'),
 };
 
 const ipLookupOutputSchema = {
@@ -50,16 +49,8 @@ export type IpLookupInput = {
 export type IpLookupOutput = IpLookupResult;
 
 function validateIpLookupInput(input: IpLookupInput): IpLookupResult | null {
-  if (!input.ip.trim()) {
-    return ipLookupFailureResult(
-      createError(
-        SendSoonErrorCode.INVALID_INPUT,
-        'ip is required and cannot be empty.',
-      ),
-    );
-  }
-
-  return null;
+  const error = validatePublicIp(input.ip.trim());
+  return error ? ipLookupFailureResult(error) : null;
 }
 
 function formatToolResult(result: IpLookupResult) {
@@ -70,6 +61,7 @@ function formatToolResult(result: IpLookupResult) {
   return {
     content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }],
     structuredContent,
+    isError: !result.success,
   };
 }
 

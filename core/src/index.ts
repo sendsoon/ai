@@ -1,5 +1,6 @@
 export {
   SendSoonClient,
+  type SendSoonClientOptions,
   defaultClient,
   ipLookup,
   markitdownConvert,
@@ -16,6 +17,14 @@ export {
   type SendSoonErrorCode as SendSoonErrorCodeType,
 } from './errors.js';
 export { httpRequest, type HttpRequestOptions, type HttpResponse } from './http.js';
+export {
+  MARKITDOWN_EXTENSIONS,
+  decodedBase64ByteLength,
+  validateBaseUrl,
+  validateMarkitdownRequest,
+  validatePublicIp,
+  validateSendRequest,
+} from './validation.js';
 export {
   ipLookupFailureResult,
   ipLookupSuccessResult,

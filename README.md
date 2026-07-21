@@ -55,8 +55,8 @@ export SENDSOON_API_KEY="YOUR_API_KEY"
 ### 2. 安装与构建
 
 ```bash
-cd core && npm install && npm run build
-cd ../mcp && npm install && npm run build
+pnpm install
+pnpm run build
 ```
 
 
@@ -64,7 +64,7 @@ cd ../mcp && npm install && npm run build
 ### 3. 启动 MCP Server（stdio）
 
 ```bash
-cd mcp && npm start
+pnpm --filter @sendsoon/mcp-server start
 ```
 
 
@@ -72,8 +72,28 @@ cd mcp && npm start
 ### 4. MCP Inspector 调试
 
 ```bash
-npx @modelcontextprotocol/inspector node mcp/dist/index.js
+pnpm dlx @modelcontextprotocol/inspector node mcp/dist/index.js
 ```
+
+### 5. 质量检查
+
+需要 Node.js 20 或更高版本及 pnpm 11：
+
+```bash
+pnpm run lint
+pnpm run test
+pnpm run check
+```
+
+`pnpm run test` 会先构建两个 workspace，再执行 HTTP、客户端校验和 MCP tool 测试。
+
+## 可靠性约定
+
+- GET 请求对 `429/502/503/504` 和临时网络错误进行指数退避重试，并遵守 `Retry-After`。
+- POST 请求默认不自动重试，避免重复执行有副作用的操作。
+- `send_email` 每次调用都会携带 `Idempotency-Key`，供支持该协议的服务端去重。预计可能由调用方重试时，应在第一次调用前显式设置并复用 `idempotency_key`。
+- 30 秒默认超时覆盖请求和响应正文读取的完整生命周期。
+- `SENDSOON_API_BASE_URL` 必须使用 HTTPS；仅 localhost 调试允许 HTTP。
 
 
 

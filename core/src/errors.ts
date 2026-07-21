@@ -1,11 +1,14 @@
 export const SendSoonErrorCode = {
   INVALID_INPUT: 'INVALID_INPUT',
   INVALID_RECIPIENT: 'INVALID_RECIPIENT',
+  INVALID_RESPONSE: 'INVALID_RESPONSE',
+  INVALID_CONFIG: 'INVALID_CONFIG',
   AUTH_ERROR: 'AUTH_ERROR',
   PAYLOAD_TOO_LARGE: 'PAYLOAD_TOO_LARGE',
   RATE_LIMITED: 'RATE_LIMITED',
   SERVER_ERROR: 'SERVER_ERROR',
   NETWORK_ERROR: 'NETWORK_ERROR',
+  TIMEOUT: 'TIMEOUT',
 } as const;
 
 export type SendSoonErrorCode =
@@ -22,6 +25,10 @@ const ERROR_MESSAGES: Record<SendSoonErrorCode, string> = {
     'Invalid input. Check required fields (to, subject, body) and try again.',
   [SendSoonErrorCode.INVALID_RECIPIENT]:
     'Recipient email address is invalid. Provide a valid address such as name@example.com.',
+  [SendSoonErrorCode.INVALID_RESPONSE]:
+    'SendSoon API returned an invalid response. Try again later.',
+  [SendSoonErrorCode.INVALID_CONFIG]:
+    'SendSoon configuration is invalid. Check SENDSOON_API_BASE_URL.',
   [SendSoonErrorCode.AUTH_ERROR]:
     'Authentication failed. Set SENDSOON_API_KEY in your environment and try again.',
   [SendSoonErrorCode.PAYLOAD_TOO_LARGE]:
@@ -32,12 +39,16 @@ const ERROR_MESSAGES: Record<SendSoonErrorCode, string> = {
     'SendSoon service is temporarily unavailable. Try again later.',
   [SendSoonErrorCode.NETWORK_ERROR]:
     'Network error while contacting SendSoon API. Check connectivity and try again.',
+  [SendSoonErrorCode.TIMEOUT]:
+    'SendSoon API request timed out. Try again later.',
 };
 
 const RETRYABLE_CODES = new Set<SendSoonErrorCode>([
   SendSoonErrorCode.RATE_LIMITED,
   SendSoonErrorCode.SERVER_ERROR,
   SendSoonErrorCode.NETWORK_ERROR,
+  SendSoonErrorCode.TIMEOUT,
+  SendSoonErrorCode.INVALID_RESPONSE,
 ]);
 
 export function createError(
@@ -140,6 +151,10 @@ export function mapHttpError(status: number, body: string): SendSoonError {
   );
 }
 
-export function mapNetworkError(): SendSoonError {
+export function mapNetworkError(error?: unknown): SendSoonError {
+  if (error instanceof Error && error.name === 'AbortError') {
+    return createError(SendSoonErrorCode.TIMEOUT);
+  }
+
   return createError(SendSoonErrorCode.NETWORK_ERROR);
 }

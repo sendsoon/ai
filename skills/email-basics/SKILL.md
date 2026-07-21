@@ -29,6 +29,7 @@ Send one email through SendSoon Connect. This skill covers the `send_email` MCP 
 | `body` | Yes | Plain text or HTML content |
 | `content_type` | No | `text/plain` (default) or `text/html` |
 | `from_alias` | No | Optional sender display name (max 128 chars). Omit to use account default. |
+| `idempotency_key` | No | Stable 1–128 character key for server-side deduplication. Set it before the first attempt and reuse it when retrying the same logical email. |
 
 ### Example — plain text
 
@@ -73,6 +74,8 @@ Send one email through SendSoon Connect. This skill covers the `send_email` MCP 
 
 Save `message_id` if the user asks for delivery tracking later.
 
+The tool generates an idempotency key when one is not supplied, but that generated value is not returned. If a caller may retry after an uncertain result, it should supply a key on the first attempt and reuse it. POST requests are not automatically retried by the client. Deduplication also requires API support for `Idempotency-Key`.
+
 ## Error handling
 
 Always inspect `success`. On failure, use `error.code` and `error.retryable`:
@@ -85,6 +88,9 @@ Always inspect `success`. On failure, use `error.code` and `error.retryable`:
 | `PAYLOAD_TOO_LARGE` | Shorten the body |
 | `RATE_LIMITED` | Wait and retry if `retryable` is true |
 | `SERVER_ERROR` / `NETWORK_ERROR` | Retry later if `retryable` is true |
+| `TIMEOUT` | The complete request timed out; retry with the same `idempotency_key` |
+| `INVALID_RESPONSE` | Service response did not match the API contract; retry later with the same `idempotency_key` |
+| `INVALID_CONFIG` | Fix `SENDSOON_API_BASE_URL`; use HTTPS except for localhost |
 
 Do not retry automatically when `retryable` is false.
 

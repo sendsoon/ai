@@ -63,6 +63,8 @@ Always inspect `success`. On failure, use `error.code` and `error.retryable`:
 | `AUTH_ERROR` | Verify `SENDSOON_API_KEY` is configured or hasn't been revoked |
 | `RATE_LIMITED` | Wait and retry if `retryable` is true |
 | `SERVER_ERROR` / `NETWORK_ERROR` | Retry later if `retryable` is true |
+| `TIMEOUT` / `INVALID_RESPONSE` | Retry later if `retryable` is true |
+| `INVALID_CONFIG` | Fix `SENDSOON_API_BASE_URL`; use HTTPS except for localhost |
 
 Do not retry automatically when `retryable` is false.
 

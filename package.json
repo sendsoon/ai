@@ -1,0 +1,25 @@
+{
+  "name": "sendsoon-ai",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.9.0",
+  "workspaces": ["core", "mcp"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "tsc -b --clean",
+    "typecheck": "tsc -b --pretty false",
+    "lint": "eslint core/src mcp/src tests",
+    "test": "pnpm run build && node --test tests/*.test.mjs",
+    "check": "pnpm run lint && pnpm run test"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@types/node": "^22.10.0",
+    "eslint": "^9.0.0",
+    "globals": "^15.0.0",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.0.0"
+  }
+}

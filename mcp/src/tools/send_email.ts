@@ -1,21 +1,17 @@
 import {
-  MAX_BODY_LENGTH,
   MAX_FROM_ALIAS_LENGTH,
   MAX_SUBJECT_LENGTH,
-  SendSoonErrorCode,
-  SendSoonClient,
-  createError,
   failureResult,
+  validateSendRequest,
   type SendResult,
+  type SendSoonClient,
 } from '@sendsoon/core';
 import * as z from 'zod/v4';
 
-const emailSchema = z.string().email();
-
 const sendEmailInputSchema = {
-  to: z.string().describe('Recipient email address'),
-  subject: z.string().describe('Email subject line'),
-  body: z.string().describe('Email body (plain text or HTML)'),
+  to: z.string().trim().describe('Recipient email address'),
+  subject: z.string().max(MAX_SUBJECT_LENGTH).describe('Email subject line'),
+  body: z.string().describe('Email body (plain text or HTML; max 512,000 UTF-8 bytes)'),
   content_type: z
     .enum(['text/plain', 'text/html'])
     .optional()
@@ -25,6 +21,12 @@ const sendEmailInputSchema = {
     .max(MAX_FROM_ALIAS_LENGTH)
     .optional()
     .describe('Optional display name shown to recipients'),
+  idempotency_key: z
+    .string()
+    .max(128)
+    .regex(/^[A-Za-z0-9._:-]+$/)
+    .optional()
+    .describe('Optional stable key that prevents duplicate delivery when callers retry'),
 };
 
 const sendEmailOutputSchema = {
@@ -45,47 +47,14 @@ export type SendEmailInput = {
   body: string;
   content_type?: 'text/plain' | 'text/html';
   from_alias?: string;
+  idempotency_key?: string;
 };
 
 export type SendEmailOutput = SendResult;
 
 function validateSendEmailInput(input: SendEmailInput): SendResult | null {
-  if (!emailSchema.safeParse(input.to).success) {
-    return failureResult(createError(SendSoonErrorCode.INVALID_RECIPIENT));
-  }
-
-  if (!input.subject.trim()) {
-    return failureResult(
-      createError(
-        SendSoonErrorCode.INVALID_INPUT,
-        'Subject is required and cannot be empty.',
-      ),
-    );
-  }
-
-  if (input.subject.length > MAX_SUBJECT_LENGTH) {
-    return failureResult(
-      createError(
-        SendSoonErrorCode.INVALID_INPUT,
-        `Subject must be at most ${MAX_SUBJECT_LENGTH} characters.`,
-      ),
-    );
-  }
-
-  if (!input.body.trim()) {
-    return failureResult(
-      createError(
-        SendSoonErrorCode.INVALID_INPUT,
-        'Body is required and cannot be empty.',
-      ),
-    );
-  }
-
-  if (input.body.length > MAX_BODY_LENGTH) {
-    return failureResult(createError(SendSoonErrorCode.PAYLOAD_TOO_LARGE));
-  }
-
-  return null;
+  const error = validateSendRequest(input);
+  return error ? failureResult(error) : null;
 }
 
 function formatToolResult(result: SendResult) {
@@ -96,6 +65,7 @@ function formatToolResult(result: SendResult) {
   return {
     content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }],
     structuredContent,
+    isError: !result.success,
   };
 }
 
@@ -121,6 +91,7 @@ export const sendEmailToolDefinition = {
         body: input.body,
         content_type: input.content_type ?? 'text/plain',
         from_alias: input.from_alias,
+        idempotency_key: input.idempotency_key,
       });
 
       return formatToolResult(result);

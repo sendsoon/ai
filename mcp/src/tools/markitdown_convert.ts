@@ -1,19 +1,17 @@
 import {
-  MAX_MARKITDOWN_FILE_BYTES,
-  SendSoonClient,
-  SendSoonErrorCode,
-  createError,
+  validateMarkitdownRequest,
   markitdownFailureResult,
   type MarkitdownConvertResult,
+  type SendSoonClient,
 } from '@sendsoon/core';
 import * as z from 'zod/v4';
 
 const markitdownConvertInputSchema = {
   filename: z
-    .string()
+    .string().trim().min(1)
     .describe('File name including extension, e.g. report.pdf'),
   content_base64: z
-    .string()
+    .string().trim().min(1)
     .describe('Base64-encoded file content (max 10 MB decoded)'),
 };
 
@@ -37,38 +35,11 @@ export type MarkitdownConvertInput = {
 
 export type MarkitdownConvertOutput = MarkitdownConvertResult;
 
-function estimateDecodedByteLength(base64: string): number {
-  const trimmed = base64.trim();
-  const padding = trimmed.endsWith('==') ? 2 : trimmed.endsWith('=') ? 1 : 0;
-  return Math.floor((trimmed.length * 3) / 4) - padding;
-}
-
 function validateMarkitdownConvertInput(
   input: MarkitdownConvertInput,
 ): MarkitdownConvertResult | null {
-  if (!input.filename.trim()) {
-    return markitdownFailureResult(
-      createError(
-        SendSoonErrorCode.INVALID_INPUT,
-        'filename is required and cannot be empty.',
-      ),
-    );
-  }
-
-  if (!input.content_base64.trim()) {
-    return markitdownFailureResult(
-      createError(
-        SendSoonErrorCode.INVALID_INPUT,
-        'content_base64 is required and cannot be empty.',
-      ),
-    );
-  }
-
-  if (estimateDecodedByteLength(input.content_base64) > MAX_MARKITDOWN_FILE_BYTES) {
-    return markitdownFailureResult(createError(SendSoonErrorCode.PAYLOAD_TOO_LARGE));
-  }
-
-  return null;
+  const error = validateMarkitdownRequest(input);
+  return error ? markitdownFailureResult(error) : null;
 }
 
 function formatToolResult(result: MarkitdownConvertResult) {
@@ -79,6 +50,7 @@ function formatToolResult(result: MarkitdownConvertResult) {
   return {
     content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }],
     structuredContent,
+    isError: !result.success,
   };
 }
 

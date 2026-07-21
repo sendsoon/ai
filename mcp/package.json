@@ -3,17 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "bin": {
     "sendsoon-mcp": "./dist/index.js"
   },
   "scripts": {
-    "build": "npm run build --prefix ../core && tsc",
+    "build": "tsc -b",
+    "typecheck": "tsc -b --pretty false",
     "start": "node dist/index.js",
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\""
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "@sendsoon/core": "file:../core",
+    "@sendsoon/core": "workspace:*",
     "zod": "^3.25.0"
   },
   "devDependencies": {
