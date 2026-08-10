@@ -43,7 +43,31 @@ macOS / Linux：
 realpath ./mcp/dist/index.js
 ```
 
-复制输出结果，稍后用它替换配置中的 `<MCP_ENTRY_PATH>`。
+复制输出结果，稍后用它替换配置中的 `<MCP_ENTRY_PATH>`。这里需要填写的是 `index.js` 文件的完整路径，不是 `ai` 文件夹的路径，也不要原样保留 `<MCP_ENTRY_PATH>`。
+
+例如，上一步输出：
+
+```text
+C:/Users/your-name/ai/mcp/dist/index.js
+```
+
+那么配置中的：
+
+```json
+"args": ["<MCP_ENTRY_PATH>"]
+```
+
+应该改成：
+
+```json
+"args": ["C:/Users/your-name/ai/mcp/dist/index.js"]
+```
+
+macOS / Linux 同理，例如：
+
+```json
+"args": ["/Users/your-name/ai/mcp/dist/index.js"]
+```
 
 ## 第二步：准备配置
 
@@ -53,9 +77,18 @@ realpath ./mcp/dist/index.js
 | --- | --- |
 | `SENDSOON_API_BASE_URL` | 保持 `https://www.sendsoonai.com` |
 | `SENDSOON_EMAIL_RECIPIENT` | 将 `<YOUR_EMAIL>` 替换为你的收件邮箱 |
-| `SENDSOON_API_KEY` | 体验时保持空字符串；生产应用建议填写你的 Key |
+| `SENDSOON_API_KEY` | 未注册体验时可留空；同一公网 IP 每天最多免费发送 3 封测试邮件。继续使用时请填写注册后生成的 Key |
 
 请勿将真实 Key 提交到 Git 或分享给其他人。
+
+### 获取 API Key
+
+1. 在 [SendSoon 注册页](https://www.sendsoonai.com/login-register) 注册并登录。
+2. 打开 [个人设置](https://www.sendsoonai.com/profile)，在 API Key 区域生成一个 Key。
+3. 立即复制仅展示一次的 `ssk_live_...` Key，并将它填入 MCP 配置的 `SENDSOON_API_KEY`。
+4. 保存配置并重启 MCP 客户端。带有效 Key 的请求不会消耗匿名 IP 的每日 3 次额度。
+
+如果匿名额度已经用完，`send_email` 会返回注册与配置 Key 的提示；配置无效或已撤销的 Key 会被拒绝，不会自动退回匿名额度。
 
 ## 第三步：选择你的客户端
 
