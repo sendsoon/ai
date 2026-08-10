@@ -57,6 +57,47 @@ test('sendEmail accepts the public endpoint response without a message ID', asyn
   assert.equal(JSON.parse(requestOptions.body).htmlContent, '<strong>World</strong>');
 });
 
+test('sendEmail exposes the registration instruction after anonymous quota is exhausted', async () => {
+  const message = '同一 IP 每日最多免费发送 3 封测试邮件。请注册并配置 SENDSOON_API_KEY。';
+  const client = new SendSoonClient({
+    emailRecipient: 'person@example.com',
+    request: async () => response(403, JSON.stringify({ detail: message })),
+  });
+
+  const result = await client.sendEmail({
+    to: 'person@example.com',
+    subject: 'Hello',
+    body: 'World',
+  });
+
+  assert.equal(result.success, false);
+  assert.equal(result.error.code, SendSoonErrorCode.AUTH_ERROR);
+  assert.equal(result.error.message, message);
+  assert.equal(result.error.retryable, false);
+});
+
+test('sendEmail forwards a generated SendSoon API Key in MCP configuration', async () => {
+  const generatedKey = `ssk_live_${'generated-test-value'.repeat(2)}`;
+  let requestOptions;
+  const client = new SendSoonClient({
+    apiKey: generatedKey,
+    emailRecipient: 'person@example.com',
+    request: async (options) => {
+      requestOptions = options;
+      return response(200, '{"success":true,"authenticated":true}');
+    },
+  });
+
+  const result = await client.sendEmail({
+    to: 'person@example.com',
+    subject: 'Authenticated test',
+    body: 'World',
+  });
+
+  assert.equal(result.success, true);
+  assert.equal(requestOptions.headers.Authorization, `Bearer ${generatedKey}`);
+});
+
 test('sendEmail requires a configured matching recipient allowlist', async () => {
   const missing = new SendSoonClient({
     request: async () => assert.fail('request must not be called'),
