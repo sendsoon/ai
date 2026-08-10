@@ -16,7 +16,7 @@ Send one email through SendSoon Connect. This skill covers the `send_email` MCP 
 ## Prerequisites
 
 - MCP server `sendsoon-connect` running with `send_email` registered
-- Environment variable `SENDSOON_API_KEY` set (never commit real keys)
+- Environment variable `SENDSOON_EMAIL_RECIPIENT` set to the one address allowed for test sends
 
 ## Tool: `send_email`
 
@@ -28,7 +28,6 @@ Send one email through SendSoon Connect. This skill covers the `send_email` MCP 
 | `subject` | Yes | Email subject |
 | `body` | Yes | Plain text or HTML content |
 | `content_type` | No | `text/plain` (default) or `text/html` |
-| `from_alias` | No | Optional sender display name (max 128 chars). Omit to use account default. |
 | `idempotency_key` | No | Stable 1–128 character key for server-side deduplication. Set it before the first attempt and reuse it when retrying the same logical email. |
 
 ### Example — plain text
@@ -52,27 +51,16 @@ Send one email through SendSoon Connect. This skill covers the `send_email` MCP 
 }
 ```
 
-### Example — custom sender display name
-
-```json
-{
-  "to": "influencer@example.com",
-  "subject": "Outreach",
-  "body": "Quick intro from our team.",
-  "from_alias": "SendSoon Outreach"
-}
-```
-
 ## Success response
 
 ```json
 {
   "success": true,
-  "message_id": "msg_abc123"
+  "remaining": 2
 }
 ```
 
-Save `message_id` if the user asks for delivery tracking later.
+The public test endpoint normally returns the remaining daily allowance rather than a delivery-tracking ID.
 
 The tool generates an idempotency key when one is not supplied, but that generated value is not returned. If a caller may retry after an uncertain result, it should supply a key on the first attempt and reuse it. POST requests are not automatically retried by the client. Deduplication also requires API support for `Idempotency-Key`.
 
@@ -84,13 +72,13 @@ Always inspect `success`. On failure, use `error.code` and `error.retryable`:
 |--------------|--------|
 | `INVALID_RECIPIENT` | Fix the email address format |
 | `INVALID_INPUT` | Check subject/body are non-empty |
-| `AUTH_ERROR` | Verify `SENDSOON_API_KEY` is configured |
+| `AUTH_ERROR` | The configured upstream deployment rejected authentication |
 | `PAYLOAD_TOO_LARGE` | Shorten the body |
 | `RATE_LIMITED` | Wait and retry if `retryable` is true |
 | `SERVER_ERROR` / `NETWORK_ERROR` | Retry later if `retryable` is true |
 | `TIMEOUT` | The complete request timed out; retry with the same `idempotency_key` |
 | `INVALID_RESPONSE` | Service response did not match the API contract; retry later with the same `idempotency_key` |
-| `INVALID_CONFIG` | Fix `SENDSOON_API_BASE_URL`; use HTTPS except for localhost |
+| `INVALID_CONFIG` | Set `SENDSOON_EMAIL_RECIPIENT`, and ensure `SENDSOON_API_BASE_URL` uses HTTPS except for localhost |
 
 Do not retry automatically when `retryable` is false.
 
@@ -101,5 +89,5 @@ Do not retry automatically when `retryable` is false.
 
 ## Out of scope
 
-- Batch sending → use `batch_send` (future skill)
-- Template rendering or queue scheduling → handled by SendSoon private API, not this repo
+- Arbitrary-recipient or batch sending → requires a production SendSoon API, not the public test endpoint
+- Template rendering or queue scheduling → not exposed by this repository

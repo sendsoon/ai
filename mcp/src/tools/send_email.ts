@@ -1,5 +1,4 @@
 import {
-  MAX_FROM_ALIAS_LENGTH,
   MAX_SUBJECT_LENGTH,
   failureResult,
   validateSendRequest,
@@ -16,11 +15,6 @@ const sendEmailInputSchema = {
     .enum(['text/plain', 'text/html'])
     .optional()
     .describe('MIME content type for body (default: text/plain)'),
-  from_alias: z
-    .string()
-    .max(MAX_FROM_ALIAS_LENGTH)
-    .optional()
-    .describe('Optional display name shown to recipients'),
   idempotency_key: z
     .string()
     .max(128)
@@ -32,6 +26,7 @@ const sendEmailInputSchema = {
 const sendEmailOutputSchema = {
   success: z.boolean(),
   message_id: z.string().optional(),
+  remaining: z.number().int().nonnegative().optional(),
   error: z
     .object({
       code: z.string(),
@@ -46,7 +41,6 @@ export type SendEmailInput = {
   subject: string;
   body: string;
   content_type?: 'text/plain' | 'text/html';
-  from_alias?: string;
   idempotency_key?: string;
 };
 
@@ -74,7 +68,7 @@ export const sendEmailToolDefinition = {
   config: {
     title: '发送邮件',
     description:
-      'Send a single email via SendSoon API. Use for outreach, follow-ups, or test sends. Set content_type to text/html for HTML body. Optionally set from_alias for a custom sender display name.',
+      'Send one test email through the public SendSoon service. The recipient must match SENDSOON_EMAIL_RECIPIENT, and the service currently allows up to 3 free test sends per day. Set content_type to text/html for HTML body.',
     inputSchema: sendEmailInputSchema,
     outputSchema: sendEmailOutputSchema,
   },
@@ -90,7 +84,6 @@ export const sendEmailToolDefinition = {
         subject: input.subject,
         body: input.body,
         content_type: input.content_type ?? 'text/plain',
-        from_alias: input.from_alias,
         idempotency_key: input.idempotency_key,
       });
 

@@ -39,9 +39,11 @@ import {
 } from './validation.js';
 
 interface ApiSendEmailResponse {
+  success?: boolean;
   message_id?: string;
   id?: string;
   status?: string;
+  remaining?: number;
 }
 
 interface ApiIpLookupResponse {
@@ -59,6 +61,7 @@ interface ApiMarkitdownConvertResponse {
 export interface SendSoonClientOptions {
   apiKey?: string;
   baseUrl?: string;
+  emailRecipient?: string;
   request?: (options: HttpRequestOptions) => Promise<HttpResponse>;
 }
 
@@ -78,9 +81,13 @@ function parseSendEmailResponse(body: string): ApiSendEmailResponse | null {
   const value = parseJson(body);
   if (!isRecord(value)) return null;
   const messageId = value.message_id ?? value.id;
-  return typeof messageId === 'string' && messageId.trim()
-    ? { message_id: messageId }
-    : null;
+  const validMessageId = typeof messageId === 'string' && messageId.trim();
+  const validSuccess = value.success === true;
+  if (!validMessageId && !validSuccess) return null;
+  return {
+    ...(validMessageId ? { message_id: messageId } : {}),
+    ...(typeof value.remaining === 'number' ? { remaining: value.remaining } : {}),
+  };
 }
 
 function isStringRecord(value: unknown, keys: string[]): value is Record<string, string> {
@@ -112,6 +119,33 @@ function parseMarkitdownResponse(body: string): ApiMarkitdownConvertResponse | n
     : null;
 }
 
+function optionalAuthorizationHeader(apiKey: string | undefined): Record<string, string> {
+  return apiKey ? { Authorization: `Bearer ${apiKey}` } : {};
+}
+
+function plainTextToHtml(value: string): string {
+  const escaped = value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+  return `<pre style="white-space:pre-wrap;font-family:inherit">${escaped}</pre>`;
+}
+
+function responseFilename(headers: Headers, fallback: string): string {
+  const disposition = headers.get('content-disposition') ?? '';
+  const encoded = disposition.match(/filename\*=UTF-8''([^;\s]+)/i)?.[1];
+  if (encoded) {
+    try {
+      return decodeURIComponent(encoded);
+    } catch {
+      // Fall through to the basic filename parser.
+    }
+  }
+  return disposition.match(/filename="?([^";]+)"?/i)?.[1] ?? fallback;
+}
+
 function invalidResponseError() {
   return createError(SendSoonErrorCode.INVALID_RESPONSE);
 }
@@ -130,6 +164,8 @@ export class SendSoonClient {
     return {
       apiKey: this.options.apiKey?.trim() || environment.apiKey,
       baseUrl: this.options.baseUrl?.trim() || environment.baseUrl,
+      emailRecipient:
+        this.options.emailRecipient?.trim() || environment.emailRecipient,
     };
   }
 
@@ -139,26 +175,31 @@ export class SendSoonClient {
 
     const config = this.config();
 
-    if (!config.apiKey) {
-      return Promise.resolve(
-        failureResult(createError(SendSoonErrorCode.AUTH_ERROR)),
-      );
-    }
     const configError = validateBaseUrl(config.baseUrl);
     if (configError) return Promise.resolve(failureResult(configError));
-
-    const payload: Record<string, string> = {
-      to: request.to,
-      subject: request.subject,
-      body: request.body,
-      content_type: request.content_type ?? 'text/plain',
-    };
-
-    if (request.from_alias !== undefined) {
-      payload.from_alias = request.from_alias;
+    if (!config.emailRecipient) {
+      return Promise.resolve(failureResult(createError(
+        SendSoonErrorCode.INVALID_CONFIG,
+        'Set SENDSOON_EMAIL_RECIPIENT to the only address allowed for test sends.',
+      )));
+    }
+    if (request.to.trim().toLowerCase() !== config.emailRecipient.toLowerCase()) {
+      return Promise.resolve(failureResult(createError(
+        SendSoonErrorCode.INVALID_RECIPIENT,
+        'Recipient must match SENDSOON_EMAIL_RECIPIENT.',
+      )));
     }
 
-    const url = `${config.baseUrl.replace(/\/$/, '')}/v1/emails/send`;
+    const payload = {
+      to: request.to,
+      subject: request.subject,
+      htmlContent:
+        request.content_type === 'text/html'
+          ? request.body
+          : plainTextToHtml(request.body),
+    };
+
+    const url = `${config.baseUrl.replace(/\/$/, '')}/api/send-test-email`;
 
     return this.request({
       method: 'POST',
@@ -166,7 +207,7 @@ export class SendSoonClient {
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
-        Authorization: `Bearer ${config.apiKey}`,
+        ...optionalAuthorizationHeader(config.apiKey),
         'Idempotency-Key': request.idempotency_key?.trim() || randomUUID(),
       },
       body: JSON.stringify(payload),
@@ -178,7 +219,7 @@ export class SendSoonClient {
 
         const data = parseSendEmailResponse(response.body);
         return data
-          ? successResult(data.message_id as string)
+          ? successResult(data.message_id, data.remaining)
           : failureResult(invalidResponseError());
       })
       .catch((error: unknown) => failureResult(mapNetworkError(error)));
@@ -191,22 +232,17 @@ export class SendSoonClient {
 
     const config = this.config();
 
-    if (!config.apiKey) {
-      return Promise.resolve(
-        ipLookupFailureResult(createError(SendSoonErrorCode.AUTH_ERROR)),
-      );
-    }
     const configError = validateBaseUrl(config.baseUrl);
     if (configError) return Promise.resolve(ipLookupFailureResult(configError));
 
-    const url = `${config.baseUrl.replace(/\/$/, '')}/v1/ip/lookup?ip=${encodeURIComponent(ip)}`;
+    const url = `${config.baseUrl.replace(/\/$/, '')}/api/ip/lookup?ip=${encodeURIComponent(ip)}`;
 
     return this.request({
       method: 'GET',
       url,
       headers: {
         Accept: 'application/json',
-        Authorization: `Bearer ${config.apiKey}`,
+        ...optionalAuthorizationHeader(config.apiKey),
       },
     })
       .then((response) => {
@@ -235,28 +271,25 @@ export class SendSoonClient {
 
     const config = this.config();
 
-    if (!config.apiKey) {
-      return Promise.resolve(
-        markitdownFailureResult(createError(SendSoonErrorCode.AUTH_ERROR)),
-      );
-    }
     const configError = validateBaseUrl(config.baseUrl);
     if (configError) return Promise.resolve(markitdownFailureResult(configError));
 
-    const url = `${config.baseUrl.replace(/\/$/, '')}/v1/markitdown/convert`;
+    const url = `${config.baseUrl.replace(/\/$/, '')}/api/markitdown/convert`;
+    const form = new FormData();
+    form.append(
+      'file',
+      new Blob([Buffer.from(request.content_base64, 'base64')]),
+      request.filename,
+    );
 
     return this.request({
       method: 'POST',
       url,
       headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        Authorization: `Bearer ${config.apiKey}`,
+        Accept: 'text/markdown, application/json',
+        ...optionalAuthorizationHeader(config.apiKey),
       },
-      body: JSON.stringify({
-        filename: request.filename,
-        contentBase64: request.content_base64,
-      }),
+      body: form,
     })
       .then((response) => {
         if (!response.ok) {
@@ -264,9 +297,17 @@ export class SendSoonClient {
         }
 
         const data = parseMarkitdownResponse(response.body);
-        if (!data) return markitdownFailureResult(invalidResponseError());
+        if (data) return markitdownSuccessResult(data.filename, data.markdown);
 
-        return markitdownSuccessResult(data.filename, data.markdown);
+        if (!response.body.trim()) {
+          return markitdownFailureResult(invalidResponseError());
+        }
+
+        const fallback = `${request.filename.replace(/\.[^.]+$/, '')}.md`;
+        return markitdownSuccessResult(
+          responseFilename(response.headers, fallback),
+          response.body,
+        );
       })
       .catch((error: unknown) => markitdownFailureResult(mapNetworkError(error)));
   }

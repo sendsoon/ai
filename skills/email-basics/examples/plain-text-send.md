@@ -3,7 +3,7 @@
 ## Setup
 
 ```bash
-export SENDSOON_API_KEY="YOUR_API_KEY"
+export SENDSOON_EMAIL_RECIPIENT="influencer@example.com"
 ```
 
 ## MCP tool call
@@ -23,6 +23,6 @@ Tool: `send_email`
 ```json
 {
   "success": true,
-  "message_id": "msg_..."
+  "remaining": 2
 }
 ```

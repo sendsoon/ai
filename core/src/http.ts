@@ -2,7 +2,7 @@ export interface HttpRequestOptions {
   method: string;
   url: string;
   headers?: Record<string, string>;
-  body?: string;
+  body?: BodyInit;
   /** Timeout for the complete response, including reading the body. */
   timeoutMs?: number;
   /** Number of retries after the initial attempt. */

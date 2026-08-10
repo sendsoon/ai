@@ -30,7 +30,7 @@ const ERROR_MESSAGES: Record<SendSoonErrorCode, string> = {
   [SendSoonErrorCode.INVALID_CONFIG]:
     'SendSoon configuration is invalid. Check SENDSOON_API_BASE_URL.',
   [SendSoonErrorCode.AUTH_ERROR]:
-    'Authentication failed. Set SENDSOON_API_KEY in your environment and try again.',
+    'Authentication failed. Check the credentials required by the configured SendSoon deployment.',
   [SendSoonErrorCode.PAYLOAD_TOO_LARGE]:
     'Email body is too large. Reduce the content size and try again.',
   [SendSoonErrorCode.RATE_LIMITED]:

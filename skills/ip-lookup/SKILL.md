@@ -15,7 +15,7 @@ Look up country/region/city/ISP info for a public IP address through the `ip_loo
 ## Prerequisites
 
 - MCP server `sendsoon-connect` running with `ip_lookup` registered
-- Environment variable `SENDSOON_API_KEY` set (never commit real keys)
+- No API key or registration is required by the current public endpoint
 
 ## Tool: `ip_lookup`
 
@@ -65,7 +65,7 @@ Always inspect `success`. On failure, use `error.code` and `error.retryable`:
 | `error.code` | Action |
 |--------------|--------|
 | `INVALID_INPUT` | `ip` is empty — provide a valid IP |
-| `AUTH_ERROR` | Verify `SENDSOON_API_KEY` is configured or hasn't been revoked |
+| `AUTH_ERROR` | The configured upstream deployment rejected authentication |
 | `RATE_LIMITED` | Wait and retry if `retryable` is true |
 | `SERVER_ERROR` / `NETWORK_ERROR` | Retry later if `retryable` is true |
 | `TIMEOUT` / `INVALID_RESPONSE` | Retry later if `retryable` is true |

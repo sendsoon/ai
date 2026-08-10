@@ -15,7 +15,7 @@ Convert a file to Markdown text through the `markitdown_convert` MCP tool. This 
 ## Prerequisites
 
 - MCP server `sendsoon-connect` running with `markitdown_convert` registered
-- Environment variable `SENDSOON_API_KEY` set (never commit real keys)
+- No API key or registration is required by the current public endpoint
 - The file's raw bytes, base64-encoded, available to pass as `content_base64` — decoded size must not exceed 10 MB
 
 ## Tool: `markitdown_convert`
@@ -60,7 +60,7 @@ Always inspect `success`. On failure, use `error.code` and `error.retryable`:
 |--------------|--------|
 | `INVALID_INPUT` | `filename` unsupported extension, empty input, invalid base64, or empty conversion result (corrupted/unsupported file content) |
 | `PAYLOAD_TOO_LARGE` | Decoded file exceeds 10 MB — shrink or split the file before converting |
-| `AUTH_ERROR` | Verify `SENDSOON_API_KEY` is configured or hasn't been revoked |
+| `AUTH_ERROR` | The configured upstream deployment rejected authentication |
 | `RATE_LIMITED` | Wait and retry if `retryable` is true |
 | `SERVER_ERROR` / `NETWORK_ERROR` | Retry later if `retryable` is true |
 | `TIMEOUT` / `INVALID_RESPONSE` | Retry later if `retryable` is true |

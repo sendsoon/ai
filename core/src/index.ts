@@ -46,7 +46,6 @@ export {
 } from './types/markitdown.js';
 export {
   MAX_BODY_LENGTH,
-  MAX_FROM_ALIAS_LENGTH,
   MAX_SUBJECT_LENGTH,
   type ContentType,
   type SendRequest,

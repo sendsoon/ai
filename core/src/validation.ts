@@ -6,7 +6,6 @@ import {
 } from './types/markitdown.js';
 import {
   MAX_BODY_LENGTH,
-  MAX_FROM_ALIAS_LENGTH,
   MAX_SUBJECT_LENGTH,
   type SendRequest,
 } from './types/send-request.js';
@@ -146,9 +145,6 @@ export function validateSendRequest(request: SendRequest): SendSoonError | null 
   }
   if (Buffer.byteLength(request.body, 'utf8') > MAX_BODY_LENGTH) {
     return createError(SendSoonErrorCode.PAYLOAD_TOO_LARGE);
-  }
-  if (request.from_alias && request.from_alias.length > MAX_FROM_ALIAS_LENGTH) {
-    return createError(SendSoonErrorCode.INVALID_INPUT, `from_alias must be at most ${MAX_FROM_ALIAS_LENGTH} characters.`);
   }
   if (request.idempotency_key !== undefined) {
     const key = request.idempotency_key.trim();

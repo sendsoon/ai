@@ -12,6 +12,7 @@
     "typecheck": "tsc -b --pretty false",
     "lint": "eslint core/src mcp/src tests",
     "test": "pnpm run build && node --test tests/*.test.mjs",
+    "test:live": "pnpm run build && node tests/live-smoke.mjs",
     "check": "pnpm run lint && pnpm run test"
   },
   "devDependencies": {

@@ -2,7 +2,10 @@ import type { SendSoonError } from '../errors.js';
 
 export interface SendResultSuccess {
   success: true;
-  message_id: string;
+  /** Present when the upstream provider returns a delivery identifier. */
+  message_id?: string;
+  /** Remaining free test sends reported by the public SendSoon endpoint. */
+  remaining?: number;
 }
 
 export interface SendResultFailure {
@@ -12,8 +15,15 @@ export interface SendResultFailure {
 
 export type SendResult = SendResultSuccess | SendResultFailure;
 
-export function successResult(messageId: string): SendResultSuccess {
-  return { success: true, message_id: messageId };
+export function successResult(
+  messageId?: string,
+  remaining?: number,
+): SendResultSuccess {
+  return {
+    success: true,
+    ...(messageId ? { message_id: messageId } : {}),
+    ...(remaining !== undefined ? { remaining } : {}),
+  };
 }
 
 export function failureResult(error: SendSoonError): SendResultFailure {

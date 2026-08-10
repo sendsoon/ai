@@ -1,9 +1,9 @@
-# Example: HTML send with sender alias
+# Example: HTML test send
 
 ## Setup
 
 ```bash
-export SENDSOON_API_KEY="YOUR_API_KEY"
+export SENDSOON_EMAIL_RECIPIENT="influencer@example.com"
 ```
 
 ## MCP tool call
@@ -15,21 +15,20 @@ Tool: `send_email`
   "to": "influencer@example.com",
   "subject": "Partnership intro",
   "body": "<p>Hello,</p><p>We would like to collaborate.</p>",
-  "content_type": "text/html",
-  "from_alias": "SendSoon Outreach"
+  "content_type": "text/html"
 }
 ```
 
 ## Notes
 
 - `content_type` must be `text/html` when the body contains HTML tags
-- Omit `from_alias` to use the default sender name from your SendSoon account
+- `to` must match `SENDSOON_EMAIL_RECIPIENT`
 
 ## Expected result
 
 ```json
 {
   "success": true,
-  "message_id": "msg_..."
+  "remaining": 2
 }
 ```
