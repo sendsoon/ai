@@ -218,6 +218,7 @@ Agent 调用 `ip_lookup` 并返回查询结果，说明 MCP 已经连接成功�
 
 ## 官方参考
 
+- [SendSoon 官网](https://www.sendsoonai.com/)
 - [OpenAI Codex：Model Context Protocol](https://developers.openai.com/codex/mcp)
 - [Anthropic：Claude Code MCP](https://docs.anthropic.com/en/docs/claude-code/mcp)
 - [Cursor：Model Context Protocol](https://docs.cursor.com/context/model-context-protocol)
