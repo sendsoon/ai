@@ -2,7 +2,7 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md)
 
-Use [SendSoon](https://www.sendsoonai.com/) email, IP lookup, and file-to-Markdown capabilities from Codex, Claude, Cursor, and other AI agents.
+Use [SendSoon](https://sendsoonai.com/) email, IP lookup, and file-to-Markdown capabilities from Codex, Claude, Cursor, and other AI agents.
 
 Configure it once, then describe tasks in natural language. You usually do not need to mention SendSoon in every prompt.
 
@@ -77,7 +77,7 @@ All clients use the same three environment variables:
 
 | Setting | What to enter |
 | --- | --- |
-| `SENDSOON_API_BASE_URL` | Keep `https://www.sendsoonai.com` |
+| `SENDSOON_API_BASE_URL` | Keep `https://sendsoonai.com` |
 | `SENDSOON_EMAIL_RECIPIENT` | Replace `<YOUR_EMAIL>` with your recipient address |
 | `SENDSOON_API_KEY` | Leave empty for an unregistered trial. One public IP can send up to three free test emails per day. Enter your generated Key for continued use |
 
@@ -85,8 +85,8 @@ Never commit a real Key to Git or share it with anyone.
 
 ### Get an API Key
 
-1. Sign up or sign in on the [SendSoon registration page](https://www.sendsoonai.com/login-register).
-2. Open [Profile](https://www.sendsoonai.com/profile) and generate a Key in the API Key section.
+1. Sign up or sign in on the [SendSoon registration page](https://sendsoonai.com/login-register).
+2. Open [Profile](https://sendsoonai.com/profile) and generate a Key in the API Key section.
 3. Copy the one-time `ssk_live_...` Key immediately and enter it as `SENDSOON_API_KEY` in your MCP configuration.
 4. Save the configuration and restart your MCP client. Requests with a valid Key do not use the anonymous IP daily quota.
 
@@ -105,7 +105,7 @@ Open `Settings > Tools & MCP` in Cursor and add an MCP server. You can also save
       "command": "node",
       "args": ["<MCP_ENTRY_PATH>"],
       "env": {
-        "SENDSOON_API_BASE_URL": "https://www.sendsoonai.com",
+        "SENDSOON_API_BASE_URL": "https://sendsoonai.com",
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
       }
@@ -126,7 +126,7 @@ command = "node"
 args = ["<MCP_ENTRY_PATH>"]
 
 [mcp_servers.sendsoon.env]
-SENDSOON_API_BASE_URL = "https://www.sendsoonai.com"
+SENDSOON_API_BASE_URL = "https://sendsoonai.com"
 SENDSOON_EMAIL_RECIPIENT = "<YOUR_EMAIL>"
 SENDSOON_API_KEY = ""
 ```
@@ -138,7 +138,7 @@ Save the file and reopen Codex. Use `/mcp` to confirm that `sendsoon` is connect
 Replace the two placeholders and run:
 
 ```powershell
-claude mcp add --transport stdio --scope user --env SENDSOON_API_BASE_URL=https://www.sendsoonai.com --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- node "<MCP_ENTRY_PATH>"
+claude mcp add --transport stdio --scope user --env SENDSOON_API_BASE_URL=https://sendsoonai.com --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- node "<MCP_ENTRY_PATH>"
 ```
 
 Run `/mcp` in Claude Code and confirm that `sendsoon` is connected. To use an API Key, add `--env SENDSOON_API_KEY=<SENDSOON_API_KEY>` before the `sendsoon` server name.
@@ -154,7 +154,7 @@ Open the configuration file from `Settings > Developer` and add:
       "command": "node",
       "args": ["<MCP_ENTRY_PATH>"],
       "env": {
-        "SENDSOON_API_BASE_URL": "https://www.sendsoonai.com",
+        "SENDSOON_API_BASE_URL": "https://sendsoonai.com",
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
       }
@@ -218,7 +218,7 @@ You usually need this explicit instruction only on the first use.
 
 ## Official references
 
-- [SendSoon Official Website](https://www.sendsoonai.com/)
+- [SendSoon Official Website](https://sendsoonai.com/)
 - [OpenAI Codex: Model Context Protocol](https://developers.openai.com/codex/mcp)
 - [Anthropic: Claude Code MCP](https://docs.anthropic.com/en/docs/claude-code/mcp)
 - [Cursor: Model Context Protocol](https://docs.cursor.com/context/model-context-protocol)

@@ -2,7 +2,7 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md)
 
-让 Codex、Claude、Cursor 等 AI Agent 使用 [SendSoon](https://www.sendsoonai.com/) 的邮件发送、IP 查询和文件转 Markdown 能力。
+让 Codex、Claude、Cursor 等 AI Agent 使用 [SendSoon](https://sendsoonai.com/) 的邮件发送、IP 查询和文件转 Markdown 能力。
 
 配置一次后，直接用自然语言描述任务即可，通常不需要每次强调“使用 SendSoon”。
 
@@ -77,7 +77,7 @@ macOS / Linux 同理，例如：
 
 | 配置项 | 如何填写 |
 | --- | --- |
-| `SENDSOON_API_BASE_URL` | 保持 `https://www.sendsoonai.com` |
+| `SENDSOON_API_BASE_URL` | 保持 `https://sendsoonai.com` |
 | `SENDSOON_EMAIL_RECIPIENT` | 将 `<YOUR_EMAIL>` 替换为你的收件邮箱 |
 | `SENDSOON_API_KEY` | 未注册体验时可留空；同一公网 IP 每天最多免费发送 3 封测试邮件。继续使用时请填写注册后生成的 Key |
 
@@ -85,8 +85,8 @@ macOS / Linux 同理，例如：
 
 ### 获取 API Key
 
-1. 在 [SendSoon 注册页](https://www.sendsoonai.com/login-register) 注册并登录。
-2. 打开 [个人设置](https://www.sendsoonai.com/profile)，在 API Key 区域生成一个 Key。
+1. 在 [SendSoon 注册页](https://sendsoonai.com/login-register) 注册并登录。
+2. 打开 [个人设置](https://sendsoonai.com/profile)，在 API Key 区域生成一个 Key。
 3. 立即复制仅展示一次的 `ssk_live_...` Key，并将它填入 MCP 配置的 `SENDSOON_API_KEY`。
 4. 保存配置并重启 MCP 客户端。带有效 Key 的请求不会消耗匿名 IP 的每日 3 次额度。
 
@@ -105,7 +105,7 @@ macOS / Linux 同理，例如：
       "command": "node",
       "args": ["<MCP_ENTRY_PATH>"],
       "env": {
-        "SENDSOON_API_BASE_URL": "https://www.sendsoonai.com",
+        "SENDSOON_API_BASE_URL": "https://sendsoonai.com",
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
       }
@@ -126,7 +126,7 @@ command = "node"
 args = ["<MCP_ENTRY_PATH>"]
 
 [mcp_servers.sendsoon.env]
-SENDSOON_API_BASE_URL = "https://www.sendsoonai.com"
+SENDSOON_API_BASE_URL = "https://sendsoonai.com"
 SENDSOON_EMAIL_RECIPIENT = "<YOUR_EMAIL>"
 SENDSOON_API_KEY = ""
 ```
@@ -138,7 +138,7 @@ SENDSOON_API_KEY = ""
 将下面命令中的两个占位符替换后运行：
 
 ```powershell
-claude mcp add --transport stdio --scope user --env SENDSOON_API_BASE_URL=https://www.sendsoonai.com --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- node "<MCP_ENTRY_PATH>"
+claude mcp add --transport stdio --scope user --env SENDSOON_API_BASE_URL=https://sendsoonai.com --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- node "<MCP_ENTRY_PATH>"
 ```
 
 进入 Claude Code 后运行 `/mcp`，确认 `sendsoon` 已连接。需要使用 Key 时，在命令的 `sendsoon` 之前增加 `--env SENDSOON_API_KEY=<SENDSOON_API_KEY>`。
@@ -154,7 +154,7 @@ claude mcp add --transport stdio --scope user --env SENDSOON_API_BASE_URL=https:
       "command": "node",
       "args": ["<MCP_ENTRY_PATH>"],
       "env": {
-        "SENDSOON_API_BASE_URL": "https://www.sendsoonai.com",
+        "SENDSOON_API_BASE_URL": "https://sendsoonai.com",
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
       }
@@ -218,7 +218,7 @@ Agent 调用 `ip_lookup` 并返回查询结果，说明 MCP 已经连接成功�
 
 ## 官方参考
 
-- [SendSoon 官网](https://www.sendsoonai.com/)
+- [SendSoon 官网](https://sendsoonai.com/)
 - [OpenAI Codex：Model Context Protocol](https://developers.openai.com/codex/mcp)
 - [Anthropic：Claude Code MCP](https://docs.anthropic.com/en/docs/claude-code/mcp)
 - [Cursor：Model Context Protocol](https://docs.cursor.com/context/model-context-protocol)
