@@ -14,6 +14,14 @@ Configure it once, then describe tasks in natural language. You usually do not n
 | `ip_lookup` | Look up public IP information | “Look up the location of 8.8.8.8” |
 | `markitdown_convert` | Convert a file to Markdown | “Convert this PDF to Markdown” |
 
+## Try it in Google Colab
+
+Skip local setup and try `ip_lookup`, `markitdown_convert`, and `send_email` in the browser.
+
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sendsoon/ai/blob/main/docs/SendSoon.ipynb)
+
+The notebook calls the same SendSoon HTTP APIs used by these MCP tools. To use them from Cursor, Claude, or Codex, continue with the local MCP setup below.
+
 ## Step 1: Install
 
 Requirements:

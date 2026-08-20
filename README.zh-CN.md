@@ -14,6 +14,14 @@
 | `ip_lookup` | 查询公网 IP 信息 | “查询 8.8.8.8 的归属地” |
 | `markitdown_convert` | 将文件转换成 Markdown | “把这份 PDF 转成 Markdown” |
 
+## 在 Google Colab 中试用
+
+免去本地环境配置，点击即可在浏览器中试用 `ip_lookup`、`markitdown_convert` 和 `send_email`。
+
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sendsoon/ai/blob/main/docs/SendSoon.ipynb)
+
+该 Notebook 调用的是 MCP 工具背后同一套 SendSoon HTTP API。若要在 Cursor、Claude 或 Codex 中使用，请继续完成下面的本地 MCP 配置。
+
 ## 第一步：安装
 
 需要准备：

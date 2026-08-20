@@ -14,6 +14,14 @@ Codex、Claude、Cursor などの AI エージェントから、[SendSoon](https
 | `ip_lookup` | パブリック IP 情報を検索 | 「8.8.8.8 の所在地を調べて」 |
 | `markitdown_convert` | ファイルを Markdown に変換 | 「この PDF を Markdown に変換して」 |
 
+## Google Colab で試す
+
+ローカル環境のセットアップなしで、ブラウザから `ip_lookup`、`markitdown_convert`、`send_email` を試せます。
+
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sendsoon/ai/blob/main/docs/SendSoon.ipynb)
+
+このノートブックは、MCP ツールと同じ SendSoon HTTP API を呼び出します。Cursor、Claude、Codex から使う場合は、この後のローカル MCP 設定を続けてください。
+
 ## ステップ1：インストール
 
 必要なもの：
