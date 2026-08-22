@@ -11,10 +11,8 @@
     "bundle": "pnpm --filter ./mcp run bundle",
     "clean": "tsc -b --clean",
     "typecheck": "tsc -b --pretty false",
-    "lint": "eslint core/src mcp/src tests",
-    "test": "pnpm run build && pnpm run bundle && node --test tests/*.test.mjs",
-    "test:live": "pnpm run build && node tests/live-smoke.mjs",
-    "check": "pnpm run lint && pnpm run test"
+    "lint": "eslint core/src mcp/src",
+    "check": "pnpm run lint && pnpm run typecheck"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",

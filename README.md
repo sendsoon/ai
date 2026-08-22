@@ -227,7 +227,7 @@ Then point your client at the built entry file instead of `npx`, using the absol
 realpath ./mcp/bin/sendsoon-mcp.mjs
 ```
 
-Use `"command": "node"` with that absolute path as the only argument. Run `pnpm run check` to lint and test your changes.
+Use `"command": "node"` with that absolute path as the only argument. Run `pnpm run check` to lint and typecheck your changes.
 
 ## Official references
 

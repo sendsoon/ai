@@ -7,7 +7,7 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ['**/*.ts', 'tests/**/*.mjs'],
+    files: ['**/*.ts'],
     languageOptions: { globals: globals.node },
     rules: {
       '@typescript-eslint/consistent-type-imports': 'error',

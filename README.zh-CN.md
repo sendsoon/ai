@@ -227,7 +227,7 @@ pnpm run bundle
 realpath ./mcp/bin/sendsoon-mcp.mjs
 ```
 
-配置改成 `"command": "node"`，并把上面得到的绝对路径作为唯一参数。修改代码后运行 `pnpm run check` 执行 lint 和测试。
+配置改成 `"command": "node"`，并把上面得到的绝对路径作为唯一参数。修改代码后运行 `pnpm run check` 执行 lint 与类型检查。
 
 ## 官方参考
 

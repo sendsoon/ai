@@ -227,7 +227,7 @@ pnpm run bundle
 realpath ./mcp/bin/sendsoon-mcp.mjs
 ```
 
-設定を `"command": "node"` に変更し、取得した絶対パスを唯一の引数として指定します。変更後は `pnpm run check` で lint とテストを実行してください。
+設定を `"command": "node"` に変更し、取得した絶対パスを唯一の引数として指定します。変更後は `pnpm run check` で lint と型チェックを実行してください。
 
 ## 公式リファレンス
 
