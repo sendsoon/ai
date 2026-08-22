@@ -8,7 +8,7 @@
   "engines": { "node": ">=20" },
   "scripts": {
     "build": "tsc -b",
-    "bundle": "pnpm --filter @sendsoon/mcp-server run bundle",
+    "bundle": "pnpm --filter ./mcp run bundle",
     "clean": "tsc -b --clean",
     "typecheck": "tsc -b --pretty false",
     "lint": "eslint core/src mcp/src tests",
