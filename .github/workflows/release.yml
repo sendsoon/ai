@@ -1,13 +1,28 @@
-name: Release
+name: CI & Release
 
 on:
   push:
-    tags:
-      - 'v*'
+  pull_request:
   workflow_dispatch:
 
 jobs:
+  check:
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run check
+
   publish-npm:
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     environment: npm
     permissions:
@@ -30,6 +45,7 @@ jobs:
           NPM_CONFIG_PROVENANCE: true
 
   publish-mcp:
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: read
