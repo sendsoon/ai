@@ -1,7 +1,9 @@
 node_modules/
 .pnpm-store/
 dist/
+mcp/bin/
 coverage/
+*.tgz
 *.tsbuildinfo
 .env
 .env.*

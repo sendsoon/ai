@@ -22,72 +22,24 @@ Codex、Claude、Cursor などの AI エージェントから、[SendSoon](https
 
 このノートブックは、MCP ツールと同じ SendSoon HTTP API を呼び出します。Cursor、Claude、Codex から使う場合は、この後のローカル MCP 設定を続けてください。
 
-## ステップ1：インストール
-
-必要なもの：
+## ステップ1：必要な環境を確認
 
 - Node.js 20 以降
-- pnpm 11
 - Codex、Claude、Cursor、またはローカル stdio MCP サーバーに対応したクライアント
 
-ターミナルで次を実行します：
+手動でのインストールは不要です。以下の設定はすべて `npx` でサーバーを起動し、初回実行時に [`@sendsoon/mcp-server`](https://www.npmjs.com/package/@sendsoon/mcp-server) をダウンロードして、次回以降はキャッシュを再利用します。
 
-```powershell
-git clone https://github.com/sendsoon/ai.git
-cd ai
-pnpm install
-pnpm run build
-```
-
-ビルドが完了したら、MCP エントリーファイルの絶対パスを取得します。
-
-Windows PowerShell：
-
-```powershell
-(Resolve-Path .\mcp\dist\index.js).Path.Replace('\', '/')
-```
-
-macOS / Linux：
-
-```bash
-realpath ./mcp/dist/index.js
-```
-
-出力されたパスをコピーし、設定内の `<MCP_ENTRY_PATH>` と置き換えます。`ai` フォルダーではなく `index.js` ファイルまで含む完全なパスを指定し、`<MCP_ENTRY_PATH>` をそのまま残さないでください。
-
-たとえば、出力が次の場合：
-
-```text
-C:/Users/your-name/ai/mcp/dist/index.js
-```
-
-設定の次の部分を：
-
-```json
-"args": ["<MCP_ENTRY_PATH>"]
-```
-
-次のように変更します：
-
-```json
-"args": ["C:/Users/your-name/ai/mcp/dist/index.js"]
-```
-
-macOS / Linux でも同様です：
-
-```json
-"args": ["/Users/your-name/ai/mcp/dist/index.js"]
-```
+ソースコードから実行したい場合は [ソースからビルド](#ソースからビルド) を参照してください。
 
 ## ステップ2：設定値を準備
 
-すべてのクライアントで同じ3つの環境変数を使用します：
+すべてのクライアントで同じ環境変数を使用します：
 
-| 設定項目 | 入力する値 |
-| --- | --- |
-| `SENDSOON_API_BASE_URL` | `https://sendsoonai.com` のまま使用 |
-| `SENDSOON_EMAIL_RECIPIENT` | `<YOUR_EMAIL>` を受信先メールアドレスに置換 |
-| `SENDSOON_API_KEY` | 未登録で試す場合は空欄。同じパブリック IP から1日3通まで無料でテスト送信できます。継続利用する場合は生成した Key を入力 |
+| 設定項目 | 必須 | 入力する値 |
+| --- | --- | --- |
+| `SENDSOON_EMAIL_RECIPIENT` | はい | `<YOUR_EMAIL>` を受信先メールアドレスに置換 |
+| `SENDSOON_API_KEY` | いいえ | 未登録で試す場合は空欄。同じパブリック IP から1日3通まで無料でテスト送信できます。継続利用する場合は生成した Key を入力 |
+| `SENDSOON_API_BASE_URL` | いいえ | 既定値は `https://www.sendsoonai.com`。別環境に接続する場合のみ設定 |
 
 実際の Key を Git にコミットしたり、他人と共有したりしないでください。
 
@@ -110,10 +62,9 @@ Cursor の `Settings > Tools & MCP` を開いて MCP Server を追加します�
 {
   "mcpServers": {
     "sendsoon": {
-      "command": "node",
-      "args": ["<MCP_ENTRY_PATH>"],
+      "command": "npx",
+      "args": ["-y", "@sendsoon/mcp-server"],
       "env": {
-        "SENDSOON_API_BASE_URL": "https://sendsoonai.com",
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
       }
@@ -130,11 +81,10 @@ Cursor の `Settings > Tools & MCP` を開いて MCP Server を追加します�
 
 ```toml
 [mcp_servers.sendsoon]
-command = "node"
-args = ["<MCP_ENTRY_PATH>"]
+command = "npx"
+args = ["-y", "@sendsoon/mcp-server"]
 
 [mcp_servers.sendsoon.env]
-SENDSOON_API_BASE_URL = "https://sendsoonai.com"
 SENDSOON_EMAIL_RECIPIENT = "<YOUR_EMAIL>"
 SENDSOON_API_KEY = ""
 ```
@@ -143,10 +93,10 @@ SENDSOON_API_KEY = ""
 
 ### Claude Code
 
-2つのプレースホルダーを置き換えて実行します：
+プレースホルダーを置き換えて実行します：
 
 ```powershell
-claude mcp add --transport stdio --scope user --env SENDSOON_API_BASE_URL=https://sendsoonai.com --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- node "<MCP_ENTRY_PATH>"
+claude mcp add --transport stdio --scope user --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- npx -y @sendsoon/mcp-server
 ```
 
 Claude Code で `/mcp` を実行し、`sendsoon` が接続されていることを確認します。API Key を使用する場合は、サーバー名 `sendsoon` の前に `--env SENDSOON_API_KEY=<SENDSOON_API_KEY>` を追加します。
@@ -159,10 +109,9 @@ Claude Code で `/mcp` を実行し、`sendsoon` が接続されていること�
 {
   "mcpServers": {
     "sendsoon": {
-      "command": "node",
-      "args": ["<MCP_ENTRY_PATH>"],
+      "command": "npx",
+      "args": ["-y", "@sendsoon/mcp-server"],
       "env": {
-        "SENDSOON_API_BASE_URL": "https://sendsoonai.com",
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
       }
@@ -180,9 +129,9 @@ Windsurf、Cline、Continue など、ローカル stdio MCP サーバーに対�
 | 設定 | 値 |
 | --- | --- |
 | Transport | `stdio` |
-| Command | `node` |
-| Arguments | `<MCP_ENTRY_PATH>` |
-| Environment | 上記3つの環境変数 |
+| Command | `npx` |
+| Arguments | `-y @sendsoon/mcp-server` |
+| Environment | 上記の環境変数 |
 
 ## 接続を確認
 
@@ -223,6 +172,41 @@ sendsoon MCP を使ってこのタスクを完了してください。
 ```
 
 通常、この明示的な指定が必要なのは初回だけです。
+
+## Agent Skills
+
+このリポジトリには、各ツールをいつ使うか、エラーコードをどう扱うかをエージェントに教える Agent Skills も含まれています。Claude Code ではプラグインとしてインストールできます：
+
+```text
+/plugin marketplace add sendsoon/ai
+/plugin install sendsoon-skills@sendsoon
+```
+
+[`skills/`](skills) 配下の任意のフォルダーを、プロジェクトの `.claude/skills/` またはユーザーディレクトリの `~/.claude/skills/` にコピーしても使えます。
+
+## ソースからビルド
+
+サーバーのコードを変更する場合や、未リリース版を実行する場合にのみ必要です。pnpm 11 が必要です。
+
+```powershell
+git clone https://github.com/sendsoon/ai.git
+cd ai
+pnpm install
+pnpm run build
+pnpm run bundle
+```
+
+その後、クライアント設定を `npx` からビルド成果物に切り替えます。絶対パスは次のコマンドで取得できます：
+
+```powershell
+(Resolve-Path .\mcp\bin\sendsoon-mcp.mjs).Path.Replace('\', '/')
+```
+
+```bash
+realpath ./mcp/bin/sendsoon-mcp.mjs
+```
+
+設定を `"command": "node"` に変更し、取得した絶対パスを唯一の引数として指定します。変更後は `pnpm run check` で lint とテストを実行してください。
 
 ## 公式リファレンス
 

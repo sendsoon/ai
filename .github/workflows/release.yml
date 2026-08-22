@@ -1,0 +1,34 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  # Required for npm trusted publishing (OIDC); no NPM_TOKEN secret is needed.
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: npm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run check
+      - name: Publish
+        # Recursive publish skips private packages and versions already on the
+        # registry, so re-running a tag is a no-op instead of a conflict.
+        # --no-git-checks: a tag build is a detached HEAD, which fails pnpm's branch check.
+        run: pnpm -r publish --no-git-checks
+        env:
+          NPM_CONFIG_PROVENANCE: true

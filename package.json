@@ -8,10 +8,11 @@
   "engines": { "node": ">=20" },
   "scripts": {
     "build": "tsc -b",
+    "bundle": "pnpm --filter @sendsoon/mcp-server run bundle",
     "clean": "tsc -b --clean",
     "typecheck": "tsc -b --pretty false",
     "lint": "eslint core/src mcp/src tests",
-    "test": "pnpm run build && node --test tests/*.test.mjs",
+    "test": "pnpm run build && pnpm run bundle && node --test tests/*.test.mjs",
     "test:live": "pnpm run build && node tests/live-smoke.mjs",
     "check": "pnpm run lint && pnpm run test"
   },

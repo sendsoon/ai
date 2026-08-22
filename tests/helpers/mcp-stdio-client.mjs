@@ -1,8 +1,8 @@
 import { spawn } from 'node:child_process';
 import { createInterface } from 'node:readline';
 
-export async function startMcpClient({ cwd, env = process.env } = {}) {
-  const child = spawn(process.execPath, ['mcp/dist/index.js'], {
+export async function startMcpClient({ cwd, env = process.env, entry = 'mcp/dist/index.js' } = {}) {
+  const child = spawn(process.execPath, [entry], {
     cwd,
     env,
     stdio: ['pipe', 'pipe', 'pipe'],

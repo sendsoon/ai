@@ -22,72 +22,24 @@ Skip local setup and try `ip_lookup`, `markitdown_convert`, and `send_email` in 
 
 The notebook calls the same SendSoon HTTP APIs used by these MCP tools. To use them from Cursor, Claude, or Codex, continue with the local MCP setup below.
 
-## Step 1: Install
-
-Requirements:
+## Step 1: Check the requirements
 
 - Node.js 20 or later
-- pnpm 11
 - Codex, Claude, Cursor, or another client that supports local stdio MCP servers
 
-Run these commands in a terminal:
+There is nothing to install by hand. Every configuration below starts the server with `npx`, which downloads [`@sendsoon/mcp-server`](https://www.npmjs.com/package/@sendsoon/mcp-server) on first use and reuses the cached copy afterwards.
 
-```powershell
-git clone https://github.com/sendsoon/ai.git
-cd ai
-pnpm install
-pnpm run build
-```
-
-After the build finishes, get the absolute path to the MCP entry file.
-
-Windows PowerShell:
-
-```powershell
-(Resolve-Path .\mcp\dist\index.js).Path.Replace('\', '/')
-```
-
-macOS / Linux:
-
-```bash
-realpath ./mcp/dist/index.js
-```
-
-Copy the command output and use it to replace `<MCP_ENTRY_PATH>` in the configuration. Enter the full path to the `index.js` file—not the path to the `ai` folder—and do not leave `<MCP_ENTRY_PATH>` unchanged.
-
-For example, if the command prints:
-
-```text
-C:/Users/your-name/ai/mcp/dist/index.js
-```
-
-Change this:
-
-```json
-"args": ["<MCP_ENTRY_PATH>"]
-```
-
-to this:
-
-```json
-"args": ["C:/Users/your-name/ai/mcp/dist/index.js"]
-```
-
-The same applies on macOS / Linux:
-
-```json
-"args": ["/Users/your-name/ai/mcp/dist/index.js"]
-```
+If you prefer to run from a local checkout, see [Build from source](#build-from-source).
 
 ## Step 2: Prepare the configuration
 
-All clients use the same three environment variables:
+All clients use the same environment variables:
 
-| Setting | What to enter |
-| --- | --- |
-| `SENDSOON_API_BASE_URL` | Keep `https://sendsoonai.com` |
-| `SENDSOON_EMAIL_RECIPIENT` | Replace `<YOUR_EMAIL>` with your recipient address |
-| `SENDSOON_API_KEY` | Leave empty for an unregistered trial. One public IP can send up to three free test emails per day. Enter your generated Key for continued use |
+| Setting | Required | What to enter |
+| --- | --- | --- |
+| `SENDSOON_EMAIL_RECIPIENT` | Yes | Replace `<YOUR_EMAIL>` with your recipient address |
+| `SENDSOON_API_KEY` | No | Leave empty for an unregistered trial. One public IP can send up to three free test emails per day. Enter your generated Key for continued use |
+| `SENDSOON_API_BASE_URL` | No | Defaults to `https://www.sendsoonai.com`. Set it only to target a different environment |
 
 Never commit a real Key to Git or share it with anyone.
 
@@ -110,10 +62,9 @@ Open `Settings > Tools & MCP` in Cursor and add an MCP server. You can also save
 {
   "mcpServers": {
     "sendsoon": {
-      "command": "node",
-      "args": ["<MCP_ENTRY_PATH>"],
+      "command": "npx",
+      "args": ["-y", "@sendsoon/mcp-server"],
       "env": {
-        "SENDSOON_API_BASE_URL": "https://sendsoonai.com",
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
       }
@@ -130,11 +81,10 @@ Open the user configuration file at `~/.codex/config.toml` and add:
 
 ```toml
 [mcp_servers.sendsoon]
-command = "node"
-args = ["<MCP_ENTRY_PATH>"]
+command = "npx"
+args = ["-y", "@sendsoon/mcp-server"]
 
 [mcp_servers.sendsoon.env]
-SENDSOON_API_BASE_URL = "https://sendsoonai.com"
 SENDSOON_EMAIL_RECIPIENT = "<YOUR_EMAIL>"
 SENDSOON_API_KEY = ""
 ```
@@ -143,10 +93,10 @@ Save the file and reopen Codex. Use `/mcp` to confirm that `sendsoon` is connect
 
 ### Claude Code
 
-Replace the two placeholders and run:
+Replace the placeholder and run:
 
 ```powershell
-claude mcp add --transport stdio --scope user --env SENDSOON_API_BASE_URL=https://sendsoonai.com --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- node "<MCP_ENTRY_PATH>"
+claude mcp add --transport stdio --scope user --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- npx -y @sendsoon/mcp-server
 ```
 
 Run `/mcp` in Claude Code and confirm that `sendsoon` is connected. To use an API Key, add `--env SENDSOON_API_KEY=<SENDSOON_API_KEY>` before the `sendsoon` server name.
@@ -159,10 +109,9 @@ Open the configuration file from `Settings > Developer` and add:
 {
   "mcpServers": {
     "sendsoon": {
-      "command": "node",
-      "args": ["<MCP_ENTRY_PATH>"],
+      "command": "npx",
+      "args": ["-y", "@sendsoon/mcp-server"],
       "env": {
-        "SENDSOON_API_BASE_URL": "https://sendsoonai.com",
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
       }
@@ -180,9 +129,9 @@ For Windsurf, Cline, Continue, or another client that supports local stdio MCP s
 | Setting | Value |
 | --- | --- |
 | Transport | `stdio` |
-| Command | `node` |
-| Arguments | `<MCP_ENTRY_PATH>` |
-| Environment | The three environment variables listed above |
+| Command | `npx` |
+| Arguments | `-y @sendsoon/mcp-server` |
+| Environment | The environment variables listed above |
 
 ## Confirm that it works
 
@@ -223,6 +172,41 @@ Use the sendsoon MCP to complete this task.
 ```
 
 You usually need this explicit instruction only on the first use.
+
+## Agent Skills
+
+This repository also ships Agent Skills that teach agents when to reach for each tool and how to handle its error codes. In Claude Code, install them as a plugin:
+
+```text
+/plugin marketplace add sendsoon/ai
+/plugin install sendsoon-skills@sendsoon
+```
+
+You can also copy any folder under [`skills/`](skills) into `.claude/skills/` in your project or `~/.claude/skills/` in your user directory.
+
+## Build from source
+
+Only needed if you want to modify the server or run an unreleased revision. Requires pnpm 11.
+
+```powershell
+git clone https://github.com/sendsoon/ai.git
+cd ai
+pnpm install
+pnpm run build
+pnpm run bundle
+```
+
+Then point your client at the built entry file instead of `npx`, using the absolute path printed by:
+
+```powershell
+(Resolve-Path .\mcp\bin\sendsoon-mcp.mjs).Path.Replace('\', '/')
+```
+
+```bash
+realpath ./mcp/bin/sendsoon-mcp.mjs
+```
+
+Use `"command": "node"` with that absolute path as the only argument. Run `pnpm run check` to lint and test your changes.
 
 ## Official references
 

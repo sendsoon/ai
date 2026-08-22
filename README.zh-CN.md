@@ -22,72 +22,24 @@
 
 该 Notebook 调用的是 MCP 工具背后同一套 SendSoon HTTP API。若要在 Cursor、Claude 或 Codex 中使用，请继续完成下面的本地 MCP 配置。
 
-## 第一步：安装
-
-需要准备：
+## 第一步：确认环境
 
 - Node.js 20 或更高版本
-- pnpm 11
 - Codex、Claude、Cursor 或其他支持本地 stdio MCP 的客户端
 
-在终端运行：
+不需要手动安装任何东西。下面所有配置都通过 `npx` 启动服务，首次使用时自动下载 [`@sendsoon/mcp-server`](https://www.npmjs.com/package/@sendsoon/mcp-server)，之后复用缓存。
 
-```powershell
-git clone https://github.com/sendsoon/ai.git
-cd ai
-pnpm install
-pnpm run build
-```
-
-构建完成后，获取 MCP 入口文件的绝对路径。
-
-Windows PowerShell：
-
-```powershell
-(Resolve-Path .\mcp\dist\index.js).Path.Replace('\', '/')
-```
-
-macOS / Linux：
-
-```bash
-realpath ./mcp/dist/index.js
-```
-
-复制输出结果，稍后用它替换配置中的 `<MCP_ENTRY_PATH>`。这里需要填写的是 `index.js` 文件的完整路径，不是 `ai` 文件夹的路径，也不要原样保留 `<MCP_ENTRY_PATH>`。
-
-例如，上一步输出：
-
-```text
-C:/Users/your-name/ai/mcp/dist/index.js
-```
-
-那么配置中的：
-
-```json
-"args": ["<MCP_ENTRY_PATH>"]
-```
-
-应该改成：
-
-```json
-"args": ["C:/Users/your-name/ai/mcp/dist/index.js"]
-```
-
-macOS / Linux 同理，例如：
-
-```json
-"args": ["/Users/your-name/ai/mcp/dist/index.js"]
-```
+如果你更希望从源码运行，见 [从源码构建](#从源码构建)。
 
 ## 第二步：准备配置
 
-所有客户端都使用相同的三个环境变量：
+所有客户端都使用相同的环境变量：
 
-| 配置项 | 如何填写 |
-| --- | --- |
-| `SENDSOON_API_BASE_URL` | 保持 `https://sendsoonai.com` |
-| `SENDSOON_EMAIL_RECIPIENT` | 将 `<YOUR_EMAIL>` 替换为你的收件邮箱 |
-| `SENDSOON_API_KEY` | 未注册体验时可留空；同一公网 IP 每天最多免费发送 3 封测试邮件。继续使用时请填写注册后生成的 Key |
+| 配置项 | 是否必填 | 如何填写 |
+| --- | --- | --- |
+| `SENDSOON_EMAIL_RECIPIENT` | 是 | 将 `<YOUR_EMAIL>` 替换为你的收件邮箱 |
+| `SENDSOON_API_KEY` | 否 | 未注册体验时可留空；同一公网 IP 每天最多免费发送 3 封测试邮件。继续使用时请填写注册后生成的 Key |
+| `SENDSOON_API_BASE_URL` | 否 | 默认为 `https://www.sendsoonai.com`，仅在需要指向其他环境时才设置 |
 
 请勿将真实 Key 提交到 Git 或分享给其他人。
 
@@ -110,10 +62,9 @@ macOS / Linux 同理，例如：
 {
   "mcpServers": {
     "sendsoon": {
-      "command": "node",
-      "args": ["<MCP_ENTRY_PATH>"],
+      "command": "npx",
+      "args": ["-y", "@sendsoon/mcp-server"],
       "env": {
-        "SENDSOON_API_BASE_URL": "https://sendsoonai.com",
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
       }
@@ -130,11 +81,10 @@ macOS / Linux 同理，例如：
 
 ```toml
 [mcp_servers.sendsoon]
-command = "node"
-args = ["<MCP_ENTRY_PATH>"]
+command = "npx"
+args = ["-y", "@sendsoon/mcp-server"]
 
 [mcp_servers.sendsoon.env]
-SENDSOON_API_BASE_URL = "https://sendsoonai.com"
 SENDSOON_EMAIL_RECIPIENT = "<YOUR_EMAIL>"
 SENDSOON_API_KEY = ""
 ```
@@ -143,10 +93,10 @@ SENDSOON_API_KEY = ""
 
 ### Claude Code
 
-将下面命令中的两个占位符替换后运行：
+将下面命令中的占位符替换后运行：
 
 ```powershell
-claude mcp add --transport stdio --scope user --env SENDSOON_API_BASE_URL=https://sendsoonai.com --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- node "<MCP_ENTRY_PATH>"
+claude mcp add --transport stdio --scope user --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- npx -y @sendsoon/mcp-server
 ```
 
 进入 Claude Code 后运行 `/mcp`，确认 `sendsoon` 已连接。需要使用 Key 时，在命令的 `sendsoon` 之前增加 `--env SENDSOON_API_KEY=<SENDSOON_API_KEY>`。
@@ -159,10 +109,9 @@ claude mcp add --transport stdio --scope user --env SENDSOON_API_BASE_URL=https:
 {
   "mcpServers": {
     "sendsoon": {
-      "command": "node",
-      "args": ["<MCP_ENTRY_PATH>"],
+      "command": "npx",
+      "args": ["-y", "@sendsoon/mcp-server"],
       "env": {
-        "SENDSOON_API_BASE_URL": "https://sendsoonai.com",
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
       }
@@ -180,9 +129,9 @@ Windsurf、Cline、Continue 等支持本地 stdio MCP 的客户端，填写以�
 | 参数 | 值 |
 | --- | --- |
 | Transport | `stdio` |
-| Command | `node` |
-| Arguments | `<MCP_ENTRY_PATH>` |
-| Environment | 上方列出的三个环境变量 |
+| Command | `npx` |
+| Arguments | `-y @sendsoon/mcp-server` |
+| Environment | 上方列出的环境变量 |
 
 ## 确认配置成功
 
@@ -223,6 +172,41 @@ Agent 调用 `ip_lookup` 并返回查询结果，说明 MCP 已经连接成功�
 ```
 
 通常只需在首次使用时这样提示，后续可以直接描述任务。
+
+## Agent Skills
+
+本仓库同时提供 Agent Skills，告诉 Agent 什么时候该用哪个工具、以及如何处理各类错误码。在 Claude Code 中可以作为插件安装：
+
+```text
+/plugin marketplace add sendsoon/ai
+/plugin install sendsoon-skills@sendsoon
+```
+
+也可以把 [`skills/`](skills) 下的任意目录复制到项目的 `.claude/skills/` 或用户目录的 `~/.claude/skills/`。
+
+## 从源码构建
+
+仅在需要修改服务端代码或运行未发布版本时才需要，要求 pnpm 11。
+
+```powershell
+git clone https://github.com/sendsoon/ai.git
+cd ai
+pnpm install
+pnpm run build
+pnpm run bundle
+```
+
+然后把客户端配置从 `npx` 改为指向构建产物，用下面的命令获取绝对路径：
+
+```powershell
+(Resolve-Path .\mcp\bin\sendsoon-mcp.mjs).Path.Replace('\', '/')
+```
+
+```bash
+realpath ./mcp/bin/sendsoon-mcp.mjs
+```
+
+配置改成 `"command": "node"`，并把上面得到的绝对路径作为唯一参数。修改代码后运行 `pnpm run check` 执行 lint 和测试。
 
 ## 官方参考
 

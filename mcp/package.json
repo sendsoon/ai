@@ -1,27 +1,62 @@
 {
   "name": "@sendsoon/mcp-server",
   "version": "0.1.0",
-  "private": true,
+  "description": "MCP server for SendSoon: send email, look up public IP information, and convert files to Markdown from Claude, Cursor, Codex, and other AI agents.",
+  "license": "MIT",
+  "author": "SendSoon",
+  "homepage": "https://github.com/sendsoon/ai#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sendsoon/ai.git",
+    "directory": "mcp"
+  },
+  "bugs": {
+    "url": "https://github.com/sendsoon/ai/issues"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "mcp-server",
+    "sendsoon",
+    "email",
+    "ip-lookup",
+    "markitdown",
+    "claude",
+    "cursor",
+    "codex"
+  ],
+  "mcpName": "io.github.sendsoon/ai",
   "type": "module",
   "engines": {
     "node": ">=20"
   },
   "bin": {
-    "sendsoon-mcp": "./dist/index.js"
+    "sendsoon-mcp": "./bin/sendsoon-mcp.mjs"
+  },
+  "files": [
+    "bin",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "build": "tsc -b",
+    "bundle": "esbuild src/index.ts --bundle --platform=node --target=node20 --format=esm --outfile=bin/sendsoon-mcp.mjs --external:@modelcontextprotocol/sdk --external:zod",
     "typecheck": "tsc -b --pretty false",
     "start": "node dist/index.js",
-    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\""
+    "prepack": "pnpm -w run build && pnpm run bundle",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true});require('fs').rmSync('bin',{recursive:true,force:true})\""
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "@sendsoon/core": "workspace:*",
     "zod": "^3.25.0"
   },
   "devDependencies": {
+    "@sendsoon/core": "workspace:*",
     "@types/node": "^22.10.0",
+    "esbuild": "^0.28.2",
     "typescript": "^5.7.3"
   }
 }
