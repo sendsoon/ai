@@ -1,4 +1,4 @@
-# @sendsoon/mcp-server
+# @sendsoon/ai
 
 MCP server for [SendSoon](https://www.sendsoonai.com/). Gives Claude, Cursor, Codex, and other MCP clients the ability to send email, look up public IP information, and convert files to Markdown.
 
@@ -32,7 +32,7 @@ Never commit a real Key to Git or share it with anyone.
   "mcpServers": {
     "sendsoon": {
       "command": "npx",
-      "args": ["-y", "@sendsoon/mcp-server"],
+      "args": ["-y", "@sendsoon/ai"],
       "env": {
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
@@ -49,7 +49,7 @@ In Cursor, save this as `.cursor/mcp.json` in your project or `~/.cursor/mcp.jso
 ```bash
 claude mcp add --transport stdio --scope user \
   --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> \
-  sendsoon -- npx -y @sendsoon/mcp-server
+  sendsoon -- npx -y @sendsoon/ai
 ```
 
 ### Codex
@@ -59,7 +59,7 @@ Add to `~/.codex/config.toml`:
 ```toml
 [mcp_servers.sendsoon]
 command = "npx"
-args = ["-y", "@sendsoon/mcp-server"]
+args = ["-y", "@sendsoon/ai"]
 
 [mcp_servers.sendsoon.env]
 SENDSOON_EMAIL_RECIPIENT = "<YOUR_EMAIL>"

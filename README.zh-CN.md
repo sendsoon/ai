@@ -27,7 +27,7 @@
 - Node.js 20 或更高版本
 - Codex、Claude、Cursor 或其他支持本地 stdio MCP 的客户端
 
-不需要手动安装任何东西。下面所有配置都通过 `npx` 启动服务，首次使用时自动下载 [`@sendsoon/mcp-server`](https://www.npmjs.com/package/@sendsoon/mcp-server)，之后复用缓存。
+不需要手动安装任何东西。下面所有配置都通过 `npx` 启动服务，首次使用时自动下载 [`@sendsoon/ai`](https://www.npmjs.com/package/@sendsoon/ai)，之后复用缓存。
 
 如果你更希望从源码运行，见 [从源码构建](#从源码构建)。
 
@@ -63,7 +63,7 @@
   "mcpServers": {
     "sendsoon": {
       "command": "npx",
-      "args": ["-y", "@sendsoon/mcp-server"],
+      "args": ["-y", "@sendsoon/ai"],
       "env": {
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
@@ -82,7 +82,7 @@
 ```toml
 [mcp_servers.sendsoon]
 command = "npx"
-args = ["-y", "@sendsoon/mcp-server"]
+args = ["-y", "@sendsoon/ai"]
 
 [mcp_servers.sendsoon.env]
 SENDSOON_EMAIL_RECIPIENT = "<YOUR_EMAIL>"
@@ -96,7 +96,7 @@ SENDSOON_API_KEY = ""
 将下面命令中的占位符替换后运行：
 
 ```powershell
-claude mcp add --transport stdio --scope user --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- npx -y @sendsoon/mcp-server
+claude mcp add --transport stdio --scope user --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- npx -y @sendsoon/ai
 ```
 
 进入 Claude Code 后运行 `/mcp`，确认 `sendsoon` 已连接。需要使用 Key 时，在命令的 `sendsoon` 之前增加 `--env SENDSOON_API_KEY=<SENDSOON_API_KEY>`。
@@ -110,7 +110,7 @@ claude mcp add --transport stdio --scope user --env SENDSOON_EMAIL_RECIPIENT=<YO
   "mcpServers": {
     "sendsoon": {
       "command": "npx",
-      "args": ["-y", "@sendsoon/mcp-server"],
+      "args": ["-y", "@sendsoon/ai"],
       "env": {
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
@@ -130,7 +130,7 @@ Windsurf、Cline、Continue 等支持本地 stdio MCP 的客户端，填写以�
 | --- | --- |
 | Transport | `stdio` |
 | Command | `npx` |
-| Arguments | `-y @sendsoon/mcp-server` |
+| Arguments | `-y @sendsoon/ai` |
 | Environment | 上方列出的环境变量 |
 
 ## 确认配置成功

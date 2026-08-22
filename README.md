@@ -27,7 +27,7 @@ The notebook calls the same SendSoon HTTP APIs used by these MCP tools. To use t
 - Node.js 20 or later
 - Codex, Claude, Cursor, or another client that supports local stdio MCP servers
 
-There is nothing to install by hand. Every configuration below starts the server with `npx`, which downloads [`@sendsoon/mcp-server`](https://www.npmjs.com/package/@sendsoon/mcp-server) on first use and reuses the cached copy afterwards.
+There is nothing to install by hand. Every configuration below starts the server with `npx`, which downloads [`@sendsoon/ai`](https://www.npmjs.com/package/@sendsoon/ai) on first use and reuses the cached copy afterwards.
 
 If you prefer to run from a local checkout, see [Build from source](#build-from-source).
 
@@ -63,7 +63,7 @@ Open `Settings > Tools & MCP` in Cursor and add an MCP server. You can also save
   "mcpServers": {
     "sendsoon": {
       "command": "npx",
-      "args": ["-y", "@sendsoon/mcp-server"],
+      "args": ["-y", "@sendsoon/ai"],
       "env": {
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
@@ -82,7 +82,7 @@ Open the user configuration file at `~/.codex/config.toml` and add:
 ```toml
 [mcp_servers.sendsoon]
 command = "npx"
-args = ["-y", "@sendsoon/mcp-server"]
+args = ["-y", "@sendsoon/ai"]
 
 [mcp_servers.sendsoon.env]
 SENDSOON_EMAIL_RECIPIENT = "<YOUR_EMAIL>"
@@ -96,7 +96,7 @@ Save the file and reopen Codex. Use `/mcp` to confirm that `sendsoon` is connect
 Replace the placeholder and run:
 
 ```powershell
-claude mcp add --transport stdio --scope user --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- npx -y @sendsoon/mcp-server
+claude mcp add --transport stdio --scope user --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- npx -y @sendsoon/ai
 ```
 
 Run `/mcp` in Claude Code and confirm that `sendsoon` is connected. To use an API Key, add `--env SENDSOON_API_KEY=<SENDSOON_API_KEY>` before the `sendsoon` server name.
@@ -110,7 +110,7 @@ Open the configuration file from `Settings > Developer` and add:
   "mcpServers": {
     "sendsoon": {
       "command": "npx",
-      "args": ["-y", "@sendsoon/mcp-server"],
+      "args": ["-y", "@sendsoon/ai"],
       "env": {
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
@@ -130,7 +130,7 @@ For Windsurf, Cline, Continue, or another client that supports local stdio MCP s
 | --- | --- |
 | Transport | `stdio` |
 | Command | `npx` |
-| Arguments | `-y @sendsoon/mcp-server` |
+| Arguments | `-y @sendsoon/ai` |
 | Environment | The environment variables listed above |
 
 ## Confirm that it works

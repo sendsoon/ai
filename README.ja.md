@@ -27,7 +27,7 @@ Codex、Claude、Cursor などの AI エージェントから、[SendSoon](https
 - Node.js 20 以降
 - Codex、Claude、Cursor、またはローカル stdio MCP サーバーに対応したクライアント
 
-手動でのインストールは不要です。以下の設定はすべて `npx` でサーバーを起動し、初回実行時に [`@sendsoon/mcp-server`](https://www.npmjs.com/package/@sendsoon/mcp-server) をダウンロードして、次回以降はキャッシュを再利用します。
+手動でのインストールは不要です。以下の設定はすべて `npx` でサーバーを起動し、初回実行時に [`@sendsoon/ai`](https://www.npmjs.com/package/@sendsoon/ai) をダウンロードして、次回以降はキャッシュを再利用します。
 
 ソースコードから実行したい場合は [ソースからビルド](#ソースからビルド) を参照してください。
 
@@ -63,7 +63,7 @@ Cursor の `Settings > Tools & MCP` を開いて MCP Server を追加します�
   "mcpServers": {
     "sendsoon": {
       "command": "npx",
-      "args": ["-y", "@sendsoon/mcp-server"],
+      "args": ["-y", "@sendsoon/ai"],
       "env": {
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
@@ -82,7 +82,7 @@ Cursor の `Settings > Tools & MCP` を開いて MCP Server を追加します�
 ```toml
 [mcp_servers.sendsoon]
 command = "npx"
-args = ["-y", "@sendsoon/mcp-server"]
+args = ["-y", "@sendsoon/ai"]
 
 [mcp_servers.sendsoon.env]
 SENDSOON_EMAIL_RECIPIENT = "<YOUR_EMAIL>"
@@ -96,7 +96,7 @@ SENDSOON_API_KEY = ""
 プレースホルダーを置き換えて実行します：
 
 ```powershell
-claude mcp add --transport stdio --scope user --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- npx -y @sendsoon/mcp-server
+claude mcp add --transport stdio --scope user --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- npx -y @sendsoon/ai
 ```
 
 Claude Code で `/mcp` を実行し、`sendsoon` が接続されていることを確認します。API Key を使用する場合は、サーバー名 `sendsoon` の前に `--env SENDSOON_API_KEY=<SENDSOON_API_KEY>` を追加します。
@@ -110,7 +110,7 @@ Claude Code で `/mcp` を実行し、`sendsoon` が接続されていること�
   "mcpServers": {
     "sendsoon": {
       "command": "npx",
-      "args": ["-y", "@sendsoon/mcp-server"],
+      "args": ["-y", "@sendsoon/ai"],
       "env": {
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
@@ -130,7 +130,7 @@ Windsurf、Cline、Continue など、ローカル stdio MCP サーバーに対�
 | --- | --- |
 | Transport | `stdio` |
 | Command | `npx` |
-| Arguments | `-y @sendsoon/mcp-server` |
+| Arguments | `-y @sendsoon/ai` |
 | Environment | 上記の環境変数 |
 
 ## 接続を確認
