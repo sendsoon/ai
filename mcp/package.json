@@ -1,6 +1,6 @@
 {
   "name": "@sendsoon/ai",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "MCP server for SendSoon: send email, look up public IP information, and convert files to Markdown from Claude, Cursor, Codex, and other AI agents.",
   "license": "MIT",
   "author": "SendSoon",
