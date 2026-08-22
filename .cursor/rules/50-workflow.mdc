@@ -31,7 +31,7 @@ alwaysApply: false
 - 是否需要新依赖：[是/否，具体是什么]
 ```
 
-方案确认后，建议配合 Spec-Driven Development 流程走 `/specify` → `/plan` → `/tasks` → `/implement`，规格文档提交到 `specs/` 目录留痕。
+方案确认后再开始实施；如需留痕，可将设计说明写入 `specs/` 目录。
 
 # 例外
 
