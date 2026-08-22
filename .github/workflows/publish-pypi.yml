@@ -1,16 +1,26 @@
 # Publishes sendsoon-mcp to PyPI via Trusted Publishing (OIDC).
 # PyPI pending publisher must match:
 #   owner=sendsoon, repo=ai, workflow=publish-pypi.yml, environment=pypi
+#
+# Tag convention (keep in sync with npm):
+#   python-vX.Y.Z  → publish Python X.Y.Z
+#   vX.Y.Z         → also publish Python X.Y.Z (same number as npm tag)
 name: Publish Python package
 
 on:
   push:
     tags:
       - "python-v*"
+      - "v*"
   workflow_dispatch:
 
 jobs:
   build:
+    # Avoid double-running on tags that are neither release forms.
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      startsWith(github.ref, 'refs/tags/python-v') ||
+      (startsWith(github.ref, 'refs/tags/v') && !startsWith(github.ref, 'refs/tags/python-v'))
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -21,11 +31,21 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Align version with tag
-        if: startsWith(github.ref, 'refs/tags/python-v')
+      - name: Resolve version from tag
+        if: startsWith(github.ref, 'refs/tags/')
         run: |
-          VERSION="${GITHUB_REF#refs/tags/python-v}"
-          export VERSION
+          REF="${GITHUB_REF#refs/tags/}"
+          case "$REF" in
+            python-v*) VERSION="${REF#python-v}" ;;
+            v*) VERSION="${REF#v}" ;;
+            *) echo "unsupported tag: $REF"; exit 1 ;;
+          esac
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "resolved version=$VERSION"
+
+      - name: Align version in pyproject.toml
+        if: env.VERSION != ''
+        run: |
           python <<'PY'
           import os
           import pathlib

@@ -1,4 +1,4 @@
-"""Request validation helpers (aligned with @sendsoon/core)."""
+"""Request validation helpers (aligned with npm/src/core)."""
 
 from __future__ import annotations
 

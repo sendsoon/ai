@@ -1,7 +1,6 @@
 node_modules/
 .pnpm-store/
 dist/
-mcp/bin/
 npm/bin/
 coverage/
 *.tgz
@@ -21,6 +20,4 @@ __pycache__/
 .venv/
 venv/
 python/dist/
-python/*.egg-info/
-python/src/*.egg-info/
 *.egg-info/

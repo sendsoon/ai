@@ -1,4 +1,4 @@
-"""Error codes and HTTP/network error mapping (aligned with @sendsoon/core)."""
+"""Error codes and HTTP/network error mapping (aligned with npm/src/core)."""
 
 from __future__ import annotations
 
