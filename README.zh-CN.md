@@ -39,8 +39,6 @@ sendsoon-mcp
 
 环境要求：Node.js 20 或更高版本，以及支持本地 stdio MCP 的客户端（Cursor、Codex、Claude Code、Claude Desktop 等）。
 
-从源码运行见 [从源码构建](#从源码构建)。
-
 ## 准备配置
 
 所有客户端都使用相同的环境变量：
@@ -204,37 +202,6 @@ Skills 告诉 Agent 何时调用各 MCP 工具、以及如何处理错误码。�
 | Claude Code | `.claude/skills/<name>/` | `~/.claude/skills/<name>/` |
 
 可用 Skills：`email-basics`、`ip-lookup`、`markitdown`。
-
-## 从源码构建
-
-仅在需要修改服务端代码或运行未发布版本时才需要，要求 pnpm 11。
-
-```powershell
-git clone https://github.com/sendsoon/ai.git
-cd ai
-pnpm install
-pnpm run build
-pnpm run bundle
-```
-
-然后把客户端配置从 `npx` 改为指向构建产物，用下面的命令获取绝对路径：
-
-```powershell
-(Resolve-Path .\mcp\bin\sendsoon-mcp.mjs).Path.Replace('\', '/')
-```
-
-```bash
-realpath ./mcp/bin/sendsoon-mcp.mjs
-```
-
-配置改成 `"command": "node"`，并把上面得到的绝对路径作为唯一参数。修改代码后运行 `pnpm run check` 执行 lint 与类型检查。
-
-## 官方参考
-
-- [OpenAI Codex：Model Context Protocol](https://developers.openai.com/codex/mcp)
-- [Anthropic：Claude Code MCP](https://docs.anthropic.com/en/docs/claude-code/mcp)
-- [Cursor：Model Context Protocol](https://docs.cursor.com/context/model-context-protocol)
-- [Model Context Protocol](https://modelcontextprotocol.io/)
 
 ## License
 

@@ -39,8 +39,6 @@ sendsoon-mcp
 
 Requirements: Node.js 20 or later, and a client that supports local stdio MCP servers (Cursor, Codex, Claude Code, Claude Desktop, etc.).
 
-If you prefer to run from a local checkout, see [Build from source](#build-from-source).
-
 ## Prepare the configuration
 
 All clients use the same environment variables:
@@ -204,37 +202,6 @@ Copy any folder under [`skills/`](skills) into your agent skills directory:
 | Claude Code | `.claude/skills/<name>/` | `~/.claude/skills/<name>/` |
 
 Available skills: `email-basics`, `ip-lookup`, `markitdown`.
-
-## Build from source
-
-Only needed if you want to modify the server or run an unreleased revision. Requires pnpm 11.
-
-```powershell
-git clone https://github.com/sendsoon/ai.git
-cd ai
-pnpm install
-pnpm run build
-pnpm run bundle
-```
-
-Then point your client at the built entry file instead of `npx`, using the absolute path printed by:
-
-```powershell
-(Resolve-Path .\mcp\bin\sendsoon-mcp.mjs).Path.Replace('\', '/')
-```
-
-```bash
-realpath ./mcp/bin/sendsoon-mcp.mjs
-```
-
-Use `"command": "node"` with that absolute path as the only argument. Run `pnpm run check` to lint and typecheck your changes.
-
-## Official references
-
-- [OpenAI Codex: Model Context Protocol](https://developers.openai.com/codex/mcp)
-- [Anthropic: Claude Code MCP](https://docs.anthropic.com/en/docs/claude-code/mcp)
-- [Cursor: Model Context Protocol](https://docs.cursor.com/context/model-context-protocol)
-- [Model Context Protocol](https://modelcontextprotocol.io/)
 
 ## License
 

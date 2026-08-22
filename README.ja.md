@@ -39,8 +39,6 @@ sendsoon-mcp
 
 要件：Node.js 20 以降、およびローカル stdio MCP に対応したクライアント（Cursor、Codex、Claude Code、Claude Desktop など）。
 
-ソースから実行する場合は [ソースからビルド](#ソースからビルド) を参照してください。
-
 ## 設定値を準備
 
 すべてのクライアントで同じ環境変数を使用します：
@@ -204,37 +202,6 @@ Skills は、各 MCP ツールをいつ呼び出すか、エラーコードを�
 | Claude Code | `.claude/skills/<name>/` | `~/.claude/skills/<name>/` |
 
 利用可能な Skills：`email-basics`、`ip-lookup`、`markitdown`。
-
-## ソースからビルド
-
-サーバーのコードを変更する場合や、未リリース版を実行する場合にのみ必要です。pnpm 11 が必要です。
-
-```powershell
-git clone https://github.com/sendsoon/ai.git
-cd ai
-pnpm install
-pnpm run build
-pnpm run bundle
-```
-
-その後、クライアント設定を `npx` からビルド成果物に切り替えます。絶対パスは次のコマンドで取得できます：
-
-```powershell
-(Resolve-Path .\mcp\bin\sendsoon-mcp.mjs).Path.Replace('\', '/')
-```
-
-```bash
-realpath ./mcp/bin/sendsoon-mcp.mjs
-```
-
-設定を `"command": "node"` に変更し、取得した絶対パスを唯一の引数として指定します。変更後は `pnpm run check` で lint と型チェックを実行してください。
-
-## 公式リファレンス
-
-- [OpenAI Codex：Model Context Protocol](https://developers.openai.com/codex/mcp)
-- [Anthropic：Claude Code MCP](https://docs.anthropic.com/en/docs/claude-code/mcp)
-- [Cursor：Model Context Protocol](https://docs.cursor.com/context/model-context-protocol)
-- [Model Context Protocol](https://modelcontextprotocol.io/)
 
 ## License
 
