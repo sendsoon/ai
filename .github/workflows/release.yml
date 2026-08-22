@@ -6,15 +6,28 @@ on:
       - 'v*'
   workflow_dispatch:
 
-permissions:
-  contents: read
-  # Required for npm trusted publishing and MCP Registry GitHub OIDC login.
-  id-token: write
-
 jobs:
-  publish:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run check
+
+  publish-npm:
+    needs: check
     runs-on: ubuntu-latest
     environment: npm
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -24,15 +37,21 @@ jobs:
           registry-url: https://registry.npmjs.org
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm run check
-
       - name: Publish to npm
-        # Recursive publish skips private packages and versions already on the
-        # registry, so re-running a tag is a no-op instead of a conflict.
-        # --no-git-checks: a tag build is a detached HEAD, which fails pnpm's branch check.
+        # Requires Trusted Publishers on npmjs.com for @sendsoon/ai → GitHub Actions (sendsoon/ai).
+        # Skips versions already on the registry when re-running a tag.
         run: pnpm -r publish --no-git-checks
         env:
           NPM_CONFIG_PROVENANCE: true
+
+  publish-mcp:
+    needs: check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Install mcp-publisher
         run: |
