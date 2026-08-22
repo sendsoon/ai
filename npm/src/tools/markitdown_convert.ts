@@ -3,7 +3,7 @@ import {
   markitdownFailureResult,
   type MarkitdownConvertResult,
   type SendSoonClient,
-} from '@sendsoon/core';
+} from '../core/index.js';
 import * as z from 'zod/v4';
 import { formatToolResult } from './format.js';
 

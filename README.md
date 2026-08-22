@@ -22,22 +22,43 @@ Skip local setup and try `ip_lookup`, `markitdown_convert`, and `send_email` in 
 
 The notebook calls the same SendSoon HTTP APIs used by these MCP tools. To use them from Cursor, Claude, or Codex, continue with the local MCP setup below.
 
-## Install MCP via npm
+## Install MCP
 
-The MCP server is published as [`@sendsoon/ai`](https://www.npmjs.com/package/@sendsoon/ai). You do not need a global install — clients start it with `npx`, which downloads the package on first use and reuses the cache afterwards.
+Choose **npm (Node)** or **PyPI (Python)**. Tool names and environment variables are the same.
+
+### npm (Node)
+
+Published as [`@sendsoon/ai`](https://www.npmjs.com/package/@sendsoon/ai). Clients can start it with `npx` (downloads on first use):
 
 ```bash
 npx -y @sendsoon/ai
 ```
 
-Optional: install the CLI globally if you prefer a local binary:
+Optional global install:
 
 ```bash
 npm install -g @sendsoon/ai
 sendsoon-mcp
 ```
 
-Requirements: Node.js 20 or later, and a client that supports local stdio MCP servers (Cursor, Codex, Claude Code, Claude Desktop, etc.).
+Requires Node.js 20+.
+
+### PyPI (Python)
+
+Published as [`sendsoon-mcp`](https://pypi.org/project/sendsoon-mcp/). Prefer `uvx` so no global install is needed:
+
+```bash
+uvx sendsoon-mcp
+```
+
+Or:
+
+```bash
+pip install sendsoon-mcp
+sendsoon-mcp
+```
+
+Requires Python 3.10+. See [`python/README.md`](python/README.md) for details.
 
 ## Prepare the configuration
 
@@ -64,7 +85,9 @@ If the anonymous quota is exhausted, `send_email` will tell you to register and 
 
 ### Cursor
 
-Open `Settings > Tools & MCP` in Cursor and add an MCP server. You can also save the following configuration as `.cursor/mcp.json` in your project or `~/.cursor/mcp.json` in your user directory:
+Open `Settings > Tools & MCP` in Cursor and add an MCP server. You can also save the following configuration as `.cursor/mcp.json` in your project or `~/.cursor/mcp.json` in your user directory.
+
+**Node (npm):**
 
 ```json
 {
@@ -72,6 +95,23 @@ Open `Settings > Tools & MCP` in Cursor and add an MCP server. You can also save
     "sendsoon": {
       "command": "npx",
       "args": ["-y", "@sendsoon/ai"],
+      "env": {
+        "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
+        "SENDSOON_API_KEY": ""
+      }
+    }
+  }
+}
+```
+
+**Python (PyPI):**
+
+```json
+{
+  "mcpServers": {
+    "sendsoon": {
+      "command": "uvx",
+      "args": ["sendsoon-mcp"],
       "env": {
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""

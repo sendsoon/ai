@@ -2,6 +2,7 @@ node_modules/
 .pnpm-store/
 dist/
 mcp/bin/
+npm/bin/
 coverage/
 *.tgz
 *.tsbuildinfo
@@ -10,3 +11,16 @@ coverage/
 .DS_Store
 *.log
 .cursor/rules/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+python/dist/
+python/*.egg-info/
+python/src/*.egg-info/
+*.egg-info/

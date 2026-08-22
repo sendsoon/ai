@@ -41,6 +41,39 @@
           "default": "https://www.sendsoonai.com"
         }
       ]
+    },
+    {
+      "registryType": "pypi",
+      "registryBaseUrl": "https://pypi.org",
+      "identifier": "sendsoon-mcp",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "SENDSOON_EMAIL_RECIPIENT",
+          "description": "Recipient address allowed for test sends.",
+          "format": "string",
+          "isRequired": true,
+          "isSecret": false
+        },
+        {
+          "name": "SENDSOON_API_KEY",
+          "description": "SendSoon API Key (ssk_live_...). Leave empty for the anonymous trial of three sends per public IP per day.",
+          "format": "string",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "SENDSOON_API_BASE_URL",
+          "description": "Override the SendSoon API base URL. Defaults to https://www.sendsoonai.com.",
+          "format": "string",
+          "isRequired": false,
+          "isSecret": false,
+          "default": "https://www.sendsoonai.com"
+        }
+      ]
     }
   ]
 }

@@ -8,7 +8,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sendsoon/ai.git",
-    "directory": "mcp"
+    "directory": "npm"
   },
   "bugs": {
     "url": "https://github.com/sendsoon/ai/issues"
@@ -46,7 +46,7 @@
     "bundle": "esbuild src/index.ts --bundle --platform=node --target=node20 --format=esm --outfile=bin/sendsoon-mcp.mjs --external:@modelcontextprotocol/sdk --external:zod",
     "typecheck": "tsc -b --pretty false",
     "start": "node dist/index.js",
-    "prepack": "pnpm -w run build && pnpm run bundle",
+    "prepack": "pnpm run build && pnpm run bundle",
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true});require('fs').rmSync('bin',{recursive:true,force:true})\""
   },
   "dependencies": {
@@ -54,7 +54,6 @@
     "zod": "^3.25.0"
   },
   "devDependencies": {
-    "@sendsoon/core": "workspace:*",
     "@types/node": "^22.10.0",
     "esbuild": "^0.28.2",
     "typescript": "^5.7.3"

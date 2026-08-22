@@ -4,14 +4,14 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@11.9.0",
-  "workspaces": ["core", "mcp"],
+  "workspaces": ["npm"],
   "engines": { "node": ">=20" },
   "scripts": {
     "build": "tsc -b",
-    "bundle": "pnpm --filter ./mcp run bundle",
+    "bundle": "pnpm --filter @sendsoon/ai run bundle",
     "clean": "tsc -b --clean",
     "typecheck": "tsc -b --pretty false",
-    "lint": "eslint core/src mcp/src",
+    "lint": "eslint npm/src",
     "check": "pnpm run lint && pnpm run typecheck"
   },
   "devDependencies": {

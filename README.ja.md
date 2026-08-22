@@ -22,22 +22,43 @@ Codex、Claude、Cursor などの AI エージェントから、[SendSoon](https
 
 このノートブックは、MCP ツールと同じ SendSoon HTTP API を呼び出します。Cursor、Claude、Codex から使う場合は、この後のローカル MCP 設定を続けてください。
 
-## npm で MCP をインストール
+## MCP のインストール
 
-MCP サーバーは [`@sendsoon/ai`](https://www.npmjs.com/package/@sendsoon/ai) として公開されています。通常はグローバルインストール不要で、クライアントが `npx` で起動し、初回にダウンロードしてキャッシュします。
+**npm（Node）** または **PyPI（Python）** を選べます。ツール名と環境変数は共通です。
+
+### npm（Node）
+
+[`@sendsoon/ai`](https://www.npmjs.com/package/@sendsoon/ai) として公開されています。クライアントは `npx` で起動できます（初回にダウンロード）：
 
 ```bash
 npx -y @sendsoon/ai
 ```
 
-任意：CLI をグローバルインストールする場合：
+任意のグローバルインストール：
 
 ```bash
 npm install -g @sendsoon/ai
 sendsoon-mcp
 ```
 
-要件：Node.js 20 以降、およびローカル stdio MCP に対応したクライアント（Cursor、Codex、Claude Code、Claude Desktop など）。
+要件：Node.js 20 以降。
+
+### PyPI（Python）
+
+[`sendsoon-mcp`](https://pypi.org/project/sendsoon-mcp/) として公開されています。グローバルインストール不要の `uvx` を推奨します：
+
+```bash
+uvx sendsoon-mcp
+```
+
+または：
+
+```bash
+pip install sendsoon-mcp
+sendsoon-mcp
+```
+
+要件：Python 3.10 以降。詳細は [`python/README.md`](python/README.md)。
 
 ## 設定値を準備
 
@@ -64,7 +85,9 @@ sendsoon-mcp
 
 ### Cursor
 
-Cursor の `Settings > Tools & MCP` を開いて MCP Server を追加します。次の内容をプロジェクトの `.cursor/mcp.json` またはユーザーディレクトリの `~/.cursor/mcp.json` に保存することもできます：
+Cursor の `Settings > Tools & MCP` を開いて MCP Server を追加します。次の内容をプロジェクトの `.cursor/mcp.json` またはユーザーディレクトリの `~/.cursor/mcp.json` に保存することもできます。
+
+**Node（npm）：**
 
 ```json
 {
@@ -72,6 +95,23 @@ Cursor の `Settings > Tools & MCP` を開いて MCP Server を追加します�
     "sendsoon": {
       "command": "npx",
       "args": ["-y", "@sendsoon/ai"],
+      "env": {
+        "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
+        "SENDSOON_API_KEY": ""
+      }
+    }
+  }
+}
+```
+
+**Python（PyPI）：**
+
+```json
+{
+  "mcpServers": {
+    "sendsoon": {
+      "command": "uvx",
+      "args": ["sendsoon-mcp"],
       "env": {
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""

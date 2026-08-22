@@ -1,5 +1,5 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { SendSoonClient } from '@sendsoon/core';
+import { SendSoonClient } from './core/index.js';
 import { createRequire } from 'node:module';
 import { ipLookupToolDefinition } from './tools/ip_lookup.js';
 import { markitdownConvertToolDefinition } from './tools/markitdown_convert.js';

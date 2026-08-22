@@ -22,22 +22,43 @@
 
 该 Notebook 调用的是 MCP 工具背后同一套 SendSoon HTTP API。若要在 Cursor、Claude 或 Codex 中使用，请继续完成下面的本地 MCP 配置。
 
-## 通过 npm 安装 MCP
+## 安装 MCP
 
-MCP 服务已发布为 [`@sendsoon/ai`](https://www.npmjs.com/package/@sendsoon/ai)。通常无需全局安装——客户端用 `npx` 启动，首次自动下载并缓存：
+可选 **npm（Node）** 或 **PyPI（Python）**。工具名称与环境变量相同。
+
+### npm（Node）
+
+已发布为 [`@sendsoon/ai`](https://www.npmjs.com/package/@sendsoon/ai)。客户端可用 `npx` 启动（首次自动下载）：
 
 ```bash
 npx -y @sendsoon/ai
 ```
 
-可选：全局安装 CLI：
+可选全局安装：
 
 ```bash
 npm install -g @sendsoon/ai
 sendsoon-mcp
 ```
 
-环境要求：Node.js 20 或更高版本，以及支持本地 stdio MCP 的客户端（Cursor、Codex、Claude Code、Claude Desktop 等）。
+需要 Node.js 20+。
+
+### PyPI（Python）
+
+已发布为 [`sendsoon-mcp`](https://pypi.org/project/sendsoon-mcp/)。推荐用 `uvx`，无需全局安装：
+
+```bash
+uvx sendsoon-mcp
+```
+
+或：
+
+```bash
+pip install sendsoon-mcp
+sendsoon-mcp
+```
+
+需要 Python 3.10+。详见 [`python/README.md`](python/README.md)。
 
 ## 准备配置
 
@@ -64,7 +85,9 @@ sendsoon-mcp
 
 ### Cursor
 
-打开 Cursor 的 `Settings > Tools & MCP`，添加 MCP Server；也可以将下面的内容保存到项目的 `.cursor/mcp.json` 或用户目录的 `~/.cursor/mcp.json`：
+打开 Cursor 的 `Settings > Tools & MCP`，添加 MCP Server；也可以将下面的内容保存到项目的 `.cursor/mcp.json` 或用户目录的 `~/.cursor/mcp.json`。
+
+**Node（npm）：**
 
 ```json
 {
@@ -72,6 +95,23 @@ sendsoon-mcp
     "sendsoon": {
       "command": "npx",
       "args": ["-y", "@sendsoon/ai"],
+      "env": {
+        "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
+        "SENDSOON_API_KEY": ""
+      }
+    }
+  }
+}
+```
+
+**Python（PyPI）：**
+
+```json
+{
+  "mcpServers": {
+    "sendsoon": {
+      "command": "uvx",
+      "args": ["sendsoon-mcp"],
       "env": {
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
