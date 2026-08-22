@@ -8,7 +8,6 @@ alwaysApply: true
 - `mcp/`（TypeScript + Python 双实现）：只处理 MCP 协议适配（tool/resource/prompt 注册、schema 定义、transport 配置）
 - `skills/`：只处理 Agent Skills 规范（`SKILL.md` + 触发词 + 示例），纯 Markdown，不含可执行代码
 - `core/`：协议无关的共享 client 逻辑（调用私有 API 的 HTTP client、错误码映射），Python 和 TypeScript 各自维护一份，接口保持一致，但不共享代码运行时
-- `specs/`：Spec-Driven Development 产出的 spec/plan/tasks 文档
 
 # 语言选型原则
 
