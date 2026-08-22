@@ -7,7 +7,6 @@ coverage/
 *.tsbuildinfo
 .env
 .env.*
-!.env.example
 .DS_Store
 *.log
 .cursor/rules/
