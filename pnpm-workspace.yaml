@@ -2,5 +2,7 @@ packages:
   - core
   - mcp
 
-onlyBuiltDependencies:
-  - esbuild
+# esbuild needs its postinstall to unpack the platform binary. pnpm 11 fails a
+# clean install with ERR_PNPM_IGNORED_BUILDS unless the build is allowed here.
+allowBuilds:
+  esbuild: true
