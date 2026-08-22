@@ -1,0 +1,63 @@
+---
+description: TypeScript MCP server 开发规范，基于官方 typescript-sdk 最新稳定版
+globs: ["mcp/**/*.ts", "core/**/*.ts"]
+alwaysApply: false
+---
+
+# 版本锁定（重要）
+
+官方 `typescript-sdk` 目前有两条线：
+- **v1.x（稳定，生产推荐）**：`npm install @modelcontextprotocol/sdk@^1.29` —— 本项目使用此版本，包名是单一的 `@modelcontextprotocol/sdk`
+- v2（beta，拆分为 `@modelcontextprotocol/server` / `@modelcontextprotocol/client` 等独立包，对应 2026-07-28 才定稿的新规范）—— **不要使用**，除非之后明确决定升级
+
+`package.json` 里锁定 `"@modelcontextprotocol/sdk": "^1.29.0"`，不要写成裸的 `latest`。
+
+# 服务端实现规范
+
+- 用 `McpServer` 高层 API，`registerTool` 注册工具，`inputSchema`/`outputSchema` 用 **Zod v4**（`import * as z from 'zod/v4'`）定义：
+
+```typescript
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import * as z from 'zod/v4';
+import { sendEmail } from '../core/client.js';
+
+const server = new McpServer({ name: 'sendsoon', version: '1.0.0' });
+
+server.registerTool(
+  'send_email',
+  {
+    title: '发送邮件',
+    description: '通过 SendSoon API 发送邮件',
+    inputSchema: {
+      to: z.string().email(),
+      subject: z.string(),
+      body: z.string(),
+    },
+    outputSchema: {
+      messageId: z.string(),
+      status: z.enum(['sent', 'failed']),
+    },
+  },
+  async ({ to, subject, body }) => {
+    const result = await sendEmail({ to, subject, body }); // 调用 core/ 共享 client
+    return {
+      content: [{ type: 'text', text: JSON.stringify(result) }],
+      structuredContent: result,
+    };
+  }
+);
+```
+
+- 远程部署优先用 **Streamable HTTP**（官方推荐的传输方式），本地/进程内集成才用 stdio；SSE 只作为向后兼容，不要在新代码里使用
+- 如果挂载到 Express/Hono，用官方轻量适配包（`@modelcontextprotocol/express` / `@modelcontextprotocol/hono`）做 Host header 校验，不要自己重新实现
+
+# 错误处理
+
+- 私有后端 4xx/5xx 必须映射成结构化的、对用户友好的错误，不透传原始报错
+- 所有 fetch 调用必须有超时（`AbortController` + 10-30s）和有限重试
+
+# 测试与调试
+
+- 本地调试：`npx @modelcontextprotocol/inspector`
+- 单元测试对 `core/` 的 client 做 mock（如 `msw` 或手写 fetch mock），不要真实请求 `api.sendsoonai.com`

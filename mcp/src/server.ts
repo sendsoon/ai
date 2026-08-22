@@ -10,7 +10,7 @@ export function createServer(client = new SendSoonClient()): McpServer {
     version: string;
   };
   const server = new McpServer({
-    name: 'sendsoon-connect',
+    name: 'sendsoon',
     version: packageJson.version,
   });
 

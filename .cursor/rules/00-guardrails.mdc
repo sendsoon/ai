@@ -1,0 +1,20 @@
+---
+description: SendSoon Connect 核心红线规则，任何情况下都不能违反
+alwaysApply: true
+---
+
+# 硬性红线
+
+本仓库是公开的 MCP + Agent Skill 适配层，不包含核心业务逻辑。
+
+**绝不允许出现：**
+- Postal/SMTP/Caddy/Nginx 具体配置
+- 邮箱验证算法实现（黑名单库、评分逻辑）
+- 发信调度、IP 信誉管理逻辑
+- 任何 API Key、密钥、`.env` 明文内容
+
+**所有对外功能**必须通过 HTTPS 调用 SendSoon API（默认 `https://www.sendsoonai.com`）；本仓库代码只做参数校验 + 请求转发 + 响应格式转换。
+
+**写任何函数前自问**：这段逻辑如果被复制到私有仓库会不会更合适？如果是，停止编写，转到 `sendsoon/sendsoon` 私有仓库处理。
+
+**开发流程铁律**：涉及新功能或架构变化时，先输出技术方案（简述可选技术路线、优劣、推荐项），等待人工确认后再动手实现。不要在未确认方案前直接开始写代码。详见 `50-workflow.mdc`。

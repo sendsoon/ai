@@ -1,0 +1,56 @@
+---
+description: Python MCP server 开发规范，基于官方 python-sdk 最新稳定版
+globs: ["mcp/**/*.py", "core/**/*.py"]
+alwaysApply: false
+---
+
+# 版本锁定（重要）
+
+官方 `python-sdk` 目前有两条线：
+- **v1.x（稳定，生产推荐）**：`pip install "mcp[cli]>=1.27,<2"` —— 本项目使用此版本
+- v2（`2.0.0aN`/`2.0.0bN`，pre-release，对应 2026-07-28 才会定稿的新规范）—— **不要在本项目中使用**，除非之后明确决定升级并重新评估本规则
+
+`pyproject.toml` / `requirements.txt` 里必须显式加上 `<2` 上界，防止将来某天不小心装到 v2 pre-release。
+
+# 服务端实现规范
+
+- 优先使用高层 API `FastMCP`（`from mcp.server.fastmcp import FastMCP, Context`），只有需要精细控制生命周期/中间件时才落到低层 `Server` API
+- 每个 tool 用 `@mcp.tool()` 装饰器注册，函数签名的类型注解即 schema 来源——**用 Pydantic 模型或原生类型注解做输入校验**，不要手写校验逻辑
+- 需要访问共享资源（HTTP client、配置）时通过 `lifespan` context 注入，不要用全局变量：
+
+```python
+from contextlib import asynccontextmanager
+from collections.abc import AsyncIterator
+from dataclasses import dataclass
+from mcp.server.fastmcp import FastMCP, Context
+
+@dataclass
+class AppContext:
+    api_client: SendSoonClient  # core/ 里定义的共享 HTTP client
+
+@asynccontextmanager
+async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
+    client = await SendSoonClient.connect()
+    try:
+        yield AppContext(api_client=client)
+    finally:
+        await client.close()
+
+mcp = FastMCP("sendsoon", lifespan=app_lifespan)
+
+@mcp.tool()
+async def send_email(to: str, subject: str, body: str, ctx: Context) -> dict:
+    """通过 SendSoon API 发送邮件"""
+    app_ctx: AppContext = ctx.request_context.lifespan_context
+    return await app_ctx.api_client.send_email(to, subject, body)
+```
+
+# 错误处理
+
+- 私有后端返回的 4xx/5xx 必须映射成对用户友好的错误消息，**不要把原始堆栈或内部错误详情透传给调用方**
+- 所有对外 HTTP 调用必须设置超时（建议 10-30s）和有限重试（建议指数退避，最多 3 次）
+
+# 测试与调试
+
+- 本地调试用官方 MCP Inspector：`npx @modelcontextprotocol/inspector uv run python mcp/server.py`
+- 单元测试对 `core/` 的 HTTP client 做 mock，不要在测试中真实请求 `api.sendsoonai.com`

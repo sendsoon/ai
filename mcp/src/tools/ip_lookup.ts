@@ -5,6 +5,7 @@ import {
   type SendSoonClient,
 } from '@sendsoon/core';
 import * as z from 'zod/v4';
+import { formatToolResult } from './format.js';
 
 const ipLookupInputSchema = {
   ip: z.string().trim().min(1).describe('Public IPv4 or IPv6 address to look up'),
@@ -48,23 +49,6 @@ export type IpLookupInput = {
 
 export type IpLookupOutput = IpLookupResult;
 
-function validateIpLookupInput(input: IpLookupInput): IpLookupResult | null {
-  const error = validatePublicIp(input.ip.trim());
-  return error ? ipLookupFailureResult(error) : null;
-}
-
-function formatToolResult(result: IpLookupResult) {
-  const structuredContent = JSON.parse(JSON.stringify(result)) as Record<
-    string,
-    unknown
-  >;
-  return {
-    content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }],
-    structuredContent,
-    isError: !result.success,
-  };
-}
-
 export const ipLookupToolDefinition = {
   name: 'ip_lookup' as const,
   config: {
@@ -76,12 +60,13 @@ export const ipLookupToolDefinition = {
   },
   createHandler(client: SendSoonClient) {
     return async (input: IpLookupInput) => {
-      const validationError = validateIpLookupInput(input);
+      const ip = input.ip.trim();
+      const validationError = validatePublicIp(ip);
       if (validationError) {
-        return formatToolResult(validationError);
+        return formatToolResult(ipLookupFailureResult(validationError));
       }
 
-      const result = await client.ipLookup({ ip: input.ip.trim() });
+      const result = await client.ipLookup({ ip });
       return formatToolResult(result);
     };
   },

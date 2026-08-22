@@ -6,7 +6,7 @@ test('stdio MCP server initializes and exposes all public tools', async (t) => {
   const client = await startMcpClient({ cwd: process.cwd() });
   t.after(() => client.close());
 
-  assert.equal(client.initialized.serverInfo.name, 'sendsoon-connect');
+  assert.equal(client.initialized.serverInfo.name, 'sendsoon');
   const result = await client.request('tools/list');
   assert.deepEqual(
     result.tools.map((tool) => tool.name).sort(),
@@ -23,7 +23,7 @@ test('published bundle starts and exposes the same tools', async (t) => {
   });
   t.after(() => client.close());
 
-  assert.equal(client.initialized.serverInfo.name, 'sendsoon-connect');
+  assert.equal(client.initialized.serverInfo.name, 'sendsoon');
   assert.match(client.initialized.serverInfo.version, /^\d+\.\d+\.\d+/);
   const result = await client.request('tools/list');
   assert.deepEqual(

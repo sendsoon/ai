@@ -22,16 +22,26 @@ Codex、Claude、Cursor などの AI エージェントから、[SendSoon](https
 
 このノートブックは、MCP ツールと同じ SendSoon HTTP API を呼び出します。Cursor、Claude、Codex から使う場合は、この後のローカル MCP 設定を続けてください。
 
-## ステップ1：必要な環境を確認
+## npm で MCP をインストール
 
-- Node.js 20 以降
-- Codex、Claude、Cursor、またはローカル stdio MCP サーバーに対応したクライアント
+MCP サーバーは [`@sendsoon/ai`](https://www.npmjs.com/package/@sendsoon/ai) として公開されています。通常はグローバルインストール不要で、クライアントが `npx` で起動し、初回にダウンロードしてキャッシュします。
 
-手動でのインストールは不要です。以下の設定はすべて `npx` でサーバーを起動し、初回実行時に [`@sendsoon/ai`](https://www.npmjs.com/package/@sendsoon/ai) をダウンロードして、次回以降はキャッシュを再利用します。
+```bash
+npx -y @sendsoon/ai
+```
 
-ソースコードから実行したい場合は [ソースからビルド](#ソースからビルド) を参照してください。
+任意：CLI をグローバルインストールする場合：
 
-## ステップ2：設定値を準備
+```bash
+npm install -g @sendsoon/ai
+sendsoon-mcp
+```
+
+要件：Node.js 20 以降、およびローカル stdio MCP に対応したクライアント（Cursor、Codex、Claude Code、Claude Desktop など）。
+
+ソースから実行する場合は [ソースからビルド](#ソースからビルド) を参照してください。
+
+## 設定値を準備
 
 すべてのクライアントで同じ環境変数を使用します：
 
@@ -52,7 +62,7 @@ Codex、Claude、Cursor などの AI エージェントから、[SendSoon](https
 
 匿名枠を使い切った場合、`send_email` は登録と Key 設定を案内します。無効または取り消された Key は拒否され、匿名枠には自動的に切り替わりません。
 
-## ステップ3：クライアントを選択
+## クライアントを選択
 
 ### Cursor
 
@@ -173,16 +183,27 @@ sendsoon MCP を使ってこのタスクを完了してください。
 
 通常、この明示的な指定が必要なのは初回だけです。
 
-## Agent Skills
+## Agent Skills をインストール
 
-このリポジトリには、各ツールをいつ使うか、エラーコードをどう扱うかをエージェントに教える Agent Skills も含まれています。Claude Code ではプラグインとしてインストールできます：
+Skills は、各 MCP ツールをいつ呼び出すか、エラーコードをどう扱うかをエージェントに教えます。先に MCP を入れ、その後 Skills を追加してください。
+
+### Claude Code（プラグイン）
 
 ```text
 /plugin marketplace add sendsoon/ai
 /plugin install sendsoon-skills@sendsoon
 ```
 
-[`skills/`](skills) 配下の任意のフォルダーを、プロジェクトの `.claude/skills/` またはユーザーディレクトリの `~/.claude/skills/` にコピーしても使えます。
+### Cursor / Claude（フォルダーをコピー）
+
+[`skills/`](skills) 配下のフォルダーを、次のパスにコピーします：
+
+| クライアント | プロジェクト | ユーザー |
+| --- | --- | --- |
+| Cursor | `.cursor/skills/<name>/` | `~/.cursor/skills/<name>/` |
+| Claude Code | `.claude/skills/<name>/` | `~/.claude/skills/<name>/` |
+
+利用可能な Skills：`email-basics`、`ip-lookup`、`markitdown`。
 
 ## ソースからビルド
 

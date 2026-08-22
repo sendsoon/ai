@@ -22,16 +22,26 @@
 
 该 Notebook 调用的是 MCP 工具背后同一套 SendSoon HTTP API。若要在 Cursor、Claude 或 Codex 中使用，请继续完成下面的本地 MCP 配置。
 
-## 第一步：确认环境
+## 通过 npm 安装 MCP
 
-- Node.js 20 或更高版本
-- Codex、Claude、Cursor 或其他支持本地 stdio MCP 的客户端
+MCP 服务已发布为 [`@sendsoon/ai`](https://www.npmjs.com/package/@sendsoon/ai)。通常无需全局安装——客户端用 `npx` 启动，首次自动下载并缓存：
 
-不需要手动安装任何东西。下面所有配置都通过 `npx` 启动服务，首次使用时自动下载 [`@sendsoon/ai`](https://www.npmjs.com/package/@sendsoon/ai)，之后复用缓存。
+```bash
+npx -y @sendsoon/ai
+```
 
-如果你更希望从源码运行，见 [从源码构建](#从源码构建)。
+可选：全局安装 CLI：
 
-## 第二步：准备配置
+```bash
+npm install -g @sendsoon/ai
+sendsoon-mcp
+```
+
+环境要求：Node.js 20 或更高版本，以及支持本地 stdio MCP 的客户端（Cursor、Codex、Claude Code、Claude Desktop 等）。
+
+从源码运行见 [从源码构建](#从源码构建)。
+
+## 准备配置
 
 所有客户端都使用相同的环境变量：
 
@@ -52,7 +62,7 @@
 
 如果匿名额度已经用完，`send_email` 会返回注册与配置 Key 的提示；配置无效或已撤销的 Key 会被拒绝，不会自动退回匿名额度。
 
-## 第三步：选择你的客户端
+## 选择你的客户端
 
 ### Cursor
 
@@ -173,16 +183,27 @@ Agent 调用 `ip_lookup` 并返回查询结果，说明 MCP 已经连接成功�
 
 通常只需在首次使用时这样提示，后续可以直接描述任务。
 
-## Agent Skills
+## 安装 Agent Skills
 
-本仓库同时提供 Agent Skills，告诉 Agent 什么时候该用哪个工具、以及如何处理各类错误码。在 Claude Code 中可以作为插件安装：
+Skills 告诉 Agent 何时调用各 MCP 工具、以及如何处理错误码。请先安装 MCP，再安装 Skills。
+
+### Claude Code（插件市场）
 
 ```text
 /plugin marketplace add sendsoon/ai
 /plugin install sendsoon-skills@sendsoon
 ```
 
-也可以把 [`skills/`](skills) 下的任意目录复制到项目的 `.claude/skills/` 或用户目录的 `~/.claude/skills/`。
+### Cursor / Claude（复制目录）
+
+将 [`skills/`](skills) 下的目录复制到对应 Skills 路径：
+
+| 客户端 | 项目路径 | 用户路径 |
+| --- | --- | --- |
+| Cursor | `.cursor/skills/<name>/` | `~/.cursor/skills/<name>/` |
+| Claude Code | `.claude/skills/<name>/` | `~/.claude/skills/<name>/` |
+
+可用 Skills：`email-basics`、`ip-lookup`、`markitdown`。
 
 ## 从源码构建
 

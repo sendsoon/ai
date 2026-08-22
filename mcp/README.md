@@ -2,7 +2,20 @@
 
 MCP server for [SendSoon](https://www.sendsoonai.com/). Gives Claude, Cursor, Codex, and other MCP clients the ability to send email, look up public IP information, and convert files to Markdown.
 
-No install step is required — every configuration below runs the server through `npx`.
+## Install via npm
+
+```bash
+npx -y @sendsoon/ai
+```
+
+Optional global install:
+
+```bash
+npm install -g @sendsoon/ai
+sendsoon-mcp
+```
+
+No separate install step is required for most clients — configure them to run the package through `npx` as shown below.
 
 | Tool | Purpose | Example prompt |
 | --- | --- | --- |
@@ -65,6 +78,19 @@ args = ["-y", "@sendsoon/ai"]
 SENDSOON_EMAIL_RECIPIENT = "<YOUR_EMAIL>"
 SENDSOON_API_KEY = ""
 ```
+
+## Install Agent Skills
+
+Skills live in the [sendsoon/ai](https://github.com/sendsoon/ai) repository (not in this npm package).
+
+**Claude Code plugin:**
+
+```text
+/plugin marketplace add sendsoon/ai
+/plugin install sendsoon-skills@sendsoon
+```
+
+**Manual copy:** copy `skills/email-basics`, `skills/ip-lookup`, and/or `skills/markitdown` into `.cursor/skills/` (Cursor) or `.claude/skills/` (Claude).
 
 ## Verify
 

@@ -14,7 +14,7 @@ Look up country/region/city/ISP info for a public IP address through the `ip_loo
 
 ## Prerequisites
 
-- MCP server `sendsoon-connect` running with `ip_lookup` registered
+- MCP server `sendsoon` running with `ip_lookup` registered
 - No API key or registration is required by the current public endpoint
 
 ## Tool: `ip_lookup`

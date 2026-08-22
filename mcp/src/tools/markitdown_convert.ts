@@ -5,6 +5,7 @@ import {
   type SendSoonClient,
 } from '@sendsoon/core';
 import * as z from 'zod/v4';
+import { formatToolResult } from './format.js';
 
 const markitdownConvertInputSchema = {
   filename: z
@@ -35,25 +36,6 @@ export type MarkitdownConvertInput = {
 
 export type MarkitdownConvertOutput = MarkitdownConvertResult;
 
-function validateMarkitdownConvertInput(
-  input: MarkitdownConvertInput,
-): MarkitdownConvertResult | null {
-  const error = validateMarkitdownRequest(input);
-  return error ? markitdownFailureResult(error) : null;
-}
-
-function formatToolResult(result: MarkitdownConvertResult) {
-  const structuredContent = JSON.parse(JSON.stringify(result)) as Record<
-    string,
-    unknown
-  >;
-  return {
-    content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }],
-    structuredContent,
-    isError: !result.success,
-  };
-}
-
 export const markitdownConvertToolDefinition = {
   name: 'markitdown_convert' as const,
   config: {
@@ -65,16 +47,16 @@ export const markitdownConvertToolDefinition = {
   },
   createHandler(client: SendSoonClient) {
     return async (input: MarkitdownConvertInput) => {
-      const validationError = validateMarkitdownConvertInput(input);
+      const request = {
+        filename: input.filename.trim(),
+        content_base64: input.content_base64.trim(),
+      };
+      const validationError = validateMarkitdownRequest(request);
       if (validationError) {
-        return formatToolResult(validationError);
+        return formatToolResult(markitdownFailureResult(validationError));
       }
 
-      const result = await client.markitdownConvert({
-        filename: input.filename.trim(),
-        content_base64: input.content_base64,
-      });
-
+      const result = await client.markitdownConvert(request);
       return formatToolResult(result);
     };
   },

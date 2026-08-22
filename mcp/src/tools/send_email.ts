@@ -6,6 +6,7 @@ import {
   type SendSoonClient,
 } from '@sendsoon/core';
 import * as z from 'zod/v4';
+import { formatToolResult } from './format.js';
 
 const sendEmailInputSchema = {
   to: z.string().trim().describe('Recipient email address'),
@@ -46,23 +47,6 @@ export type SendEmailInput = {
 
 export type SendEmailOutput = SendResult;
 
-function validateSendEmailInput(input: SendEmailInput): SendResult | null {
-  const error = validateSendRequest(input);
-  return error ? failureResult(error) : null;
-}
-
-function formatToolResult(result: SendResult) {
-  const structuredContent = JSON.parse(JSON.stringify(result)) as Record<
-    string,
-    unknown
-  >;
-  return {
-    content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }],
-    structuredContent,
-    isError: !result.success,
-  };
-}
-
 export const sendEmailToolDefinition = {
   name: 'send_email' as const,
   config: {
@@ -74,14 +58,14 @@ export const sendEmailToolDefinition = {
   },
   createHandler(client: SendSoonClient) {
     return async (input: SendEmailInput) => {
-      const validationError = validateSendEmailInput(input);
+      const validationError = validateSendRequest(input);
       if (validationError) {
-        return formatToolResult(validationError);
+        return formatToolResult(failureResult(validationError));
       }
 
       const result = await client.sendEmail({
         to: input.to.trim(),
-        subject: input.subject,
+        subject: input.subject.trim(),
         body: input.body,
         content_type: input.content_type ?? 'text/plain',
         idempotency_key: input.idempotency_key,

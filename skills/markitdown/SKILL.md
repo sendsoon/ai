@@ -14,7 +14,7 @@ Convert a file to Markdown text through the `markitdown_convert` MCP tool. This 
 
 ## Prerequisites
 
-- MCP server `sendsoon-connect` running with `markitdown_convert` registered
+- MCP server `sendsoon` running with `markitdown_convert` registered
 - No API key or registration is required by the current public endpoint
 - The file's raw bytes, base64-encoded, available to pass as `content_base64` — decoded size must not exceed 10 MB
 

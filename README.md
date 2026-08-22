@@ -22,16 +22,26 @@ Skip local setup and try `ip_lookup`, `markitdown_convert`, and `send_email` in 
 
 The notebook calls the same SendSoon HTTP APIs used by these MCP tools. To use them from Cursor, Claude, or Codex, continue with the local MCP setup below.
 
-## Step 1: Check the requirements
+## Install MCP via npm
 
-- Node.js 20 or later
-- Codex, Claude, Cursor, or another client that supports local stdio MCP servers
+The MCP server is published as [`@sendsoon/ai`](https://www.npmjs.com/package/@sendsoon/ai). You do not need a global install — clients start it with `npx`, which downloads the package on first use and reuses the cache afterwards.
 
-There is nothing to install by hand. Every configuration below starts the server with `npx`, which downloads [`@sendsoon/ai`](https://www.npmjs.com/package/@sendsoon/ai) on first use and reuses the cached copy afterwards.
+```bash
+npx -y @sendsoon/ai
+```
+
+Optional: install the CLI globally if you prefer a local binary:
+
+```bash
+npm install -g @sendsoon/ai
+sendsoon-mcp
+```
+
+Requirements: Node.js 20 or later, and a client that supports local stdio MCP servers (Cursor, Codex, Claude Code, Claude Desktop, etc.).
 
 If you prefer to run from a local checkout, see [Build from source](#build-from-source).
 
-## Step 2: Prepare the configuration
+## Prepare the configuration
 
 All clients use the same environment variables:
 
@@ -52,7 +62,7 @@ Never commit a real Key to Git or share it with anyone.
 
 If the anonymous quota is exhausted, `send_email` will tell you to register and configure a Key. An invalid or revoked Key is rejected and does not fall back to the anonymous quota.
 
-## Step 3: Choose your client
+## Choose your client
 
 ### Cursor
 
@@ -173,16 +183,27 @@ Use the sendsoon MCP to complete this task.
 
 You usually need this explicit instruction only on the first use.
 
-## Agent Skills
+## Install Agent Skills
 
-This repository also ships Agent Skills that teach agents when to reach for each tool and how to handle its error codes. In Claude Code, install them as a plugin:
+Agent Skills teach the agent when to call each MCP tool and how to handle error codes. Install the MCP server first, then add skills.
+
+### Claude Code (plugin marketplace)
 
 ```text
 /plugin marketplace add sendsoon/ai
 /plugin install sendsoon-skills@sendsoon
 ```
 
-You can also copy any folder under [`skills/`](skills) into `.claude/skills/` in your project or `~/.claude/skills/` in your user directory.
+### Cursor / Claude (copy skills)
+
+Copy any folder under [`skills/`](skills) into your agent skills directory:
+
+| Client | Project path | User path |
+| --- | --- | --- |
+| Cursor | `.cursor/skills/<name>/` | `~/.cursor/skills/<name>/` |
+| Claude Code | `.claude/skills/<name>/` | `~/.claude/skills/<name>/` |
+
+Available skills: `email-basics`, `ip-lookup`, `markitdown`.
 
 ## Build from source
 

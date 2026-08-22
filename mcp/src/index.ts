@@ -10,6 +10,6 @@ async function main(): Promise<void> {
 
 main().catch((error: unknown) => {
   const message = error instanceof Error ? error.message : String(error);
-  console.error(`[sendsoon-connect] Failed to start MCP server: ${message}`);
+  console.error(`[sendsoon] Failed to start MCP server: ${message}`);
   process.exit(1);
 });

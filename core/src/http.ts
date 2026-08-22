@@ -100,7 +100,6 @@ export async function httpRequest(
       });
 
       const body = await response.text();
-      clearTimeout(timeoutId);
 
       if (RETRYABLE_STATUSES.has(response.status) && attempt < maxRetries) {
         const delay =
@@ -122,8 +121,6 @@ export async function httpRequest(
         headers: response.headers,
       };
     } catch (error) {
-      clearTimeout(timeoutId);
-
       if (!isRetryableNetworkError(error)) {
         throw error;
       }

@@ -150,6 +150,10 @@ function invalidResponseError() {
   return createError(SendSoonErrorCode.INVALID_RESPONSE);
 }
 
+function apiUrl(baseUrl: string, path: string): string {
+  return `${baseUrl.replace(/\/$/, '')}${path}`;
+}
+
 export class SendSoonClient {
   private readonly options: SendSoonClientOptions;
   private readonly request: (options: HttpRequestOptions) => Promise<HttpResponse>;
@@ -169,147 +173,149 @@ export class SendSoonClient {
     };
   }
 
-  sendEmail(request: SendRequest): Promise<SendResult> {
+  async sendEmail(request: SendRequest): Promise<SendResult> {
     const validationError = validateSendRequest(request);
-    if (validationError) return Promise.resolve(failureResult(validationError));
+    if (validationError) return failureResult(validationError);
 
     const config = this.config();
-
     const configError = validateBaseUrl(config.baseUrl);
-    if (configError) return Promise.resolve(failureResult(configError));
+    if (configError) return failureResult(configError);
     if (!config.emailRecipient) {
-      return Promise.resolve(failureResult(createError(
+      return failureResult(createError(
         SendSoonErrorCode.INVALID_CONFIG,
         'Set SENDSOON_EMAIL_RECIPIENT to the only address allowed for test sends.',
-      )));
-    }
-    if (request.to.trim().toLowerCase() !== config.emailRecipient.toLowerCase()) {
-      return Promise.resolve(failureResult(createError(
-        SendSoonErrorCode.INVALID_RECIPIENT,
-        'Recipient must match SENDSOON_EMAIL_RECIPIENT.',
-      )));
+      ));
     }
 
+    const to = request.to.trim();
+    if (to.toLowerCase() !== config.emailRecipient.toLowerCase()) {
+      return failureResult(createError(
+        SendSoonErrorCode.INVALID_RECIPIENT,
+        'Recipient must match SENDSOON_EMAIL_RECIPIENT.',
+      ));
+    }
+
+    const subject = request.subject.trim();
     const payload = {
-      to: request.to,
-      subject: request.subject,
+      to,
+      subject,
       htmlContent:
         request.content_type === 'text/html'
           ? request.body
           : plainTextToHtml(request.body),
     };
 
-    const url = `${config.baseUrl.replace(/\/$/, '')}/api/send-test-email`;
+    try {
+      const response = await this.request({
+        method: 'POST',
+        url: apiUrl(config.baseUrl, '/api/send-test-email'),
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          ...optionalAuthorizationHeader(config.apiKey),
+          'Idempotency-Key': request.idempotency_key?.trim() || randomUUID(),
+        },
+        body: JSON.stringify(payload),
+      });
 
-    return this.request({
-      method: 'POST',
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        ...optionalAuthorizationHeader(config.apiKey),
-        'Idempotency-Key': request.idempotency_key?.trim() || randomUUID(),
-      },
-      body: JSON.stringify(payload),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          return failureResult(mapHttpError(response.status, response.body));
-        }
+      if (!response.ok) {
+        return failureResult(mapHttpError(response.status, response.body));
+      }
 
-        const data = parseSendEmailResponse(response.body);
-        return data
-          ? successResult(data.message_id, data.remaining)
-          : failureResult(invalidResponseError());
-      })
-      .catch((error: unknown) => failureResult(mapNetworkError(error)));
+      const data = parseSendEmailResponse(response.body);
+      return data
+        ? successResult(data.message_id, data.remaining)
+        : failureResult(invalidResponseError());
+    } catch (error: unknown) {
+      return failureResult(mapNetworkError(error));
+    }
   }
 
-  ipLookup(request: IpLookupRequest): Promise<IpLookupResult> {
+  async ipLookup(request: IpLookupRequest): Promise<IpLookupResult> {
     const ip = request.ip.trim();
     const validationError = validatePublicIp(ip);
-    if (validationError) return Promise.resolve(ipLookupFailureResult(validationError));
+    if (validationError) return ipLookupFailureResult(validationError);
 
     const config = this.config();
-
     const configError = validateBaseUrl(config.baseUrl);
-    if (configError) return Promise.resolve(ipLookupFailureResult(configError));
+    if (configError) return ipLookupFailureResult(configError);
 
-    const url = `${config.baseUrl.replace(/\/$/, '')}/api/ip/lookup?ip=${encodeURIComponent(ip)}`;
+    try {
+      const response = await this.request({
+        method: 'GET',
+        url: apiUrl(config.baseUrl, `/api/ip/lookup?ip=${encodeURIComponent(ip)}`),
+        headers: {
+          Accept: 'application/json',
+          ...optionalAuthorizationHeader(config.apiKey),
+        },
+      });
 
-    return this.request({
-      method: 'GET',
-      url,
-      headers: {
-        Accept: 'application/json',
-        ...optionalAuthorizationHeader(config.apiKey),
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          return ipLookupFailureResult(mapHttpError(response.status, response.body));
-        }
+      if (!response.ok) {
+        return ipLookupFailureResult(mapHttpError(response.status, response.body));
+      }
 
-        const data = parseIpLookupResponse(response.body);
-        if (!data) return ipLookupFailureResult(invalidResponseError());
+      const data = parseIpLookupResponse(response.body);
+      if (!data) return ipLookupFailureResult(invalidResponseError());
 
-        return ipLookupSuccessResult({
-          ip: data.ip,
-          ip2region: data.ip2region,
-          network: data.network,
-          source: data.source,
-        });
-      })
-      .catch((error: unknown) => ipLookupFailureResult(mapNetworkError(error)));
+      return ipLookupSuccessResult({
+        ip: data.ip,
+        ip2region: data.ip2region,
+        network: data.network,
+        source: data.source,
+      });
+    } catch (error: unknown) {
+      return ipLookupFailureResult(mapNetworkError(error));
+    }
   }
 
-  markitdownConvert(
+  async markitdownConvert(
     request: MarkitdownConvertRequest,
   ): Promise<MarkitdownConvertResult> {
     const validationError = validateMarkitdownRequest(request);
-    if (validationError) return Promise.resolve(markitdownFailureResult(validationError));
+    if (validationError) return markitdownFailureResult(validationError);
 
     const config = this.config();
-
     const configError = validateBaseUrl(config.baseUrl);
-    if (configError) return Promise.resolve(markitdownFailureResult(configError));
+    if (configError) return markitdownFailureResult(configError);
 
-    const url = `${config.baseUrl.replace(/\/$/, '')}/api/markitdown/convert`;
+    const filename = request.filename.trim();
     const form = new FormData();
     form.append(
       'file',
       new Blob([Buffer.from(request.content_base64, 'base64')]),
-      request.filename,
+      filename,
     );
 
-    return this.request({
-      method: 'POST',
-      url,
-      headers: {
-        Accept: 'text/markdown, application/json',
-        ...optionalAuthorizationHeader(config.apiKey),
-      },
-      body: form,
-    })
-      .then((response) => {
-        if (!response.ok) {
-          return markitdownFailureResult(mapHttpError(response.status, response.body));
-        }
+    try {
+      const response = await this.request({
+        method: 'POST',
+        url: apiUrl(config.baseUrl, '/api/markitdown/convert'),
+        headers: {
+          Accept: 'text/markdown, application/json',
+          ...optionalAuthorizationHeader(config.apiKey),
+        },
+        body: form,
+      });
 
-        const data = parseMarkitdownResponse(response.body);
-        if (data) return markitdownSuccessResult(data.filename, data.markdown);
+      if (!response.ok) {
+        return markitdownFailureResult(mapHttpError(response.status, response.body));
+      }
 
-        if (!response.body.trim()) {
-          return markitdownFailureResult(invalidResponseError());
-        }
+      const data = parseMarkitdownResponse(response.body);
+      if (data) return markitdownSuccessResult(data.filename, data.markdown);
 
-        const fallback = `${request.filename.replace(/\.[^.]+$/, '')}.md`;
-        return markitdownSuccessResult(
-          responseFilename(response.headers, fallback),
-          response.body,
-        );
-      })
-      .catch((error: unknown) => markitdownFailureResult(mapNetworkError(error)));
+      if (!response.body.trim()) {
+        return markitdownFailureResult(invalidResponseError());
+      }
+
+      const fallback = `${filename.replace(/\.[^.]+$/, '')}.md`;
+      return markitdownSuccessResult(
+        responseFilename(response.headers, fallback),
+        response.body,
+      );
+    } catch (error: unknown) {
+      return markitdownFailureResult(mapNetworkError(error));
+    }
   }
 }
 

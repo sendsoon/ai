@@ -15,7 +15,7 @@ Send one email through SendSoon Connect. This skill covers the `send_email` MCP 
 
 ## Prerequisites
 
-- MCP server `sendsoon-connect` running with `send_email` registered
+- MCP server `sendsoon` running with `send_email` registered
 - Environment variable `SENDSOON_EMAIL_RECIPIENT` set to the one address allowed for test sends
 - Without `SENDSOON_API_KEY`, one public IP is limited to 3 successful test sends per day. Generate an `ssk_live_...` Key at `https://www.sendsoonai.com/profile` and configure it to continue after the trial.
 
