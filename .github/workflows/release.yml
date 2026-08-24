@@ -46,6 +46,10 @@ jobs:
           test "$NPM_VERSION" = "$PY_PKG"
       - run: pnpm run check
 
+  check-python:
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/'))
+    uses: ./.github/workflows/python-check.yml
+
   publish-npm:
     if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
