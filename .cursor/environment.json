@@ -1,0 +1,4 @@
+{
+  "name": "SendSoon AI MCP",
+  "install": "bash .cursor/install.sh"
+}
