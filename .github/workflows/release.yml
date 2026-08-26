@@ -57,6 +57,10 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    defaults:
+      run:
+        # Publish the public package only — root package.json is private monorepo metadata.
+        working-directory: npm
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -65,7 +69,10 @@ jobs:
           node-version: 22
           registry-url: https://registry.npmjs.org
           cache: pnpm
-      - run: pnpm install --frozen-lockfile
+          cache-dependency-path: pnpm-lock.yaml
+      - name: Install workspace deps
+        working-directory: .
+        run: pnpm install --frozen-lockfile
       - name: Align npm package version with tag
         if: startsWith(github.ref, 'refs/tags/v')
         run: |
@@ -74,15 +81,19 @@ jobs:
           node <<'NODE'
           const fs = require('fs');
           const version = process.env.VERSION;
-          const path = 'npm/package.json';
+          const path = 'package.json';
           const pkg = JSON.parse(fs.readFileSync(path, 'utf8'));
+          if (pkg.private) {
+            throw new Error('refusing to publish: npm/package.json must not be private');
+          }
           pkg.version = version;
           fs.writeFileSync(path, JSON.stringify(pkg, null, 2) + '\n');
           console.log('npm version ->', version);
           NODE
-      - name: Publish to npm
+      - name: Publish @sendsoon/mcp to npm
         # Requires Trusted Publishers on npmjs.com for @sendsoon/mcp → GitHub Actions (sendsoon/mcp).
-        run: pnpm --filter @sendsoon/mcp publish --no-git-checks --access public
+        # For a brand-new package name, add a Pending Publisher first, then re-run this workflow.
+        run: pnpm publish --no-git-checks --access public
         env:
           NPM_CONFIG_PROVENANCE: true
 
