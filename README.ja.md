@@ -43,19 +43,6 @@ sendsoon-mcp
 
 要件：Node.js 20 以降。
 
-### `@sendsoon/ai` からの移行
-
-GitHub リポジトリは [`sendsoon/mcp`](https://github.com/sendsoon/mcp) に改名され、npm パッケージは `0.2.0` 以降 `@sendsoon/mcp` です。
-
-MCP クライアント設定を更新してください：
-
-| 変更前 | 変更後 |
-| --- | --- |
-| `npx -y @sendsoon/ai` | `npx -y @sendsoon/mcp` |
-| `/plugin marketplace add sendsoon/ai` | `/plugin marketplace add sendsoon/mcp` |
-
-ツール名、環境変数、ランタイムのサーバー名 `sendsoon` は変わりません。`@sendsoon/ai` は公開を終了しているため、`@sendsoon/mcp` へ移行してください。
-
 ### PyPI（Python）
 
 [`sendsoon-mcp`](https://pypi.org/project/sendsoon-mcp/) として公開されています。グローバルインストール不要の `uvx` を推奨します：

@@ -43,19 +43,6 @@ sendsoon-mcp
 
 Requires Node.js 20+.
 
-### Migration from `@sendsoon/ai`
-
-The GitHub repository was renamed to [`sendsoon/mcp`](https://github.com/sendsoon/mcp), and the npm package is now `@sendsoon/mcp` (from `0.2.0`).
-
-Update your MCP client config:
-
-| Before | After |
-| --- | --- |
-| `npx -y @sendsoon/ai` | `npx -y @sendsoon/mcp` |
-| `/plugin marketplace add sendsoon/ai` | `/plugin marketplace add sendsoon/mcp` |
-
-Tool names, environment variables, and the runtime server name `sendsoon` are unchanged. `@sendsoon/ai` is no longer published; pin or migrate clients to `@sendsoon/mcp`.
-
 ### PyPI (Python)
 
 Published as [`sendsoon-mcp`](https://pypi.org/project/sendsoon-mcp/). Prefer `uvx` so no global install is needed:

@@ -6,8 +6,6 @@ MCP server for [SendSoon](https://www.sendsoonai.com/). Gives Claude, Cursor, Co
 **Transport:** `stdio`  
 **Tools:** `send_email`, `ip_lookup`, `markitdown_convert`
 
-> **Renamed in 0.2.0:** package was `@sendsoon/ai`, repository was `sendsoon/ai`. Replace `npx -y @sendsoon/ai` with `npx -y @sendsoon/mcp`. Tools and env vars are unchanged.
-
 ---
 
 ## Install
