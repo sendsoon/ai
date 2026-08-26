@@ -18,7 +18,7 @@ Configure it once, then describe tasks in natural language. You usually do not n
 
 Skip local setup and try `ip_lookup`, `markitdown_convert`, and `send_email` in the browser.
 
-[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sendsoon/ai/blob/main/docs/SendSoon.ipynb)
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sendsoon/mcp/blob/main/docs/SendSoon.ipynb)
 
 The notebook calls the same SendSoon HTTP APIs used by these MCP tools. To use them from Cursor, Claude, or Codex, continue with the local MCP setup below.
 
@@ -28,20 +28,33 @@ Choose **npm (Node)** or **PyPI (Python)**. Tool names and environment variables
 
 ### npm (Node)
 
-Published as [`@sendsoon/ai`](https://www.npmjs.com/package/@sendsoon/ai). Clients can start it with `npx` (downloads on first use):
+Published as [`@sendsoon/mcp`](https://www.npmjs.com/package/@sendsoon/mcp). Clients can start it with `npx` (downloads on first use):
 
 ```bash
-npx -y @sendsoon/ai
+npx -y @sendsoon/mcp
 ```
 
 Optional global install:
 
 ```bash
-npm install -g @sendsoon/ai
+npm install -g @sendsoon/mcp
 sendsoon-mcp
 ```
 
 Requires Node.js 20+.
+
+### Migration from `@sendsoon/ai`
+
+The GitHub repository was renamed to [`sendsoon/mcp`](https://github.com/sendsoon/mcp), and the npm package is now `@sendsoon/mcp` (from `0.2.0`).
+
+Update your MCP client config:
+
+| Before | After |
+| --- | --- |
+| `npx -y @sendsoon/ai` | `npx -y @sendsoon/mcp` |
+| `/plugin marketplace add sendsoon/ai` | `/plugin marketplace add sendsoon/mcp` |
+
+Tool names, environment variables, and the runtime server name `sendsoon` are unchanged. `@sendsoon/ai` is no longer published; pin or migrate clients to `@sendsoon/mcp`.
 
 ### PyPI (Python)
 
@@ -94,7 +107,7 @@ Open `Settings > Tools & MCP` in Cursor and add an MCP server. You can also save
   "mcpServers": {
     "sendsoon": {
       "command": "npx",
-      "args": ["-y", "@sendsoon/ai"],
+      "args": ["-y", "@sendsoon/mcp"],
       "env": {
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
@@ -130,7 +143,7 @@ Open the user configuration file at `~/.codex/config.toml` and add:
 ```toml
 [mcp_servers.sendsoon]
 command = "npx"
-args = ["-y", "@sendsoon/ai"]
+args = ["-y", "@sendsoon/mcp"]
 
 [mcp_servers.sendsoon.env]
 SENDSOON_EMAIL_RECIPIENT = "<YOUR_EMAIL>"
@@ -144,7 +157,7 @@ Save the file and reopen Codex. Use `/mcp` to confirm that `sendsoon` is connect
 Replace the placeholder and run:
 
 ```powershell
-claude mcp add --transport stdio --scope user --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- npx -y @sendsoon/ai
+claude mcp add --transport stdio --scope user --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- npx -y @sendsoon/mcp
 ```
 
 Run `/mcp` in Claude Code and confirm that `sendsoon` is connected. To use an API Key, add `--env SENDSOON_API_KEY=<SENDSOON_API_KEY>` before the `sendsoon` server name.
@@ -158,7 +171,7 @@ Open the configuration file from `Settings > Developer` and add:
   "mcpServers": {
     "sendsoon": {
       "command": "npx",
-      "args": ["-y", "@sendsoon/ai"],
+      "args": ["-y", "@sendsoon/mcp"],
       "env": {
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
@@ -178,7 +191,7 @@ For Windsurf, Cline, Continue, or another client that supports local stdio MCP s
 | --- | --- |
 | Transport | `stdio` |
 | Command | `npx` |
-| Arguments | `-y @sendsoon/ai` |
+| Arguments | `-y @sendsoon/mcp` |
 | Environment | The environment variables listed above |
 
 ## Confirm that it works
@@ -228,7 +241,7 @@ Agent Skills teach the agent when to call each MCP tool and how to handle error 
 ### Claude Code (plugin marketplace)
 
 ```text
-/plugin marketplace add sendsoon/ai
+/plugin marketplace add sendsoon/mcp
 /plugin install sendsoon-skills@sendsoon
 ```
 

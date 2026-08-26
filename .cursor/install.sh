@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Idempotent Cloud Agent bootstrap for the SendSoon AI MCP monorepo.
-# Prepares both packages: the Node workspace (@sendsoon/ai) and the Python
+# Prepares both packages: the Node workspace (@sendsoon/mcp) and the Python
 # package (sendsoon-mcp, installed into python/.venv).
 set -euo pipefail
 

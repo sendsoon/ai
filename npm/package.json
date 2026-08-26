@@ -1,17 +1,17 @@
 {
-  "name": "@sendsoon/ai",
-  "version": "0.1.2",
+  "name": "@sendsoon/mcp",
+  "version": "0.2.0",
   "description": "MCP server for SendSoon: send email, look up public IP information, and convert files to Markdown from Claude, Cursor, Codex, and other AI agents.",
   "license": "MIT",
   "author": "SendSoon",
-  "homepage": "https://github.com/sendsoon/ai#readme",
+  "homepage": "https://github.com/sendsoon/mcp#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sendsoon/ai.git",
+    "url": "git+https://github.com/sendsoon/mcp.git",
     "directory": "npm"
   },
   "bugs": {
-    "url": "https://github.com/sendsoon/ai/issues"
+    "url": "https://github.com/sendsoon/mcp/issues"
   },
   "keywords": [
     "mcp",
@@ -25,7 +25,7 @@
     "cursor",
     "codex"
   ],
-  "mcpName": "io.github.sendsoon/ai",
+  "mcpName": "io.github.sendsoon/mcp",
   "type": "module",
   "engines": {
     "node": ">=20"

@@ -1,19 +1,19 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.sendsoon/ai",
+  "name": "io.github.sendsoon/mcp",
   "description": "Send email, look up public IP information, and convert files to Markdown through SendSoon.",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "websiteUrl": "https://www.sendsoonai.com",
   "repository": {
-    "url": "https://github.com/sendsoon/ai",
+    "url": "https://github.com/sendsoon/mcp",
     "source": "github"
   },
   "packages": [
     {
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
-      "identifier": "@sendsoon/ai",
-      "version": "0.1.2",
+      "identifier": "@sendsoon/mcp",
+      "version": "0.2.0",
       "transport": {
         "type": "stdio"
       },
@@ -46,7 +46,7 @@
       "registryType": "pypi",
       "registryBaseUrl": "https://pypi.org",
       "identifier": "sendsoon-mcp",
-      "version": "0.1.2",
+      "version": "0.2.0",
       "transport": {
         "type": "stdio"
       },

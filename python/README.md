@@ -7,7 +7,7 @@ MCP server for [SendSoon](https://www.sendsoonai.com/). Gives Claude, Cursor, Co
 **Transport:** `stdio`  
 **Tools:** `send_email`, `ip_lookup`, `markitdown_convert`  
 
-Python package version is managed independently from the Node package [`@sendsoon/ai`](https://www.npmjs.com/package/@sendsoon/ai). Tool names and request/response semantics stay aligned.
+Python package version stays aligned with the Node package [`@sendsoon/mcp`](https://www.npmjs.com/package/@sendsoon/mcp). Tool names and request/response semantics stay aligned.
 
 ---
 

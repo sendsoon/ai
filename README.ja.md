@@ -18,7 +18,7 @@ Codex、Claude、Cursor などの AI エージェントから、[SendSoon](https
 
 ローカル環境のセットアップなしで、ブラウザから `ip_lookup`、`markitdown_convert`、`send_email` を試せます。
 
-[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sendsoon/ai/blob/main/docs/SendSoon.ipynb)
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sendsoon/mcp/blob/main/docs/SendSoon.ipynb)
 
 このノートブックは、MCP ツールと同じ SendSoon HTTP API を呼び出します。Cursor、Claude、Codex から使う場合は、この後のローカル MCP 設定を続けてください。
 
@@ -28,20 +28,33 @@ Codex、Claude、Cursor などの AI エージェントから、[SendSoon](https
 
 ### npm（Node）
 
-[`@sendsoon/ai`](https://www.npmjs.com/package/@sendsoon/ai) として公開されています。クライアントは `npx` で起動できます（初回にダウンロード）：
+[`@sendsoon/mcp`](https://www.npmjs.com/package/@sendsoon/mcp) として公開されています。クライアントは `npx` で起動できます（初回にダウンロード）：
 
 ```bash
-npx -y @sendsoon/ai
+npx -y @sendsoon/mcp
 ```
 
 任意のグローバルインストール：
 
 ```bash
-npm install -g @sendsoon/ai
+npm install -g @sendsoon/mcp
 sendsoon-mcp
 ```
 
 要件：Node.js 20 以降。
+
+### `@sendsoon/ai` からの移行
+
+GitHub リポジトリは [`sendsoon/mcp`](https://github.com/sendsoon/mcp) に改名され、npm パッケージは `0.2.0` 以降 `@sendsoon/mcp` です。
+
+MCP クライアント設定を更新してください：
+
+| 変更前 | 変更後 |
+| --- | --- |
+| `npx -y @sendsoon/ai` | `npx -y @sendsoon/mcp` |
+| `/plugin marketplace add sendsoon/ai` | `/plugin marketplace add sendsoon/mcp` |
+
+ツール名、環境変数、ランタイムのサーバー名 `sendsoon` は変わりません。`@sendsoon/ai` は公開を終了しているため、`@sendsoon/mcp` へ移行してください。
 
 ### PyPI（Python）
 
@@ -94,7 +107,7 @@ Cursor の `Settings > Tools & MCP` を開いて MCP Server を追加します�
   "mcpServers": {
     "sendsoon": {
       "command": "npx",
-      "args": ["-y", "@sendsoon/ai"],
+      "args": ["-y", "@sendsoon/mcp"],
       "env": {
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
@@ -130,7 +143,7 @@ Cursor の `Settings > Tools & MCP` を開いて MCP Server を追加します�
 ```toml
 [mcp_servers.sendsoon]
 command = "npx"
-args = ["-y", "@sendsoon/ai"]
+args = ["-y", "@sendsoon/mcp"]
 
 [mcp_servers.sendsoon.env]
 SENDSOON_EMAIL_RECIPIENT = "<YOUR_EMAIL>"
@@ -144,7 +157,7 @@ SENDSOON_API_KEY = ""
 プレースホルダーを置き換えて実行します：
 
 ```powershell
-claude mcp add --transport stdio --scope user --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- npx -y @sendsoon/ai
+claude mcp add --transport stdio --scope user --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- npx -y @sendsoon/mcp
 ```
 
 Claude Code で `/mcp` を実行し、`sendsoon` が接続されていることを確認します。API Key を使用する場合は、サーバー名 `sendsoon` の前に `--env SENDSOON_API_KEY=<SENDSOON_API_KEY>` を追加します。
@@ -158,7 +171,7 @@ Claude Code で `/mcp` を実行し、`sendsoon` が接続されていること�
   "mcpServers": {
     "sendsoon": {
       "command": "npx",
-      "args": ["-y", "@sendsoon/ai"],
+      "args": ["-y", "@sendsoon/mcp"],
       "env": {
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
@@ -178,7 +191,7 @@ Windsurf、Cline、Continue など、ローカル stdio MCP サーバーに対�
 | --- | --- |
 | Transport | `stdio` |
 | Command | `npx` |
-| Arguments | `-y @sendsoon/ai` |
+| Arguments | `-y @sendsoon/mcp` |
 | Environment | 上記の環境変数 |
 
 ## 接続を確認
@@ -228,7 +241,7 @@ Skills は、各 MCP ツールをいつ呼び出すか、エラーコードを�
 ### Claude Code（プラグイン）
 
 ```text
-/plugin marketplace add sendsoon/ai
+/plugin marketplace add sendsoon/mcp
 /plugin install sendsoon-skills@sendsoon
 ```
 

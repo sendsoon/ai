@@ -1,4 +1,4 @@
-# @sendsoon/ai
+# @sendsoon/mcp
 
 MCP server for [SendSoon](https://www.sendsoonai.com/). Gives Claude, Cursor, Codex, and other MCP clients the ability to send email, look up public IP information, and convert files to Markdown.
 
@@ -6,18 +6,20 @@ MCP server for [SendSoon](https://www.sendsoonai.com/). Gives Claude, Cursor, Co
 **Transport:** `stdio`  
 **Tools:** `send_email`, `ip_lookup`, `markitdown_convert`
 
+> **Renamed in 0.2.0:** package was `@sendsoon/ai`, repository was `sendsoon/ai`. Replace `npx -y @sendsoon/ai` with `npx -y @sendsoon/mcp`. Tools and env vars are unchanged.
+
 ---
 
 ## Install
 
 ```bash
-npx -y @sendsoon/ai
+npx -y @sendsoon/mcp
 ```
 
 Optional global install:
 
 ```bash
-npm install -g @sendsoon/ai
+npm install -g @sendsoon/mcp
 sendsoon-mcp
 ```
 
@@ -53,7 +55,7 @@ If the anonymous quota is exhausted, `send_email` returns an `AUTH_ERROR` asking
   "mcpServers": {
     "sendsoon": {
       "command": "npx",
-      "args": ["-y", "@sendsoon/ai"],
+      "args": ["-y", "@sendsoon/mcp"],
       "env": {
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
@@ -68,7 +70,7 @@ If the anonymous quota is exhausted, `send_email` returns an `AUTH_ERROR` asking
 ```bash
 claude mcp add --transport stdio --scope user \
   --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> \
-  sendsoon -- npx -y @sendsoon/ai
+  sendsoon -- npx -y @sendsoon/mcp
 ```
 
 **Codex** — add to `~/.codex/config.toml`:
@@ -76,14 +78,14 @@ claude mcp add --transport stdio --scope user \
 ```toml
 [mcp_servers.sendsoon]
 command = "npx"
-args = ["-y", "@sendsoon/ai"]
+args = ["-y", "@sendsoon/mcp"]
 
 [mcp_servers.sendsoon.env]
 SENDSOON_EMAIL_RECIPIENT = "<YOUR_EMAIL>"
 SENDSOON_API_KEY = ""
 ```
 
-**Other clients** (Windsurf, Cline, Continue): Transport `stdio`, command `npx`, args `-y @sendsoon/ai`, env as above.
+**Other clients** (Windsurf, Cline, Continue): Transport `stdio`, command `npx`, args `-y @sendsoon/mcp`, env as above.
 
 ---
 
@@ -312,12 +314,12 @@ The address must exactly match `SENDSOON_EMAIL_RECIPIENT`.
 
 ## Agent Skills (optional)
 
-Skills teach agents when to call each tool and how to handle errors. They are **not** bundled in this npm package — install from [github.com/sendsoon/ai](https://github.com/sendsoon/ai).
+Skills teach agents when to call each tool and how to handle errors. They are **not** bundled in this npm package — install from [github.com/sendsoon/mcp](https://github.com/sendsoon/mcp).
 
 **Claude Code:**
 
 ```text
-/plugin marketplace add sendsoon/ai
+/plugin marketplace add sendsoon/mcp
 /plugin install sendsoon-skills@sendsoon
 ```
 
@@ -329,9 +331,9 @@ MCP must be installed first; Skills alone do not provide tools.
 
 ## More documentation
 
-Full user guide (multilingual): [github.com/sendsoon/ai](https://github.com/sendsoon/ai) ([简体中文](https://github.com/sendsoon/ai/blob/main/README.zh-CN.md) · [日本語](https://github.com/sendsoon/ai/blob/main/README.ja.md))
+Full user guide (multilingual): [github.com/sendsoon/mcp](https://github.com/sendsoon/mcp) ([简体中文](https://github.com/sendsoon/mcp/blob/main/README.zh-CN.md) · [日本語](https://github.com/sendsoon/mcp/blob/main/README.ja.md))
 
-Try APIs in browser: [Google Colab notebook](https://colab.research.google.com/github/sendsoon/ai/blob/main/docs/SendSoon.ipynb)
+Try APIs in browser: [Google Colab notebook](https://colab.research.google.com/github/sendsoon/mcp/blob/main/docs/SendSoon.ipynb)
 
 ## License
 

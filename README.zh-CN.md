@@ -18,7 +18,7 @@
 
 免去本地环境配置，点击即可在浏览器中试用 `ip_lookup`、`markitdown_convert` 和 `send_email`。
 
-[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sendsoon/ai/blob/main/docs/SendSoon.ipynb)
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sendsoon/mcp/blob/main/docs/SendSoon.ipynb)
 
 该 Notebook 调用的是 MCP 工具背后同一套 SendSoon HTTP API。若要在 Cursor、Claude 或 Codex 中使用，请继续完成下面的本地 MCP 配置。
 
@@ -28,20 +28,33 @@
 
 ### npm（Node）
 
-已发布为 [`@sendsoon/ai`](https://www.npmjs.com/package/@sendsoon/ai)。客户端可用 `npx` 启动（首次自动下载）：
+已发布为 [`@sendsoon/mcp`](https://www.npmjs.com/package/@sendsoon/mcp)。客户端可用 `npx` 启动（首次自动下载）：
 
 ```bash
-npx -y @sendsoon/ai
+npx -y @sendsoon/mcp
 ```
 
 可选全局安装：
 
 ```bash
-npm install -g @sendsoon/ai
+npm install -g @sendsoon/mcp
 sendsoon-mcp
 ```
 
 需要 Node.js 20+。
+
+### 从 `@sendsoon/ai` 迁移
+
+GitHub 仓库已更名为 [`sendsoon/mcp`](https://github.com/sendsoon/mcp)，npm 包从 `0.2.0` 起改为 `@sendsoon/mcp`。
+
+请更新 MCP 客户端配置：
+
+| 之前 | 之后 |
+| --- | --- |
+| `npx -y @sendsoon/ai` | `npx -y @sendsoon/mcp` |
+| `/plugin marketplace add sendsoon/ai` | `/plugin marketplace add sendsoon/mcp` |
+
+工具名称、环境变量以及运行时 server 名 `sendsoon` 不变。`@sendsoon/ai` 不再继续发布，请迁移到 `@sendsoon/mcp`。
 
 ### PyPI（Python）
 
@@ -94,7 +107,7 @@ sendsoon-mcp
   "mcpServers": {
     "sendsoon": {
       "command": "npx",
-      "args": ["-y", "@sendsoon/ai"],
+      "args": ["-y", "@sendsoon/mcp"],
       "env": {
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
@@ -130,7 +143,7 @@ sendsoon-mcp
 ```toml
 [mcp_servers.sendsoon]
 command = "npx"
-args = ["-y", "@sendsoon/ai"]
+args = ["-y", "@sendsoon/mcp"]
 
 [mcp_servers.sendsoon.env]
 SENDSOON_EMAIL_RECIPIENT = "<YOUR_EMAIL>"
@@ -144,7 +157,7 @@ SENDSOON_API_KEY = ""
 将下面命令中的占位符替换后运行：
 
 ```powershell
-claude mcp add --transport stdio --scope user --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- npx -y @sendsoon/ai
+claude mcp add --transport stdio --scope user --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- npx -y @sendsoon/mcp
 ```
 
 进入 Claude Code 后运行 `/mcp`，确认 `sendsoon` 已连接。需要使用 Key 时，在命令的 `sendsoon` 之前增加 `--env SENDSOON_API_KEY=<SENDSOON_API_KEY>`。
@@ -158,7 +171,7 @@ claude mcp add --transport stdio --scope user --env SENDSOON_EMAIL_RECIPIENT=<YO
   "mcpServers": {
     "sendsoon": {
       "command": "npx",
-      "args": ["-y", "@sendsoon/ai"],
+      "args": ["-y", "@sendsoon/mcp"],
       "env": {
         "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
@@ -178,7 +191,7 @@ Windsurf、Cline、Continue 等支持本地 stdio MCP 的客户端，填写以�
 | --- | --- |
 | Transport | `stdio` |
 | Command | `npx` |
-| Arguments | `-y @sendsoon/ai` |
+| Arguments | `-y @sendsoon/mcp` |
 | Environment | 上方列出的环境变量 |
 
 ## 确认配置成功
@@ -228,7 +241,7 @@ Skills 告诉 Agent 何时调用各 MCP 工具、以及如何处理错误码。�
 ### Claude Code（插件市场）
 
 ```text
-/plugin marketplace add sendsoon/ai
+/plugin marketplace add sendsoon/mcp
 /plugin install sendsoon-skills@sendsoon
 ```
 

@@ -81,8 +81,8 @@ jobs:
           console.log('npm version ->', version);
           NODE
       - name: Publish to npm
-        # Requires Trusted Publishers on npmjs.com for @sendsoon/ai → GitHub Actions (sendsoon/ai).
-        run: pnpm --filter @sendsoon/ai publish --no-git-checks --access public
+        # Requires Trusted Publishers on npmjs.com for @sendsoon/mcp → GitHub Actions (sendsoon/mcp).
+        run: pnpm --filter @sendsoon/mcp publish --no-git-checks --access public
         env:
           NPM_CONFIG_PROVENANCE: true
 

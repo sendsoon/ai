@@ -1,6 +1,6 @@
 {
-  "name": "sendsoon-ai",
-  "version": "0.1.2",
+  "name": "sendsoon-mcp",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@11.9.0",
@@ -8,7 +8,7 @@
   "engines": { "node": ">=20" },
   "scripts": {
     "build": "tsc -b",
-    "bundle": "pnpm --filter @sendsoon/ai run bundle",
+    "bundle": "pnpm --filter @sendsoon/mcp run bundle",
     "clean": "tsc -b --clean",
     "typecheck": "tsc -b --pretty false",
     "lint": "eslint npm/src",
