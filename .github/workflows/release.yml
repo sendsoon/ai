@@ -53,6 +53,7 @@ jobs:
   publish-pypi:
     if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     uses: ./.github/workflows/publish-pypi.yml
+    secrets: inherit
     permissions:
       contents: read
       id-token: write
@@ -100,9 +101,23 @@ jobs:
       - name: Publish @sendsoon/mcp to npm
         # Requires Trusted Publishers on npmjs.com for @sendsoon/mcp → GitHub Actions (sendsoon/mcp).
         # For a brand-new package name, add a Pending Publisher first, then re-run this workflow.
+        continue-on-error: true
+        id: npm_publish
         run: pnpm publish --no-git-checks --access public
         env:
           NPM_CONFIG_PROVENANCE: true
+
+      - name: Verify npm publish
+        run: |
+          if [ "${{ steps.npm_publish.outcome }}" != "success" ]; then
+            VERSION="$(node -p "require('./package.json').version")"
+            if npm view "@sendsoon/mcp@${VERSION}" version >/dev/null 2>&1; then
+              echo "npm already has @sendsoon/mcp@${VERSION}; continuing release."
+            else
+              echo "npm publish failed and version ${VERSION} is not on the registry."
+              exit 1
+            fi
+          fi
 
   publish-mcp:
     # MCP Registry validates that npm/PyPI packages already exist.
