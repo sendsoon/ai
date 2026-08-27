@@ -16,13 +16,11 @@ Configure it once, then describe tasks in natural language. You usually do not n
 
 ## Install in your AI client
 
-The instructions below cover **Codex** and **Claude** (Claude Code / Claude Desktop). Choose either **npm** or **PyPI** as the MCP runtime; tool behavior is the same.
+The instructions below cover **Codex** and **Claude Desktop**.
 
 ### Codex
 
 **Config file:** user-level `~/.codex/config.toml` (macOS / Linux) or `%USERPROFILE%\.codex\config.toml` (Windows).
-
-**npm (Node.js 20+):**
 
 ```toml
 [mcp_servers.sendsoon]
@@ -33,46 +31,9 @@ args = ["-y", "@sendsoon/mcp"]
 SENDSOON_API_KEY = ""
 ```
 
-**PyPI (requires [uv](https://docs.astral.sh/uv/) installed):**
-
-```toml
-[mcp_servers.sendsoon]
-command = "uvx"
-args = ["sendsoon-mcp"]
-
-[mcp_servers.sendsoon.env]
-SENDSOON_API_KEY = ""
-```
-
 **Verify:** Save the file, restart Codex, and run `/mcp` in a chat. You should see `sendsoon` connected. In the desktop app, also check `Settings > MCP servers`.
 
 **First use:** Start a new conversation and ask for a simple task (e.g. “Look up 8.8.8.8”). Approve the tool if Codex asks for permission.
-
-### Claude Code
-
-Add the stdio MCP server via CLI (`--scope user` applies to all projects; use `--scope project` for a single repo).
-
-**npm:**
-
-```powershell
-claude mcp add --transport stdio --scope user sendsoon -- npx -y @sendsoon/mcp
-```
-
-**PyPI:**
-
-```powershell
-claude mcp add --transport stdio --scope user sendsoon -- uvx sendsoon-mcp
-```
-
-**With an API Key:** pass the env var before the server name, for example:
-
-```powershell
-claude mcp add --transport stdio --scope user --env SENDSOON_API_KEY=ssk_live_xxx sendsoon -- npx -y @sendsoon/mcp
-```
-
-**Verify:** Run `/mcp` in Claude Code and confirm `sendsoon` is connected with `send_email`, `ip_lookup`, and `markitdown_convert`.
-
-**Remove:** `claude mcp remove sendsoon`
 
 ### Claude Desktop
 
@@ -84,8 +45,6 @@ claude mcp add --transport stdio --scope user --env SENDSOON_API_KEY=ssk_live_xx
 | Windows | `%APPDATA%\Claude\claude_desktop_config.json` |
 
 You can also open `Settings > Developer > Edit Config` inside Claude Desktop.
-
-**npm:**
 
 ```json
 {
@@ -101,36 +60,9 @@ You can also open `Settings > Developer > Edit Config` inside Claude Desktop.
 }
 ```
 
-**PyPI:**
-
-```json
-{
-  "mcpServers": {
-    "sendsoon": {
-      "command": "uvx",
-      "args": ["sendsoon-mcp"],
-      "env": {
-        "SENDSOON_API_KEY": ""
-      }
-    }
-  }
-}
-```
-
 **Verify:** Save the file, **fully quit** Claude Desktop (including the system tray), then relaunch. Start a new chat and confirm `sendsoon` tools appear in the tools menu or settings.
 
 **First use:** Claude may ask to approve tool access on the first invocation; allow it to continue.
-
-## Packages
-
-Choose **npm (Node)** or **PyPI (Python)** as the MCP runtime. Tool names and environment variables are the same.
-
-| Channel | Package | Requirement |
-| --- | --- | --- |
-| npm | [`@sendsoon/mcp`](https://www.npmjs.com/package/@sendsoon/mcp) | Node.js 20+ |
-| PyPI | [`sendsoon-mcp`](https://pypi.org/project/sendsoon-mcp/) | Python 3.10+; see [`pypi/README.md`](pypi/README.md) |
-
-Client configs start the server with `npx -y @sendsoon/mcp` or `uvx sendsoon-mcp`. A global install is optional.
 
 ## Prepare the configuration
 
@@ -185,18 +117,10 @@ The notebook calls the same SendSoon HTTP APIs used by these MCP tools.
 
 To **see all three tools in a browser and click through them manually** before installing into an AI client, use the [MCP Inspector](https://github.com/modelcontextprotocol/inspector).
 
-Requires Node.js 20+. Run one of the commands below in a terminal; Inspector opens a web UI automatically:
-
-**npm (Node) SendSoon MCP:**
+Requires Node.js 20+. Run the command below in a terminal; Inspector opens a web UI automatically:
 
 ```bash
 npx @modelcontextprotocol/inspector npx -y @sendsoon/mcp
-```
-
-**PyPI SendSoon MCP:**
-
-```bash
-npx @modelcontextprotocol/inspector uvx sendsoon-mcp
 ```
 
 ### How to test
@@ -206,34 +130,6 @@ npx @modelcontextprotocol/inspector uvx sendsoon-mcp
 3. Open the **Tools** tab in the top-right area of the page.
 4. Select a tool from the list on the left, fill in the parameters, and click **Execute Tool**.
 5. Read the response in the **Results** panel on the right. On failure, inspect `error.code` and `error.message`.
-
-### Quick test cases
-
-**IP lookup (`ip_lookup`)**
-
-| Parameter | Value |
-| --- | --- |
-| `ip` | `8.8.8.8` |
-
-**Send email (`send_email`)**
-
-| Parameter | Value |
-| --- | --- |
-| `to` | your email address |
-| `subject` | `SendSoon MCP test` |
-| `body` | `Configuration successful` |
-
-Without `SENDSOON_API_KEY`, one public IP can send up to three free test emails per day.
-
-**File to Markdown (`markitdown_convert`)**
-
-| Parameter | Value |
-| --- | --- |
-| `file_path` | absolute local path, e.g. `/path/to/report.pdf` |
-
-Supported: `.pdf` `.docx` `.pptx` `.xlsx` `.xls` `.txt` `.md` `.html` `.htm`. Images (`.png`, `.jpg`, etc.) and direct URLs are not supported; save web pages as `.html` first.
-
-Press `Ctrl+C` in the terminal when you are done.
 
 ## License
 

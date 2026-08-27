@@ -44,7 +44,7 @@ If the anonymous quota is exhausted, `send_email` returns an `AUTH_ERROR` asking
 
 ### Client configuration
 
-For **Codex** and **Claude** only. Choose npm or PyPI.
+For **Codex** and **Claude Desktop** only.
 
 **Codex** — `~/.codex/config.toml`:
 
@@ -58,14 +58,6 @@ SENDSOON_API_KEY = ""
 ```
 
 Verify with `/mcp` after restart.
-
-**Claude Code:**
-
-```bash
-claude mcp add --transport stdio --scope user sendsoon -- npx -y @sendsoon/mcp
-```
-
-With API Key: add `--env SENDSOON_API_KEY=ssk_live_xxx` before `sendsoon`. Verify with `/mcp`.
 
 **Claude Desktop** — `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
 

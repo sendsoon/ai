@@ -52,7 +52,7 @@ Invalid or revoked Keys are rejected and do **not** fall back to the anonymous q
 
 ## Client configuration
 
-For **Codex** and **Claude** only. Use `uvx sendsoon-mcp` (or `"command": "sendsoon-mcp"` after `pip install`).
+For **Codex** and **Claude Desktop** only.
 
 ### Codex
 
@@ -68,14 +68,6 @@ SENDSOON_API_KEY = ""
 ```
 
 Verify with `/mcp` after restart.
-
-### Claude Code
-
-```powershell
-claude mcp add --transport stdio --scope user sendsoon -- uvx sendsoon-mcp
-```
-
-With API Key: `--env SENDSOON_API_KEY=ssk_live_xxx`. Verify with `/mcp`. Remove: `claude mcp remove sendsoon`.
 
 ### Claude Desktop
 

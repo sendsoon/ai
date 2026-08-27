@@ -16,13 +16,11 @@ SendSoon MCP 是一个 [Model Context Protocol (MCP)](https://modelcontextprotoc
 
 ## 安装到 AI 客户端
 
-以下说明适用于 **Codex** 与 **Claude**（Claude Code / Claude Desktop）。任选 **npm** 或 **PyPI** 作为 MCP 运行时，工具行为相同。
+以下说明适用于 **Codex** 与 **Claude Desktop**。
 
 ### Codex
 
 **配置文件：** 用户级 `~/.codex/config.toml`（macOS / Linux）或 `%USERPROFILE%\.codex\config.toml`（Windows）。
-
-**npm（Node.js 20+）：**
 
 ```toml
 [mcp_servers.sendsoon]
@@ -33,46 +31,9 @@ args = ["-y", "@sendsoon/mcp"]
 SENDSOON_API_KEY = ""
 ```
 
-**PyPI（已安装 [uv](https://docs.astral.sh/uv/) 时）：**
-
-```toml
-[mcp_servers.sendsoon]
-command = "uvx"
-args = ["sendsoon-mcp"]
-
-[mcp_servers.sendsoon.env]
-SENDSOON_API_KEY = ""
-```
-
 **验证：** 保存后重启 Codex，在对话中输入 `/mcp`，应看到 `sendsoon` 已连接。桌面版也可在 `Settings > MCP servers` 查看状态。
 
 **首次调用：** 新对话中让 Agent 执行一次简单任务（如「查询 8.8.8.8 的 IP 信息」）。若弹出工具授权提示，选择允许。
-
-### Claude Code
-
-通过 CLI 添加 stdio MCP 服务器（`--scope user` 表示对所有项目生效；项目级可改为 `--scope project`）。
-
-**npm：**
-
-```powershell
-claude mcp add --transport stdio --scope user sendsoon -- npx -y @sendsoon/mcp
-```
-
-**PyPI：**
-
-```powershell
-claude mcp add --transport stdio --scope user sendsoon -- uvx sendsoon-mcp
-```
-
-**配置 API Key：** 在命令中、`sendsoon` 名称之前追加环境变量，例如：
-
-```powershell
-claude mcp add --transport stdio --scope user --env SENDSOON_API_KEY=ssk_live_xxx sendsoon -- npx -y @sendsoon/mcp
-```
-
-**验证：** 进入 Claude Code 后运行 `/mcp`，确认 `sendsoon` 已连接且列出 `send_email`、`ip_lookup`、`markitdown_convert` 三个工具。
-
-**移除：** `claude mcp remove sendsoon`
 
 ### Claude Desktop
 
@@ -84,8 +45,6 @@ claude mcp add --transport stdio --scope user --env SENDSOON_API_KEY=ssk_live_xx
 | Windows | `%APPDATA%\Claude\claude_desktop_config.json` |
 
 也可在 Claude Desktop 中打开 `Settings > Developer > Edit Config` 直接编辑。
-
-**npm：**
 
 ```json
 {
@@ -101,36 +60,9 @@ claude mcp add --transport stdio --scope user --env SENDSOON_API_KEY=ssk_live_xx
 }
 ```
 
-**PyPI：**
-
-```json
-{
-  "mcpServers": {
-    "sendsoon": {
-      "command": "uvx",
-      "args": ["sendsoon-mcp"],
-      "env": {
-        "SENDSOON_API_KEY": ""
-      }
-    }
-  }
-}
-```
-
 **验证：** 保存后**完全退出** Claude Desktop（托盘图标也需退出），再重新启动。新建对话，在输入框旁的 tools 图标或设置中确认 `sendsoon` 工具可用。
 
 **首次调用：** 第一次触发工具时，Claude 可能询问是否允许访问；选择允许后继续。
-
-## 安装包
-
-任选 **npm（Node）** 或 **PyPI（Python）** 作为 MCP 运行时，工具名称与环境变量相同。
-
-| 渠道 | 包名 | 要求 |
-| --- | --- | --- |
-| npm | [`@sendsoon/mcp`](https://www.npmjs.com/package/@sendsoon/mcp) | Node.js 20+ |
-| PyPI | [`sendsoon-mcp`](https://pypi.org/project/sendsoon-mcp/) | Python 3.10+，详见 [`pypi/README.md`](pypi/README.md) |
-
-客户端配置里使用 `npx -y @sendsoon/mcp` 或 `uvx sendsoon-mcp` 启动服务即可，无需单独全局安装。
 
 ## 准备配置
 
@@ -185,18 +117,10 @@ claude mcp add --transport stdio --scope user --env SENDSOON_API_KEY=ssk_live_xx
 
 若想在安装到 AI 客户端之前，**在浏览器里直接看到三个工具并手动点击测试**，请使用 [MCP Inspector](https://github.com/modelcontextprotocol/inspector)。
 
-需要 Node.js 20+。在终端运行下列命令之一，Inspector 会自动打开浏览器页面：
-
-**npm（Node）版 SendSoon MCP：**
+需要 Node.js 20+。在终端运行下列命令，Inspector 会自动打开浏览器页面：
 
 ```bash
 npx @modelcontextprotocol/inspector npx -y @sendsoon/mcp
-```
-
-**PyPI 版 SendSoon MCP：**
-
-```bash
-npx @modelcontextprotocol/inspector uvx sendsoon-mcp
 ```
 
 ### 操作步骤
@@ -206,34 +130,6 @@ npx @modelcontextprotocol/inspector uvx sendsoon-mcp
 3. 点击页面右上角的 **Tools** 标签。
 4. 在左侧工具列表中选择要测试的工具，填写参数后点击 **Execute Tool**。
 5. 在右侧 **Results** 面板查看返回结果；若失败，查看 `error.code` 与 `error.message`。
-
-### 快速测试用例
-
-**IP 归属查询（`ip_lookup`）**
-
-| 参数 | 值 |
-| --- | --- |
-| `ip` | `8.8.8.8` |
-
-**发送邮件（`send_email`）**
-
-| 参数 | 值 |
-| --- | --- |
-| `to` | 你的邮箱 |
-| `subject` | `SendSoon MCP 测试` |
-| `body` | `配置成功` |
-
-未配置 `SENDSOON_API_KEY` 时，同一公网 IP 每天最多 3 封免费测试邮件。
-
-**文件转 Markdown（`markitdown_convert`）**
-
-| 参数 | 值 |
-| --- | --- |
-| `file_path` | 本地文件绝对路径，例如 `D:\docs\report.pdf` |
-
-支持：`.pdf` `.docx` `.pptx` `.xlsx` `.xls` `.txt` `.md` `.html` `.htm`。不支持图片（`.png`、`.jpg` 等）和直接 URL；网页请先另存为 `.html` 再传入路径。
-
-测试完成后，在终端按 `Ctrl+C` 停止 Inspector。
 
 ## License
 
