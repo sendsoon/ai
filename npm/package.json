@@ -1,6 +1,6 @@
 {
   "name": "@sendsoon/mcp",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "MCP server for SendSoon: send email, look up public IP information, and convert files to Markdown from Codex and Claude.",
   "license": "MIT",
   "author": "SendSoon",
