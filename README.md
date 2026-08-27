@@ -2,7 +2,7 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md)
 
-SendSoon MCP is a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server that lets Codex, Claude, Cursor, and other AI agents use [SendSoon](https://sendsoonai.com/) capabilities: send email, look up public IPs, and convert local documents to Markdown.
+SendSoon MCP is a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server that lets Codex and Claude use [SendSoon](https://sendsoonai.com/) capabilities: send email, look up public IPs, and convert local documents to Markdown.
 
 Configure it once, then describe tasks in natural language. You usually do not need to mention SendSoon in every prompt.
 
@@ -14,44 +14,78 @@ Configure it once, then describe tasks in natural language. You usually do not n
 | `ip_lookup` | Look up public IP information | “Look up the location of 8.8.8.8” |
 | `markitdown_convert` | Convert a local document to Markdown | “Convert this PDF to Markdown” |
 
-## Packages
-
-Choose **npm (Node)** or **PyPI (Python)** as the MCP runtime. Tool names and environment variables are the same.
-
-| Channel | Package | Requirement |
-| --- | --- | --- |
-| npm | [`@sendsoon/mcp`](https://www.npmjs.com/package/@sendsoon/mcp) | Node.js 20+ |
-| PyPI | [`sendsoon-mcp`](https://pypi.org/project/sendsoon-mcp/) | Python 3.10+; see [`pypi/README.md`](pypi/README.md) |
-
-Client configs start the server with `npx -y @sendsoon/mcp` or `uvx sendsoon-mcp`. A global install is optional.
-
-## Prepare the configuration
-
-All clients use the same environment variables:
-
-| Setting | Required | What to enter |
-| --- | --- | --- |
-| `SENDSOON_API_KEY` | No | Leave empty for an unregistered trial. One public IP can send up to three free test emails per day. Enter your generated Key for continued use |
-| `SENDSOON_API_BASE_URL` | No | Defaults to `https://www.sendsoonai.com`. Set it only to target a different environment |
-
-Never commit a real Key to Git or share it with anyone.
-
-### Get an API Key
-
-1. Sign up or sign in on the [SendSoon registration page](https://sendsoonai.com/login-register).
-2. Open [Profile](https://sendsoonai.com/profile) and generate a Key in the API Key section.
-3. Copy the one-time `ssk_live_...` Key immediately and enter it as `SENDSOON_API_KEY` in your MCP configuration.
-4. Save the configuration and restart your MCP client. Requests with a valid Key do not use the anonymous IP daily quota.
-
-If the anonymous quota is exhausted, `send_email` will tell you to register and configure a Key. An invalid or revoked Key is rejected and does not fall back to the anonymous quota.
-
 ## Install in your AI client
 
-### Cursor
+The instructions below cover **Codex** and **Claude** (Claude Code / Claude Desktop). Choose either **npm** or **PyPI** as the MCP runtime; tool behavior is the same.
 
-Open `Settings > Tools & MCP` in Cursor and add an MCP server. You can also save the following configuration as `.cursor/mcp.json` in your project or `~/.cursor/mcp.json` in your user directory.
+### Codex
 
-**Node (npm):**
+**Config file:** user-level `~/.codex/config.toml` (macOS / Linux) or `%USERPROFILE%\.codex\config.toml` (Windows).
+
+**npm (Node.js 20+):**
+
+```toml
+[mcp_servers.sendsoon]
+command = "npx"
+args = ["-y", "@sendsoon/mcp"]
+
+[mcp_servers.sendsoon.env]
+SENDSOON_API_KEY = ""
+```
+
+**PyPI (requires [uv](https://docs.astral.sh/uv/) installed):**
+
+```toml
+[mcp_servers.sendsoon]
+command = "uvx"
+args = ["sendsoon-mcp"]
+
+[mcp_servers.sendsoon.env]
+SENDSOON_API_KEY = ""
+```
+
+**Verify:** Save the file, restart Codex, and run `/mcp` in a chat. You should see `sendsoon` connected. In the desktop app, also check `Settings > MCP servers`.
+
+**First use:** Start a new conversation and ask for a simple task (e.g. “Look up 8.8.8.8”). Approve the tool if Codex asks for permission.
+
+### Claude Code
+
+Add the stdio MCP server via CLI (`--scope user` applies to all projects; use `--scope project` for a single repo).
+
+**npm:**
+
+```powershell
+claude mcp add --transport stdio --scope user sendsoon -- npx -y @sendsoon/mcp
+```
+
+**PyPI:**
+
+```powershell
+claude mcp add --transport stdio --scope user sendsoon -- uvx sendsoon-mcp
+```
+
+**With an API Key:** pass the env var before the server name, for example:
+
+```powershell
+claude mcp add --transport stdio --scope user --env SENDSOON_API_KEY=ssk_live_xxx sendsoon -- npx -y @sendsoon/mcp
+```
+
+**Verify:** Run `/mcp` in Claude Code and confirm `sendsoon` is connected with `send_email`, `ip_lookup`, and `markitdown_convert`.
+
+**Remove:** `claude mcp remove sendsoon`
+
+### Claude Desktop
+
+**Config file:**
+
+| OS | Path |
+| --- | --- |
+| macOS | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| Windows | `%APPDATA%\Claude\claude_desktop_config.json` |
+
+You can also open `Settings > Developer > Edit Config` inside Claude Desktop.
+
+**npm:**
 
 ```json
 {
@@ -83,65 +117,39 @@ Open `Settings > Tools & MCP` in Cursor and add an MCP server. You can also save
 }
 ```
 
-Use only one top-level `mcpServers` object. Save the file, reopen Cursor, and confirm that `sendsoon` is enabled.
+**Verify:** Save the file, **fully quit** Claude Desktop (including the system tray), then relaunch. Start a new chat and confirm `sendsoon` tools appear in the tools menu or settings.
 
-### Codex
+**First use:** Claude may ask to approve tool access on the first invocation; allow it to continue.
 
-Open the user configuration file at `~/.codex/config.toml` and add:
+## Packages
 
-```toml
-[mcp_servers.sendsoon]
-command = "npx"
-args = ["-y", "@sendsoon/mcp"]
+Choose **npm (Node)** or **PyPI (Python)** as the MCP runtime. Tool names and environment variables are the same.
 
-[mcp_servers.sendsoon.env]
-SENDSOON_API_KEY = ""
-```
+| Channel | Package | Requirement |
+| --- | --- | --- |
+| npm | [`@sendsoon/mcp`](https://www.npmjs.com/package/@sendsoon/mcp) | Node.js 20+ |
+| PyPI | [`sendsoon-mcp`](https://pypi.org/project/sendsoon-mcp/) | Python 3.10+; see [`pypi/README.md`](pypi/README.md) |
 
-Save the file and reopen Codex. Use `/mcp` to confirm that `sendsoon` is connected. In the desktop app, you can also check `Settings > MCP servers`.
+Client configs start the server with `npx -y @sendsoon/mcp` or `uvx sendsoon-mcp`. A global install is optional.
 
-### Claude Code
+## Prepare the configuration
 
-Replace the placeholder and run:
+Optional environment variable:
 
-```powershell
-claude mcp add --transport stdio --scope user sendsoon -- npx -y @sendsoon/mcp
-```
+| Setting | Required | What to enter |
+| --- | --- | --- |
+| `SENDSOON_API_KEY` | No | Leave empty for an unregistered trial. One public IP can send up to three free test emails per day. Enter your generated Key for continued use |
 
-Run `/mcp` in Claude Code and confirm that `sendsoon` is connected. To use an API Key, add `--env SENDSOON_API_KEY=<SENDSOON_API_KEY>` before the `sendsoon` server name.
+Never commit a real Key to Git or share it with anyone.
 
-### Claude Desktop
+### Get an API Key
 
-Open the configuration file from `Settings > Developer` and add:
+1. Sign up or sign in on the [SendSoon registration page](https://sendsoonai.com/login-register).
+2. Open [Profile](https://sendsoonai.com/profile) and generate a Key in the API Key section.
+3. Copy the one-time `ssk_live_...` Key immediately and enter it as `SENDSOON_API_KEY` in your MCP configuration.
+4. Save the configuration and restart your MCP client. Requests with a valid Key do not use the anonymous IP daily quota.
 
-```json
-{
-  "mcpServers": {
-    "sendsoon": {
-      "command": "npx",
-      "args": ["-y", "@sendsoon/mcp"],
-      "env": {
-        "SENDSOON_API_KEY": ""
-      }
-    }
-  }
-}
-```
-
-Save the file, fully quit and restart Claude Desktop, and confirm that `sendsoon` appears in the tool list.
-
-### Other MCP clients
-
-For Windsurf, Cline, Continue, or another client that supports local stdio MCP servers, enter:
-
-| Setting | Value |
-| --- | --- |
-| Transport | `stdio` |
-| Command | `npx` |
-| Arguments | `-y @sendsoon/mcp` |
-| Environment | The environment variables listed above |
-
-After installation, restart the client and start a new conversation. Your client may ask for permission the first time a tool runs; approve it to continue.
+If the anonymous quota is exhausted, `send_email` will tell you to register and configure a Key. An invalid or revoked Key is rejected and does not fall back to the anonymous quota.
 
 ## Everyday examples
 

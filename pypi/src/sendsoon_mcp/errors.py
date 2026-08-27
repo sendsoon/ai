@@ -27,7 +27,7 @@ ERROR_MESSAGES: Final[dict[ErrorCode, str]] = {
         "Recipient email address is invalid. Provide a valid address such as name@example.com."
     ),
     "INVALID_RESPONSE": "SendSoon API returned an invalid response. Try again later.",
-    "INVALID_CONFIG": "SendSoon configuration is invalid. Check SENDSOON_API_BASE_URL.",
+    "INVALID_CONFIG": "SendSoon configuration is invalid.",
     "AUTH_ERROR": (
         "Authentication failed. Check the credentials required by the "
         "configured SendSoon deployment."

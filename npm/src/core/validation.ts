@@ -212,17 +212,17 @@ export function validateBaseUrl(baseUrl: string): SendSoonError | null {
     const url = new URL(baseUrl);
     const local = ['localhost', '127.0.0.1', '::1'].includes(url.hostname);
     if (url.protocol !== 'https:' && !(local && url.protocol === 'http:')) {
-      return createError(SendSoonErrorCode.INVALID_CONFIG, 'SENDSOON_API_BASE_URL must use HTTPS (HTTP is allowed only for localhost).');
+      return createError(SendSoonErrorCode.INVALID_CONFIG, 'API base URL must use HTTPS (HTTP is allowed only for localhost).');
     }
     if (url.username || url.password) {
-      return createError(SendSoonErrorCode.INVALID_CONFIG, 'SENDSOON_API_BASE_URL must not include credentials.');
+      return createError(SendSoonErrorCode.INVALID_CONFIG, 'API base URL must not include credentials.');
     }
     if (url.search || url.hash) {
-      return createError(SendSoonErrorCode.INVALID_CONFIG, 'SENDSOON_API_BASE_URL must not include a query string or fragment.');
+      return createError(SendSoonErrorCode.INVALID_CONFIG, 'API base URL must not include a query string or fragment.');
     }
     return null;
   } catch {
-    return createError(SendSoonErrorCode.INVALID_CONFIG, 'SENDSOON_API_BASE_URL must be a valid URL.');
+    return createError(SendSoonErrorCode.INVALID_CONFIG, 'API base URL must be a valid URL.');
   }
 }
 

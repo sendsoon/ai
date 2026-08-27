@@ -2,7 +2,7 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md)
 
-SendSoon MCP は [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) サーバーです。Codex、Claude、Cursor などの AI エージェントから [SendSoon](https://sendsoonai.com/) のメール送信、IP 検索、ローカル文書の Markdown 変換を利用できます。
+SendSoon MCP は [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) サーバーです。Codex および Claude から [SendSoon](https://sendsoonai.com/) のメール送信、IP 検索、ローカル文書の Markdown 変換を利用できます。
 
 一度設定すれば、あとは自然言語で依頼するだけです。通常、毎回 SendSoon を指定する必要はありません。
 
@@ -14,44 +14,78 @@ SendSoon MCP は [Model Context Protocol (MCP)](https://modelcontextprotocol.io/
 | `ip_lookup` | パブリック IP 情報を検索 | 「8.8.8.8 の所在地を調べて」 |
 | `markitdown_convert` | ローカル文書を Markdown に変換 | 「この PDF を Markdown に変換して」 |
 
-## パッケージ
-
-**npm（Node）** または **PyPI（Python）** を MCP ランタイムとして選びます。ツール名と環境変数は共通です。
-
-| チャネル | パッケージ | 要件 |
-| --- | --- | --- |
-| npm | [`@sendsoon/mcp`](https://www.npmjs.com/package/@sendsoon/mcp) | Node.js 20 以降 |
-| PyPI | [`sendsoon-mcp`](https://pypi.org/project/sendsoon-mcp/) | Python 3.10 以降。詳細は [`pypi/README.md`](pypi/README.md) |
-
-クライアント設定では `npx -y @sendsoon/mcp` または `uvx sendsoon-mcp` でサーバーを起動します。グローバルインストールは任意です。
-
-## 設定値を準備
-
-すべてのクライアントで同じ環境変数を使用します：
-
-| 設定項目 | 必須 | 入力する値 |
-| --- | --- | --- |
-| `SENDSOON_API_KEY` | いいえ | 未登録で試す場合は空欄。同じパブリック IP から1日3通まで無料でテスト送信できます。継続利用する場合は生成した Key を入力 |
-| `SENDSOON_API_BASE_URL` | いいえ | 既定値は `https://www.sendsoonai.com`。別環境に接続する場合のみ設定 |
-
-実際の Key を Git にコミットしたり、他人と共有したりしないでください。
-
-### API Key の取得
-
-1. [SendSoon 登録ページ](https://sendsoonai.com/login-register)で登録またはログインします。
-2. [プロフィール](https://sendsoonai.com/profile)を開き、API Key セクションで Key を生成します。
-3. 一度だけ表示される `ssk_live_...` Key をすぐにコピーし、MCP 設定の `SENDSOON_API_KEY` に入力します。
-4. 設定を保存して MCP クライアントを再起動します。有効な Key を使ったリクエストは匿名 IP の1日あたりの上限を消費しません。
-
-匿名枠を使い切った場合、`send_email` は登録と Key 設定を案内します。無効または取り消された Key は拒否され、匿名枠には自動的に切り替わりません。
-
 ## AI クライアントへのインストール
 
-### Cursor
+以下は **Codex** と **Claude**（Claude Code / Claude Desktop）向けです。**npm** または **PyPI** を MCP ランタイムとして選べます。ツールの動作は同じです。
 
-Cursor の `Settings > Tools & MCP` を開いて MCP Server を追加します。次の内容をプロジェクトの `.cursor/mcp.json` またはユーザーディレクトリの `~/.cursor/mcp.json` に保存することもできます。
+### Codex
 
-**Node（npm）：**
+**設定ファイル：** ユーザー単位の `~/.codex/config.toml`（macOS / Linux）または `%USERPROFILE%\.codex\config.toml`（Windows）。
+
+**npm（Node.js 20 以降）：**
+
+```toml
+[mcp_servers.sendsoon]
+command = "npx"
+args = ["-y", "@sendsoon/mcp"]
+
+[mcp_servers.sendsoon.env]
+SENDSOON_API_KEY = ""
+```
+
+**PyPI（[uv](https://docs.astral.sh/uv/) インストール済みの場合）：**
+
+```toml
+[mcp_servers.sendsoon]
+command = "uvx"
+args = ["sendsoon-mcp"]
+
+[mcp_servers.sendsoon.env]
+SENDSOON_API_KEY = ""
+```
+
+**確認：** 保存後に Codex を再起動し、チャットで `/mcp` を実行して `sendsoon` が接続されていることを確認します。デスクトップ版では `Settings > MCP servers` でも確認できます。
+
+**初回利用：** 新しい会話で簡単なタスク（例：「8.8.8.8 の IP 情報を調べて」）を依頼します。ツール許可を求められたら許可してください。
+
+### Claude Code
+
+CLI で stdio MCP サーバーを追加します（`--scope user` は全プロジェクトに適用。プロジェクト単位は `--scope project`）。
+
+**npm：**
+
+```powershell
+claude mcp add --transport stdio --scope user sendsoon -- npx -y @sendsoon/mcp
+```
+
+**PyPI：**
+
+```powershell
+claude mcp add --transport stdio --scope user sendsoon -- uvx sendsoon-mcp
+```
+
+**API Key を設定する場合：** サーバー名 `sendsoon` の前に環境変数を指定します：
+
+```powershell
+claude mcp add --transport stdio --scope user --env SENDSOON_API_KEY=ssk_live_xxx sendsoon -- npx -y @sendsoon/mcp
+```
+
+**確認：** Claude Code で `/mcp` を実行し、`sendsoon` が接続され、`send_email`・`ip_lookup`・`markitdown_convert` の3ツールが表示されることを確認します。
+
+**削除：** `claude mcp remove sendsoon`
+
+### Claude Desktop
+
+**設定ファイル：**
+
+| OS | パス |
+| --- | --- |
+| macOS | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| Windows | `%APPDATA%\Claude\claude_desktop_config.json` |
+
+Claude Desktop 内の `Settings > Developer > Edit Config` から直接編集することもできます。
+
+**npm：**
 
 ```json
 {
@@ -83,65 +117,39 @@ Cursor の `Settings > Tools & MCP` を開いて MCP Server を追加します�
 }
 ```
 
-トップレベルの `mcpServers` は1つだけにしてください。保存後に Cursor を再起動し、`sendsoon` が有効になっていることを確認します。
+**確認：** 保存後、**完全に終了**して Claude Desktop を再起動します（トレイアイコンも終了）。新しい会話を開始し、tools メニューまたは設定で `sendsoon` が利用可能か確認します。
 
-### Codex
+**初回利用：** 初回のツール実行時にアクセス許可を求められる場合があります。許可して続行してください。
 
-ユーザー設定ファイル `~/.codex/config.toml` を開き、次を追加します：
+## パッケージ
 
-```toml
-[mcp_servers.sendsoon]
-command = "npx"
-args = ["-y", "@sendsoon/mcp"]
+**npm（Node）** または **PyPI（Python）** を MCP ランタイムとして選びます。ツール名と環境変数は共通です。
 
-[mcp_servers.sendsoon.env]
-SENDSOON_API_KEY = ""
-```
+| チャネル | パッケージ | 要件 |
+| --- | --- | --- |
+| npm | [`@sendsoon/mcp`](https://www.npmjs.com/package/@sendsoon/mcp) | Node.js 20 以降 |
+| PyPI | [`sendsoon-mcp`](https://pypi.org/project/sendsoon-mcp/) | Python 3.10 以降。詳細は [`pypi/README.md`](pypi/README.md) |
 
-保存後に Codex を再起動し、`/mcp` で `sendsoon` が接続されていることを確認します。デスクトップ版では `Settings > MCP servers` からも確認できます。
+クライアント設定では `npx -y @sendsoon/mcp` または `uvx sendsoon-mcp` でサーバーを起動します。グローバルインストールは任意です。
 
-### Claude Code
+## 設定値を準備
 
-プレースホルダーを置き換えて実行します：
+任意の環境変数：
 
-```powershell
-claude mcp add --transport stdio --scope user sendsoon -- npx -y @sendsoon/mcp
-```
+| 設定項目 | 必須 | 入力する値 |
+| --- | --- | --- |
+| `SENDSOON_API_KEY` | いいえ | 未登録で試す場合は空欄。同じパブリック IP から1日3通まで無料でテスト送信できます。継続利用する場合は生成した Key を入力 |
 
-Claude Code で `/mcp` を実行し、`sendsoon` が接続されていることを確認します。API Key を使用する場合は、サーバー名 `sendsoon` の前に `--env SENDSOON_API_KEY=<SENDSOON_API_KEY>` を追加します。
+実際の Key を Git にコミットしたり、他人と共有したりしないでください。
 
-### Claude Desktop
+### API Key の取得
 
-`Settings > Developer` から設定ファイルを開き、次を追加します：
+1. [SendSoon 登録ページ](https://sendsoonai.com/login-register)で登録またはログインします。
+2. [プロフィール](https://sendsoonai.com/profile)を開き、API Key セクションで Key を生成します。
+3. 一度だけ表示される `ssk_live_...` Key をすぐにコピーし、MCP 設定の `SENDSOON_API_KEY` に入力します。
+4. 設定を保存して MCP クライアントを再起動します。有効な Key を使ったリクエストは匿名 IP の1日あたりの上限を消費しません。
 
-```json
-{
-  "mcpServers": {
-    "sendsoon": {
-      "command": "npx",
-      "args": ["-y", "@sendsoon/mcp"],
-      "env": {
-        "SENDSOON_API_KEY": ""
-      }
-    }
-  }
-}
-```
-
-保存後、Claude Desktop を完全に終了して再起動し、ツール一覧に `sendsoon` が表示されることを確認します。
-
-### その他の MCP クライアント
-
-Windsurf、Cline、Continue など、ローカル stdio MCP サーバーに対応したクライアントでは、次を入力します：
-
-| 設定 | 値 |
-| --- | --- |
-| Transport | `stdio` |
-| Command | `npx` |
-| Arguments | `-y @sendsoon/mcp` |
-| Environment | 上記の環境変数 |
-
-インストール後、クライアントを再起動して新しい会話を開始します。初回のツール実行時に許可を求められる場合があります。
+匿名枠を使い切った場合、`send_email` は登録と Key 設定を案内します。無効または取り消された Key は拒否され、匿名枠には自動的に切り替わりません。
 
 ## 普段の使い方
 

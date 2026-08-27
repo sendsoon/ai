@@ -166,26 +166,26 @@ def validate_base_url(base_url: str) -> SendSoonError | None:
     try:
         parsed = urlparse(base_url)
     except ValueError:
-        return create_error("INVALID_CONFIG", "SENDSOON_API_BASE_URL must be a valid URL.")
+        return create_error("INVALID_CONFIG", "API base URL must be a valid URL.")
 
     if not parsed.scheme or not parsed.netloc:
-        return create_error("INVALID_CONFIG", "SENDSOON_API_BASE_URL must be a valid URL.")
+        return create_error("INVALID_CONFIG", "API base URL must be a valid URL.")
 
     host = parsed.hostname or ""
     local = host in {"localhost", "127.0.0.1", "::1"}
     if parsed.scheme != "https" and not (local and parsed.scheme == "http"):
         return create_error(
             "INVALID_CONFIG",
-            "SENDSOON_API_BASE_URL must use HTTPS (HTTP is allowed only for localhost).",
+            "API base URL must use HTTPS (HTTP is allowed only for localhost).",
         )
     if parsed.username is not None or parsed.password is not None:
         return create_error(
             "INVALID_CONFIG",
-            "SENDSOON_API_BASE_URL must not include credentials.",
+            "API base URL must not include credentials.",
         )
     if parsed.query or parsed.fragment:
         return create_error(
             "INVALID_CONFIG",
-            "SENDSOON_API_BASE_URL must not include a query string or fragment.",
+            "API base URL must not include a query string or fragment.",
         )
     return None

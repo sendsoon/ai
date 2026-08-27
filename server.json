@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.sendsoon/mcp",
   "description": "Send email, look up public IP information, and convert files to Markdown through SendSoon.",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "websiteUrl": "https://www.sendsoonai.com",
   "repository": {
     "url": "https://github.com/sendsoon/mcp",
@@ -13,7 +13,7 @@
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "@sendsoon/mcp",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "transport": {
         "type": "stdio"
       },
@@ -24,14 +24,6 @@
           "format": "string",
           "isRequired": false,
           "isSecret": true
-        },
-        {
-          "name": "SENDSOON_API_BASE_URL",
-          "description": "Override the SendSoon API base URL. Defaults to https://www.sendsoonai.com.",
-          "format": "string",
-          "isRequired": false,
-          "isSecret": false,
-          "default": "https://www.sendsoonai.com"
         }
       ]
     },
@@ -39,7 +31,7 @@
       "registryType": "pypi",
       "registryBaseUrl": "https://pypi.org",
       "identifier": "sendsoon-mcp",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "transport": {
         "type": "stdio"
       },
@@ -50,14 +42,6 @@
           "format": "string",
           "isRequired": false,
           "isSecret": true
-        },
-        {
-          "name": "SENDSOON_API_BASE_URL",
-          "description": "Override the SendSoon API base URL. Defaults to https://www.sendsoonai.com.",
-          "format": "string",
-          "isRequired": false,
-          "isSecret": false,
-          "default": "https://www.sendsoonai.com"
         }
       ]
     }

@@ -1,6 +1,6 @@
 # @sendsoon/mcp
 
-MCP server for [SendSoon](https://www.sendsoonai.com/). Gives Claude, Cursor, Codex, and other MCP clients the ability to send email, look up public IP information, and convert files to Markdown.
+MCP server for [SendSoon](https://www.sendsoonai.com/). Gives Codex and Claude the ability to send email, look up public IP information, and convert files to Markdown.
 
 **Server name:** `sendsoon`  
 **Transport:** `stdio`  
@@ -30,7 +30,6 @@ sendsoon-mcp
 | Variable | Required | Description |
 | --- | --- | --- |
 | `SENDSOON_API_KEY` | No | Leave empty for anonymous trial: one public IP may send up to **3 test emails per day**. After that, register at [sendsoonai.com](https://sendsoonai.com/login-register), generate an `ssk_live_...` Key at [Profile](https://www.sendsoonai.com/profile), and set it here. |
-| `SENDSOON_API_BASE_URL` | No | Defaults to `https://www.sendsoonai.com`. HTTPS required except `http://localhost`. No credentials, query string, or fragment in the URL. |
 
 Never commit a real Key to Git or share it with anyone.
 
@@ -45,30 +44,9 @@ If the anonymous quota is exhausted, `send_email` returns an `AUTH_ERROR` asking
 
 ### Client configuration
 
-**Cursor / Claude Desktop** — save as `.cursor/mcp.json` or `~/Library/Application Support/Claude/claude_desktop_config.json`:
+For **Codex** and **Claude** only. Choose npm or PyPI.
 
-```json
-{
-  "mcpServers": {
-    "sendsoon": {
-      "command": "npx",
-      "args": ["-y", "@sendsoon/mcp"],
-      "env": {
-        "SENDSOON_API_KEY": ""
-      }
-    }
-  }
-}
-```
-
-**Claude Code:**
-
-```bash
-claude mcp add --transport stdio --scope user \
-  sendsoon -- npx -y @sendsoon/mcp
-```
-
-**Codex** — add to `~/.codex/config.toml`:
+**Codex** — `~/.codex/config.toml`:
 
 ```toml
 [mcp_servers.sendsoon]
@@ -79,7 +57,31 @@ args = ["-y", "@sendsoon/mcp"]
 SENDSOON_API_KEY = ""
 ```
 
-**Other clients** (Windsurf, Cline, Continue): Transport `stdio`, command `npx`, args `-y @sendsoon/mcp`, env as above.
+Verify with `/mcp` after restart.
+
+**Claude Code:**
+
+```bash
+claude mcp add --transport stdio --scope user sendsoon -- npx -y @sendsoon/mcp
+```
+
+With API Key: add `--env SENDSOON_API_KEY=ssk_live_xxx` before `sendsoon`. Verify with `/mcp`.
+
+**Claude Desktop** — `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+
+```json
+{
+  "mcpServers": {
+    "sendsoon": {
+      "command": "npx",
+      "args": ["-y", "@sendsoon/mcp"],
+      "env": { "SENDSOON_API_KEY": "" }
+    }
+  }
+}
+```
+
+Fully quit and restart Claude Desktop after saving.
 
 ---
 
@@ -272,7 +274,7 @@ All tools may return these codes. Always inspect `success` first, then `error.co
 | --- | --- | --- |
 | `INVALID_INPUT` | Validation failed | No (always `retryable: false`) |
 | `INVALID_RECIPIENT` | Bad email (`send_email` only) | No |
-| `INVALID_CONFIG` | Missing env var or bad `SENDSOON_API_BASE_URL` | No |
+| `INVALID_CONFIG` | Internal configuration error | No |
 | `AUTH_ERROR` | Auth failed or quota exhausted | No |
 | `PAYLOAD_TOO_LARGE` | Body or file too large | No |
 | `RATE_LIMITED` | Rate limit hit | Yes |

@@ -167,7 +167,6 @@ async def test_invalid_base_url() -> None:
 
 def test_settings_from_env(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("SENDSOON_API_KEY", "  ssk_live_x  ")
-    monkeypatch.setenv("SENDSOON_API_BASE_URL", "https://www.sendsoonai.com")
     settings = Settings.from_env()
     assert settings.api_key == "ssk_live_x"
     assert settings.base_url == "https://www.sendsoonai.com"

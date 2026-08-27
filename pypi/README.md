@@ -1,6 +1,6 @@
 # sendsoon-mcp (PyPI)
 
-MCP server for [SendSoon](https://www.sendsoonai.com/). Gives Claude, Cursor, Codex, and other MCP clients the ability to send email, look up public IP information, and convert local documents to Markdown.
+MCP server for [SendSoon](https://www.sendsoonai.com/). Gives Codex and Claude the ability to send email, look up public IP information, and convert local documents to Markdown.
 
 **PyPI:** [`sendsoon-mcp`](https://pypi.org/project/sendsoon-mcp/)  
 **Server name:** `sendsoon`  
@@ -43,7 +43,6 @@ Open the **Tools** tab, pick a tool, fill parameters, and click **Execute Tool**
 | Variable | Required | Description |
 | --- | --- | --- |
 | `SENDSOON_API_KEY` | No | Leave empty for anonymous trial: one public IP may send up to **3 test emails per day**. After that, register at [sendsoonai.com](https://sendsoonai.com/login-register), generate a `ssk_live_...` Key at [Profile](https://www.sendsoonai.com/profile), and set it here. |
-| `SENDSOON_API_BASE_URL` | No | Defaults to `https://www.sendsoonai.com`. HTTPS required except `http://localhost`. |
 
 Never commit a real Key to Git or share it with anyone.
 
@@ -53,25 +52,11 @@ Invalid or revoked Keys are rejected and do **not** fall back to the anonymous q
 
 ## Client configuration
 
-### Cursor / Claude Desktop
-
-```json
-{
-  "mcpServers": {
-    "sendsoon": {
-      "command": "uvx",
-      "args": ["sendsoon-mcp"],
-      "env": {
-        "SENDSOON_API_KEY": ""
-      }
-    }
-  }
-}
-```
-
-After `pip install sendsoon-mcp`, you can use `"command": "sendsoon-mcp"` with an empty `args` array (or omit `args`).
+For **Codex** and **Claude** only. Use `uvx sendsoon-mcp` (or `"command": "sendsoon-mcp"` after `pip install`).
 
 ### Codex
+
+`~/.codex/config.toml`:
 
 ```toml
 [mcp_servers.sendsoon]
@@ -82,11 +67,34 @@ args = ["sendsoon-mcp"]
 SENDSOON_API_KEY = ""
 ```
 
+Verify with `/mcp` after restart.
+
 ### Claude Code
 
 ```powershell
 claude mcp add --transport stdio --scope user sendsoon -- uvx sendsoon-mcp
 ```
+
+With API Key: `--env SENDSOON_API_KEY=ssk_live_xxx`. Verify with `/mcp`. Remove: `claude mcp remove sendsoon`.
+
+### Claude Desktop
+
+macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`  
+Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "sendsoon": {
+      "command": "uvx",
+      "args": ["sendsoon-mcp"],
+      "env": { "SENDSOON_API_KEY": "" }
+    }
+  }
+}
+```
+
+Fully quit and restart Claude Desktop after saving.
 
 ---
 

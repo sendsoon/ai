@@ -16,5 +16,5 @@ class Settings:
     @classmethod
     def from_env(cls) -> Settings:
         api_key = os.environ.get("SENDSOON_API_KEY", "").strip() or None
-        base_url = os.environ.get("SENDSOON_API_BASE_URL", "").strip() or DEFAULT_BASE_URL
+        base_url = DEFAULT_BASE_URL
         return cls(api_key=api_key, base_url=base_url)

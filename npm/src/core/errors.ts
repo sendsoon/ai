@@ -28,7 +28,7 @@ const ERROR_MESSAGES: Record<SendSoonErrorCode, string> = {
   [SendSoonErrorCode.INVALID_RESPONSE]:
     'SendSoon API returned an invalid response. Try again later.',
   [SendSoonErrorCode.INVALID_CONFIG]:
-    'SendSoon configuration is invalid. Check SENDSOON_API_BASE_URL.',
+    'SendSoon configuration is invalid.',
   [SendSoonErrorCode.AUTH_ERROR]:
     'Authentication failed. Check the credentials required by the configured SendSoon deployment.',
   [SendSoonErrorCode.PAYLOAD_TOO_LARGE]:
