@@ -18,7 +18,8 @@
     "typecheck": "tsc -b --pretty false",
     "lint": "eslint npm/src",
     "check": "pnpm run lint && pnpm run typecheck",
-    "version:sync": "node scripts/sync-release-versions.mjs"
+    "version:sync": "node version.mjs sync",
+    "version:check": "node version.mjs check"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",

@@ -26,7 +26,6 @@
     "cursor",
     "codex"
   ],
-  "mcpName": "io.github.sendsoon/mcp",
   "type": "module",
   "engines": {
     "node": ">=20"
