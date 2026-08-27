@@ -15,7 +15,23 @@ on:
   workflow_dispatch:
 
 jobs:
+  version-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Assert npm and PyPI release versions match tag
+        run: bash scripts/assert-release-versions.sh
+        env:
+          EXPECTED_TAG: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '' }}
+
   check-npm:
+    needs: version-gate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,17 +41,10 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Assert package versions match tag
-        run: |
-          TAG="${GITHUB_REF#refs/tags/v}"
-          NPM="$(node -p "require('./npm/package.json').version")"
-          PY="$(python3 -c "import re,pathlib; t=pathlib.Path('pypi/pyproject.toml').read_text(); print(re.search(r'(?m)^version = \"([^\"]+)\"$', t).group(1))")"
-          SV="$(node -p "require('./server.json').version")"
-          test "$NPM" = "$TAG" && test "$PY" = "$TAG" && test "$SV" = "$TAG"
       - run: pnpm run check
 
   check-pypi:
-    runs-on: ubuntu-latest
+    needs: version-gate
     defaults:
       run:
         working-directory: pypi
