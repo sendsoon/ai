@@ -50,13 +50,13 @@ jobs:
       - name: Verify publish
         run: |
           VERSION="$(node -p "require('./package.json').version")"
-          if [ "${{ steps.npm_publish.outcome }}" = "success" ]; then
-            echo "Published @sendsoon/mcp@${VERSION}"
-            exit 0
-          fi
-          if npm view "@sendsoon/mcp@${VERSION}" version >/dev/null 2>&1; then
-            echo "@sendsoon/mcp@${VERSION} already on npm; OK"
-            exit 0
-          fi
-          echo "npm publish failed and ${VERSION} is not on the registry"
+          for i in $(seq 1 18); do
+            if npm view "@sendsoon/mcp@${VERSION}" version >/dev/null 2>&1; then
+              echo "@sendsoon/mcp@${VERSION} is on npm"
+              exit 0
+            fi
+            echo "Waiting for npm registry (${i}/18)..."
+            sleep 10
+          done
+          echo "npm publish failed: @sendsoon/mcp@${VERSION} not found on registry"
           exit 1
