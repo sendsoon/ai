@@ -1,18 +1,20 @@
-# Standalone PyPI publish for python-v* tags only.
-# Tag releases use release.yml (inline publish) so Trusted Publisher attestation matches release.yml.
-# PyPI Trusted Publisher for standalone runs:
-#   owner=sendsoon, repo=mcp, workflow=publish-pypi.yml, environment=pypi
-name: Publish PyPI package
+# Publish sendsoon-mcp to PyPI. Runs in parallel with publish-npm.yml on v* tags.
+# PyPI Trusted Publisher: sendsoon/mcp → publish-pypi.yml (environment: pypi)
+name: Publish PyPI
 
 on:
-  workflow_dispatch:
   push:
     tags:
-      - "python-v*"
+      - "v*"
+  workflow_dispatch:
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      contents: read
+      id-token: write
     defaults:
       run:
         working-directory: pypi
@@ -21,22 +23,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      - name: Resolve version from tag
-        if: startsWith(github.ref, 'refs/tags/')
+      - name: Set version from tag
+        if: startsWith(github.ref, 'refs/tags/v')
         run: |
-          REF="${GITHUB_REF#refs/tags/}"
-          case "$REF" in
-            python-v*) VERSION="${REF#python-v}" ;;
-            v*) VERSION="${REF#v}" ;;
-            *) echo "unsupported tag: $REF"; exit 1 ;;
-          esac
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          export VERSION
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
-          echo "resolved version=$VERSION"
-
-      - name: Align version in pyproject.toml
-        if: env.VERSION != ''
-        run: |
           python <<'PY'
           import os
           import pathlib
@@ -56,40 +48,12 @@ jobs:
           path.write_text(updated, encoding="utf-8")
           print(f"pyproject version -> {version}")
           PY
-
-      - name: Install build tools
-        run: python -m pip install build twine
-
-      - name: Build distributions
-        run: python -m build
-
-      - name: Check distributions
-        run: twine check dist/*
-
-      - name: Upload dist artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: pypi-dist-${{ github.run_id }}
-          path: pypi/dist/*
-          if-no-files-found: error
-
-  publish:
-    needs: build
-    runs-on: ubuntu-latest
-    environment: pypi
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - name: Download dist artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: pypi-dist-${{ github.run_id }}
-          path: dist
-
+      - run: python -m pip install build twine
+      - run: python -m build
+      - run: twine check dist/*
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          packages-dir: dist
+          packages-dir: pypi/dist
           skip-existing: true
           attestations: true

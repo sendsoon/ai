@@ -1,0 +1,51 @@
+# Publish server.json to the MCP Registry. Run manually after npm and PyPI are live.
+name: Publish MCP Registry
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install mcp-publisher
+        run: |
+          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
+          sudo mv mcp-publisher /usr/local/bin/
+      - name: Set version from tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          jq --arg v "$VERSION" '
+            .version = $v
+            | .packages |= map(.version = $v)
+          ' server.json > server.tmp.json
+          mv server.tmp.json server.json
+      - name: Wait for npm and PyPI packages
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          for i in $(seq 1 30); do
+            NPM_OK=0
+            PYPI_OK=0
+            npm view "@sendsoon/mcp@${VERSION}" version >/dev/null 2>&1 && NPM_OK=1
+            curl -fsS "https://pypi.org/pypi/sendsoon-mcp/${VERSION}/json" >/dev/null 2>&1 && PYPI_OK=1
+            if [ "$NPM_OK" = "1" ] && [ "$PYPI_OK" = "1" ]; then
+              echo "Both registries have version ${VERSION}"
+              exit 0
+            fi
+            echo "Waiting for npm/PyPI (${i}/30)..."
+            sleep 10
+          done
+          echo "Timed out waiting for @sendsoon/mcp@${VERSION} and sendsoon-mcp@${VERSION} on PyPI"
+          exit 1
+      - run: mcp-publisher validate
+      - run: mcp-publisher login github-oidc
+      - run: mcp-publisher publish
