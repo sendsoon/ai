@@ -1,13 +1,10 @@
-# Reusable PyPI publish workflow. Called from release.yml (parallel with npm).
-# PyPI Trusted Publisher must match:
+# Standalone PyPI publish for python-v* tags only.
+# Tag releases use release.yml (inline publish) so Trusted Publisher attestation matches release.yml.
+# PyPI Trusted Publisher for standalone runs:
 #   owner=sendsoon, repo=mcp, workflow=publish-pypi.yml, environment=pypi
-#
-# Standalone tag trigger (python-only release):
-#   python-vX.Y.Z  → publish Python X.Y.Z
 name: Publish PyPI package
 
 on:
-  workflow_call:
   workflow_dispatch:
   push:
     tags:
