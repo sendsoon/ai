@@ -1,6 +1,6 @@
 [project]
 name = "sendsoon-mcp"
-version = "0.2.0"
+version = "0.3.0"
 description = "MCP server for SendSoon: send email, look up public IP information, and convert files to Markdown from Claude, Cursor, Codex, and other AI agents."
 readme = "README.md"
 requires-python = ">=3.10"
