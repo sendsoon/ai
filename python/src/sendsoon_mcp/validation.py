@@ -137,23 +137,30 @@ def decoded_base64_byte_length(value: str) -> int | None:
     return len(base64.b64decode(normalized, validate=True))
 
 
-def validate_markitdown_request(request: dict[str, Any]) -> SendSoonError | None:
-    filename = str(request.get("filename", "")).strip()
-    if not filename:
+def validate_markitdown_filename(filename: str) -> SendSoonError | None:
+    trimmed = filename.strip()
+    if not trimmed:
         return create_error("INVALID_INPUT", "filename is required and cannot be empty.")
-    if "/" in filename or "\\" in filename or "\0" in filename:
+    if "/" in trimmed or "\\" in trimmed or "\0" in trimmed:
         return create_error(
             "INVALID_INPUT",
             "filename must be a base name without path separators.",
         )
 
-    dot = filename.rfind(".")
-    extension = filename[dot:].lower() if dot >= 0 else ""
+    dot = trimmed.rfind(".")
+    extension = trimmed[dot:].lower() if dot >= 0 else ""
     if extension not in SUPPORTED_MARKITDOWN_EXTENSIONS:
         return create_error(
             "INVALID_INPUT",
             f"Unsupported file extension: {extension or '(none)'}.",
         )
+    return None
+
+
+def validate_markitdown_request(request: dict[str, Any]) -> SendSoonError | None:
+    filename_error = validate_markitdown_filename(str(request.get("filename", "")))
+    if filename_error:
+        return filename_error
 
     content_base64 = str(request.get("content_base64", ""))
     byte_length = decoded_base64_byte_length(content_base64)

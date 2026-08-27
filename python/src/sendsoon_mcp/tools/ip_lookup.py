@@ -12,8 +12,7 @@ if TYPE_CHECKING:
     from sendsoon_mcp.client import SendSoonClient
 
 TOOL_DESCRIPTION = (
-    "Look up geolocation and ISP info for a public IPv4 or IPv6 address via SendSoon API. "
-    "Rejects private/reserved/loopback addresses."
+    "Look up geolocation and ISP info for a public IPv4 or IPv6 address via SendSoon"
 )
 
 

@@ -16,7 +16,6 @@ Send one email through SendSoon Connect. This skill covers the `send_email` MCP 
 ## Prerequisites
 
 - MCP server `sendsoon` running with `send_email` registered
-- Environment variable `SENDSOON_EMAIL_RECIPIENT` set to the one address allowed for test sends
 - Without `SENDSOON_API_KEY`, one public IP is limited to 3 successful test sends per day. Generate an `ssk_live_...` Key at `https://www.sendsoonai.com/profile` and configure it to continue after the trial.
 
 ## Tool: `send_email`
@@ -79,7 +78,7 @@ Always inspect `success`. On failure, use `error.code` and `error.retryable`:
 | `SERVER_ERROR` / `NETWORK_ERROR` | Retry later if `retryable` is true |
 | `TIMEOUT` | The complete request timed out; retry with the same `idempotency_key` |
 | `INVALID_RESPONSE` | Service response did not match the API contract; retry later with the same `idempotency_key` |
-| `INVALID_CONFIG` | Set `SENDSOON_EMAIL_RECIPIENT`, and ensure `SENDSOON_API_BASE_URL` uses HTTPS except for localhost |
+| `INVALID_CONFIG` | Ensure `SENDSOON_API_BASE_URL` uses HTTPS except for localhost |
 
 Do not retry automatically when `retryable` is false.
 

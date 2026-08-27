@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import base64
+import tempfile
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -11,7 +13,7 @@ from sendsoon_mcp.tools.ip_lookup import register as register_ip_lookup
 from sendsoon_mcp.tools.markitdown_convert import register as register_markitdown
 from sendsoon_mcp.tools.send_email import register as register_send_email
 from sendsoon_mcp.validation import (
-    validate_markitdown_request,
+    validate_markitdown_filename,
     validate_public_ip,
     validate_send_request,
 )
@@ -30,10 +32,7 @@ def test_validate_public_ip_loopback() -> None:
 
 
 def test_validate_markitdown_extension() -> None:
-    content = base64.b64encode(b"abc").decode("ascii")
-    error = validate_markitdown_request(
-        {"filename": "secret.exe", "content_base64": content}
-    )
+    error = validate_markitdown_filename("secret.exe")
     assert error is not None
     assert "Unsupported file extension" in error.message
 
@@ -97,14 +96,20 @@ async def test_ip_lookup_tool_rejects_private() -> None:
 
 
 @pytest.mark.asyncio
-async def test_markitdown_tool_forwards_request() -> None:
-    content = base64.b64encode(b"pdf-bytes").decode("ascii")
+async def test_markitdown_tool_reads_local_file() -> None:
     fake_client = _FakeClient({"success": True, "filename": "a.md", "markdown": "# a"})
     mcp = _FakeMcp()
     register_markitdown(mcp, fake_client)  # type: ignore[arg-type]
-    result = await mcp.tools["markitdown_convert"](
-        filename=" a.pdf ",
-        content_base64=f" {content} ",
-    )
+
+    with tempfile.NamedTemporaryFile("wb", suffix=".pdf", delete=False) as handle:
+        handle.write(b"pdf-bytes")
+        temp_path = handle.name
+
+    try:
+        result = await mcp.tools["markitdown_convert"](file_path=f" {temp_path} ")
+    finally:
+        Path(temp_path).unlink(missing_ok=True)
+
     assert result["success"] is True
-    assert fake_client.calls[0]["filename"] == "a.pdf"
+    assert fake_client.calls[0]["filename"] == Path(temp_path).name
+    assert fake_client.calls[0]["content_base64"] == base64.b64encode(b"pdf-bytes").decode("ascii")

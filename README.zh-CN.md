@@ -66,7 +66,6 @@ sendsoon-mcp
 
 | 配置项 | 是否必填 | 如何填写 |
 | --- | --- | --- |
-| `SENDSOON_EMAIL_RECIPIENT` | 是 | 将 `<YOUR_EMAIL>` 替换为你的收件邮箱 |
 | `SENDSOON_API_KEY` | 否 | 未注册体验时可留空；同一公网 IP 每天最多免费发送 3 封测试邮件。继续使用时请填写注册后生成的 Key |
 | `SENDSOON_API_BASE_URL` | 否 | 默认为 `https://www.sendsoonai.com`，仅在需要指向其他环境时才设置 |
 
@@ -96,7 +95,6 @@ sendsoon-mcp
       "command": "npx",
       "args": ["-y", "@sendsoon/mcp"],
       "env": {
-        "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
       }
     }
@@ -113,7 +111,6 @@ sendsoon-mcp
       "command": "uvx",
       "args": ["sendsoon-mcp"],
       "env": {
-        "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
       }
     }
@@ -133,7 +130,6 @@ command = "npx"
 args = ["-y", "@sendsoon/mcp"]
 
 [mcp_servers.sendsoon.env]
-SENDSOON_EMAIL_RECIPIENT = "<YOUR_EMAIL>"
 SENDSOON_API_KEY = ""
 ```
 
@@ -144,7 +140,7 @@ SENDSOON_API_KEY = ""
 将下面命令中的占位符替换后运行：
 
 ```powershell
-claude mcp add --transport stdio --scope user --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- npx -y @sendsoon/mcp
+claude mcp add --transport stdio --scope user sendsoon -- npx -y @sendsoon/mcp
 ```
 
 进入 Claude Code 后运行 `/mcp`，确认 `sendsoon` 已连接。需要使用 Key 时，在命令的 `sendsoon` 之前增加 `--env SENDSOON_API_KEY=<SENDSOON_API_KEY>`。
@@ -160,7 +156,6 @@ claude mcp add --transport stdio --scope user --env SENDSOON_EMAIL_RECIPIENT=<YO
       "command": "npx",
       "args": ["-y", "@sendsoon/mcp"],
       "env": {
-        "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
       }
     }
@@ -197,7 +192,7 @@ Agent 调用 `ip_lookup` 并返回查询结果，说明 MCP 已经连接成功�
 给 <YOUR_EMAIL> 发送一封测试邮件，主题是“SendSoon MCP 测试”，正文是“配置成功”。
 ```
 
-这里的邮箱必须和配置中的 `SENDSOON_EMAIL_RECIPIENT` 完全一致。第一次调用工具时，客户端可能要求确认授权，选择允许即可。
+收件人通过 `send_email` 的 `to` 参数传入。第一次调用工具时，客户端可能要求确认授权，选择允许即可。
 
 ## 日常使用示例
 

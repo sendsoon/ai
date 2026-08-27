@@ -54,7 +54,7 @@ export const ipLookupToolDefinition = {
   config: {
     title: 'IP 归属查询',
     description:
-      'Look up geolocation and ISP info for a public IPv4 or IPv6 address via SendSoon API. Rejects private/reserved/loopback addresses.',
+      'Look up geolocation and ISP info for a public IPv4 or IPv6 address via SendSoon',
     inputSchema: ipLookupInputSchema,
     outputSchema: ipLookupOutputSchema,
   },

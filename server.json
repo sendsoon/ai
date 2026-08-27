@@ -19,13 +19,6 @@
       },
       "environmentVariables": [
         {
-          "name": "SENDSOON_EMAIL_RECIPIENT",
-          "description": "Recipient address allowed for test sends.",
-          "format": "string",
-          "isRequired": true,
-          "isSecret": false
-        },
-        {
           "name": "SENDSOON_API_KEY",
           "description": "SendSoon API Key (ssk_live_...). Leave empty for the anonymous trial of three sends per public IP per day.",
           "format": "string",
@@ -51,13 +44,6 @@
         "type": "stdio"
       },
       "environmentVariables": [
-        {
-          "name": "SENDSOON_EMAIL_RECIPIENT",
-          "description": "Recipient address allowed for test sends.",
-          "format": "string",
-          "isRequired": true,
-          "isSecret": false
-        },
         {
           "name": "SENDSOON_API_KEY",
           "description": "SendSoon API Key (ssk_live_...). Leave empty for the anonymous trial of three sends per public IP per day.",

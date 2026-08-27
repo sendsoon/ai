@@ -21,10 +21,12 @@ export {
   MARKITDOWN_EXTENSIONS,
   decodedBase64ByteLength,
   validateBaseUrl,
+  validateMarkitdownFilename,
   validateMarkitdownRequest,
   validatePublicIp,
   validateSendRequest,
 } from './validation.js';
+export { loadMarkitdownFileFromPath } from './markitdown-file.js';
 export {
   ipLookupFailureResult,
   ipLookupSuccessResult,

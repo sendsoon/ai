@@ -66,7 +66,6 @@ All clients use the same environment variables:
 
 | Setting | Required | What to enter |
 | --- | --- | --- |
-| `SENDSOON_EMAIL_RECIPIENT` | Yes | Replace `<YOUR_EMAIL>` with your recipient address |
 | `SENDSOON_API_KEY` | No | Leave empty for an unregistered trial. One public IP can send up to three free test emails per day. Enter your generated Key for continued use |
 | `SENDSOON_API_BASE_URL` | No | Defaults to `https://www.sendsoonai.com`. Set it only to target a different environment |
 
@@ -96,7 +95,6 @@ Open `Settings > Tools & MCP` in Cursor and add an MCP server. You can also save
       "command": "npx",
       "args": ["-y", "@sendsoon/mcp"],
       "env": {
-        "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
       }
     }
@@ -113,7 +111,6 @@ Open `Settings > Tools & MCP` in Cursor and add an MCP server. You can also save
       "command": "uvx",
       "args": ["sendsoon-mcp"],
       "env": {
-        "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
       }
     }
@@ -133,7 +130,6 @@ command = "npx"
 args = ["-y", "@sendsoon/mcp"]
 
 [mcp_servers.sendsoon.env]
-SENDSOON_EMAIL_RECIPIENT = "<YOUR_EMAIL>"
 SENDSOON_API_KEY = ""
 ```
 
@@ -144,7 +140,7 @@ Save the file and reopen Codex. Use `/mcp` to confirm that `sendsoon` is connect
 Replace the placeholder and run:
 
 ```powershell
-claude mcp add --transport stdio --scope user --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- npx -y @sendsoon/mcp
+claude mcp add --transport stdio --scope user sendsoon -- npx -y @sendsoon/mcp
 ```
 
 Run `/mcp` in Claude Code and confirm that `sendsoon` is connected. To use an API Key, add `--env SENDSOON_API_KEY=<SENDSOON_API_KEY>` before the `sendsoon` server name.
@@ -160,7 +156,6 @@ Open the configuration file from `Settings > Developer` and add:
       "command": "npx",
       "args": ["-y", "@sendsoon/mcp"],
       "env": {
-        "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
       }
     }
@@ -197,7 +192,7 @@ To test email, enter:
 Send a test email to <YOUR_EMAIL> with the subject “SendSoon MCP test” and the body “Configuration successful.”
 ```
 
-The address must exactly match `SENDSOON_EMAIL_RECIPIENT`. Your client may ask for permission the first time a tool runs; approve it to continue.
+Pass the recipient in the `to` parameter of `send_email`. Your client may ask for permission the first time a tool runs; approve it to continue.
 
 ## Everyday examples
 

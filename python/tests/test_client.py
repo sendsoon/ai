@@ -16,7 +16,6 @@ def _settings(**overrides: object) -> Settings:
     base = {
         "api_key": None,
         "base_url": "https://www.sendsoonai.com",
-        "email_recipient": "user@example.com",
     }
     base.update(overrides)
     return Settings(**base)  # type: ignore[arg-type]
@@ -42,17 +41,22 @@ async def test_send_email_success(httpx_mock: object) -> None:
 
 
 @pytest.mark.asyncio
-async def test_send_email_rejects_mismatched_recipient() -> None:
-    client = SendSoonClient(_settings())
-    result = await client.send_email(
-        {
-            "to": "other@example.com",
-            "subject": "Hello",
-            "body": "World",
-        }
+async def test_send_email_accepts_any_recipient(httpx_mock: object) -> None:
+    httpx_mock.add_response(  # type: ignore[attr-defined]
+        method="POST",
+        url="https://www.sendsoonai.com/api/send-test-email",
+        json={"success": True, "message_id": "msg-2", "remaining": 2},
     )
-    assert result["success"] is False
-    assert result["error"]["code"] == "INVALID_RECIPIENT"
+    async with httpx.AsyncClient() as http:
+        client = SendSoonClient(_settings(), http_client=http)
+        result = await client.send_email(
+            {
+                "to": "other@example.com",
+                "subject": "Hello",
+                "body": "World",
+            }
+        )
+    assert result == {"success": True, "message_id": "msg-2", "remaining": 2}
 
 
 @pytest.mark.asyncio
@@ -163,11 +167,9 @@ async def test_invalid_base_url() -> None:
 
 def test_settings_from_env(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("SENDSOON_API_KEY", "  ssk_live_x  ")
-    monkeypatch.setenv("SENDSOON_EMAIL_RECIPIENT", " a@b.co ")
     monkeypatch.setenv("SENDSOON_API_BASE_URL", "https://www.sendsoonai.com")
     settings = Settings.from_env()
     assert settings.api_key == "ssk_live_x"
-    assert settings.email_recipient == "a@b.co"
     assert settings.base_url == "https://www.sendsoonai.com"
 
 

@@ -173,23 +173,8 @@ class SendSoonClient:
         config_error = validate_base_url(settings.base_url)
         if config_error:
             return _failure(config_error)
-        if not settings.email_recipient:
-            return _failure(
-                create_error(
-                    "INVALID_CONFIG",
-                    "Set SENDSOON_EMAIL_RECIPIENT to the only address allowed for test sends.",
-                )
-            )
 
         to = str(request["to"]).strip()
-        if to.lower() != settings.email_recipient.lower():
-            return _failure(
-                create_error(
-                    "INVALID_RECIPIENT",
-                    "Recipient must match SENDSOON_EMAIL_RECIPIENT.",
-                )
-            )
-
         subject = str(request["subject"]).strip()
         content_type = request.get("content_type") or "text/plain"
         body = str(request["body"])

@@ -34,7 +34,6 @@ sendsoon-mcp
 
 | Variable | Required | Description |
 | --- | --- | --- |
-| `SENDSOON_EMAIL_RECIPIENT` | **Yes** | The **only** recipient address allowed for `send_email`. The `to` parameter must match this value exactly (case-insensitive). |
 | `SENDSOON_API_KEY` | No | Leave empty for anonymous trial: one public IP may send up to **3 test emails per day**. After that, register at [sendsoonai.com](https://sendsoonai.com/login-register), generate a `ssk_live_...` Key at [Profile](https://www.sendsoonai.com/profile), and set it here. |
 | `SENDSOON_API_BASE_URL` | No | Defaults to `https://www.sendsoonai.com`. HTTPS required except `http://localhost`. |
 
@@ -55,7 +54,6 @@ Invalid or revoked Keys are rejected and do **not** fall back to the anonymous q
       "command": "uvx",
       "args": ["sendsoon-mcp"],
       "env": {
-        "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
       }
     }
@@ -73,14 +71,13 @@ command = "uvx"
 args = ["sendsoon-mcp"]
 
 [mcp_servers.sendsoon.env]
-SENDSOON_EMAIL_RECIPIENT = "<YOUR_EMAIL>"
 SENDSOON_API_KEY = ""
 ```
 
 ### Claude Code
 
 ```powershell
-claude mcp add --transport stdio --scope user --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- uvx sendsoon-mcp
+claude mcp add --transport stdio --scope user sendsoon -- uvx sendsoon-mcp
 ```
 
 ---
@@ -89,9 +86,9 @@ claude mcp add --transport stdio --scope user --env SENDSOON_EMAIL_RECIPIENT=<YO
 
 | Tool | Input highlights | Notes |
 | --- | --- | --- |
-| `send_email` | `to`, `subject`, `body`, optional `content_type`, `idempotency_key` | Recipient must match `SENDSOON_EMAIL_RECIPIENT` |
+| `send_email` | `to`, `subject`, `body`, optional `content_type`, `idempotency_key` | Pass the recipient in `to` |
 | `ip_lookup` | `ip` | Public IPv4/IPv6 only |
-| `markitdown_convert` | `filename`, `content_base64` | Remote SendSoon conversion (max 10 MB decoded); same semantics as the Node MCP |
+| `markitdown_convert` | `file_path` | Reads a local file, detects the name automatically, and converts it via SendSoon (max 10 MB) |
 
 ---
 

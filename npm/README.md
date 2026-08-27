@@ -29,7 +29,6 @@ sendsoon-mcp
 
 | Variable | Required | Description |
 | --- | --- | --- |
-| `SENDSOON_EMAIL_RECIPIENT` | **Yes** | The **only** recipient address allowed for `send_email`. The `to` parameter must match this value exactly (case-insensitive). |
 | `SENDSOON_API_KEY` | No | Leave empty for anonymous trial: one public IP may send up to **3 test emails per day**. After that, register at [sendsoonai.com](https://sendsoonai.com/login-register), generate an `ssk_live_...` Key at [Profile](https://www.sendsoonai.com/profile), and set it here. |
 | `SENDSOON_API_BASE_URL` | No | Defaults to `https://www.sendsoonai.com`. HTTPS required except `http://localhost`. No credentials, query string, or fragment in the URL. |
 
@@ -55,7 +54,6 @@ If the anonymous quota is exhausted, `send_email` returns an `AUTH_ERROR` asking
       "command": "npx",
       "args": ["-y", "@sendsoon/mcp"],
       "env": {
-        "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
       }
     }
@@ -67,7 +65,6 @@ If the anonymous quota is exhausted, `send_email` returns an `AUTH_ERROR` asking
 
 ```bash
 claude mcp add --transport stdio --scope user \
-  --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> \
   sendsoon -- npx -y @sendsoon/mcp
 ```
 
@@ -79,7 +76,6 @@ command = "npx"
 args = ["-y", "@sendsoon/mcp"]
 
 [mcp_servers.sendsoon.env]
-SENDSOON_EMAIL_RECIPIENT = "<YOUR_EMAIL>"
 SENDSOON_API_KEY = ""
 ```
 
@@ -103,7 +99,7 @@ Read this section before calling any tool.
 
 1. **Always check `success`** in every tool response before treating the call as successful.
 2. On failure, read `error.code` and `error.retryable`. Retry only when `retryable` is `true`.
-3. `send_email` requires `SENDSOON_EMAIL_RECIPIENT` — the `to` address **must match** it exactly.
+3. `send_email` accepts the recipient directly in the `to` parameter.
 4. `ip_lookup` and `markitdown_convert` do not require an API Key on the public endpoint.
 5. One tool call = one email / one IP / one file. No batch endpoints exist.
 6. Do not invent parameters not listed in the schema below.
@@ -122,7 +118,7 @@ Send one test email through SendSoon.
 
 | Parameter | Required | Constraints |
 | --- | --- | --- |
-| `to` | Yes | Valid email. Must match `SENDSOON_EMAIL_RECIPIENT` (case-insensitive). |
+| `to` | Yes | Valid email address. |
 | `subject` | Yes | Non-empty, max 998 characters. |
 | `body` | Yes | Non-empty, max 512,000 UTF-8 bytes. Plain text or HTML. |
 | `content_type` | No | `text/plain` (default) or `text/html`. |
@@ -161,11 +157,10 @@ Send one test email through SendSoon.
 
 | `error.code` | Meaning | Retry? |
 | --- | --- | --- |
-| `INVALID_RECIPIENT` | Bad email format, or `to` does not match `SENDSOON_EMAIL_RECIPIENT` | No |
+| `INVALID_RECIPIENT` | Bad email format | No |
 | `INVALID_INPUT` | Empty subject/body, bad `idempotency_key` | No |
 | `AUTH_ERROR` | Quota exhausted (register + set Key) or invalid/revoked Key | No |
 | `PAYLOAD_TOO_LARGE` | Body exceeds 512 KB UTF-8 | No |
-| `INVALID_CONFIG` | `SENDSOON_EMAIL_RECIPIENT` not set | No |
 
 ---
 
@@ -230,8 +225,7 @@ Convert a single file to Markdown text.
 
 | Parameter | Required | Constraints |
 | --- | --- | --- |
-| `filename` | Yes | Base name with extension (no path separators), e.g. `report.pdf`. Extension determines parser. |
-| `content_base64` | Yes | Base64-encoded raw file bytes. Decoded size ≤ **10 MB**. |
+| `file_path` | Yes | Local path to the file to convert. The file name is detected automatically. Max file size **10 MB**. |
 
 **Supported extensions:**
 
@@ -255,8 +249,7 @@ The tool returns text only; saving to disk is the caller's responsibility.
 
 ```json
 {
-  "filename": "quarterly-report.pdf",
-  "content_base64": "JVBERi0xLjQKJ..."
+  "file_path": "/path/to/quarterly-report.pdf"
 }
 ```
 
@@ -264,7 +257,7 @@ The tool returns text only; saving to disk is the caller's responsibility.
 
 | `error.code` | Meaning | Retry? |
 | --- | --- | --- |
-| `INVALID_INPUT` | Unsupported extension, invalid base64, empty file, empty conversion result | No |
+| `INVALID_INPUT` | Unsupported extension, missing file, empty file, empty conversion result | No |
 | `PAYLOAD_TOO_LARGE` | Decoded file > 10 MB | No |
 
 ---
@@ -306,7 +299,7 @@ To test email (replace with your configured address):
 Send a test email to <YOUR_EMAIL> with the subject "SendSoon MCP test" and the body "Configuration successful."
 ```
 
-The address must exactly match `SENDSOON_EMAIL_RECIPIENT`.
+Pass the recipient in the `to` parameter of `send_email`.
 
 ---
 

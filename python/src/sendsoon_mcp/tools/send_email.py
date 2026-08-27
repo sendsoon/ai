@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 ContentType = Literal["text/plain", "text/html"]
 
 TOOL_DESCRIPTION = (
-    "Send one test email through SendSoon. The recipient must match SENDSOON_EMAIL_RECIPIENT. "
+    "Send one test email through SendSoon. Pass the recipient in the to parameter. "
     "Without SENDSOON_API_KEY, one public IP can send up to 3 free test emails per day; "
     "after that, register on SendSoon, generate an API Key, and configure SENDSOON_API_KEY. "
     "Set content_type to text/html for HTML body."

@@ -16,7 +16,7 @@ Convert a file to Markdown text through the `markitdown_convert` MCP tool. This 
 
 - MCP server `sendsoon` running with `markitdown_convert` registered
 - No API key or registration is required by the current public endpoint
-- The file's raw bytes, base64-encoded, available to pass as `content_base64` — decoded size must not exceed 10 MB
+- A local file path readable by the MCP server process; decoded size must not exceed 10 MB
 
 ## Tool: `markitdown_convert`
 
@@ -24,8 +24,7 @@ Convert a file to Markdown text through the `markitdown_convert` MCP tool. This 
 
 | Parameter | Required | Description |
 |-----------|----------|--------------|
-| `filename` | Yes | File name including extension, e.g. `report.pdf`. The extension determines how the file is parsed. |
-| `content_base64` | Yes | Base64-encoded raw file bytes. Decoded size must be ≤ 10 MB. |
+| `file_path` | Yes | Local path to the file to convert. The file name is detected automatically from the path. |
 
 ### Supported extensions
 
@@ -37,8 +36,7 @@ Legacy binary `.doc` (pre-2007 Word) is **not** supported — ask the user to re
 
 ```json
 {
-  "filename": "quarterly-report.pdf",
-  "content_base64": "JVBERi0xLjQKJ..."
+  "file_path": "/path/to/quarterly-report.pdf"
 }
 ```
 
@@ -58,7 +56,7 @@ Always inspect `success`. On failure, use `error.code` and `error.retryable`:
 
 | `error.code` | Action |
 |--------------|--------|
-| `INVALID_INPUT` | `filename` unsupported extension, empty input, invalid base64, or empty conversion result (corrupted/unsupported file content) |
+| `INVALID_INPUT` | Unsupported extension, missing file, empty input, or empty conversion result (corrupted/unsupported file content) |
 | `PAYLOAD_TOO_LARGE` | Decoded file exceeds 10 MB — shrink or split the file before converting |
 | `AUTH_ERROR` | The configured upstream deployment rejected authentication |
 | `RATE_LIMITED` | Wait and retry if `retryable` is true |

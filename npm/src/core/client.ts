@@ -61,7 +61,6 @@ interface ApiMarkitdownConvertResponse {
 export interface SendSoonClientOptions {
   apiKey?: string;
   baseUrl?: string;
-  emailRecipient?: string;
   request?: (options: HttpRequestOptions) => Promise<HttpResponse>;
 }
 
@@ -168,8 +167,6 @@ export class SendSoonClient {
     return {
       apiKey: this.options.apiKey?.trim() || environment.apiKey,
       baseUrl: this.options.baseUrl?.trim() || environment.baseUrl,
-      emailRecipient:
-        this.options.emailRecipient?.trim() || environment.emailRecipient,
     };
   }
 
@@ -180,21 +177,8 @@ export class SendSoonClient {
     const config = this.config();
     const configError = validateBaseUrl(config.baseUrl);
     if (configError) return failureResult(configError);
-    if (!config.emailRecipient) {
-      return failureResult(createError(
-        SendSoonErrorCode.INVALID_CONFIG,
-        'Set SENDSOON_EMAIL_RECIPIENT to the only address allowed for test sends.',
-      ));
-    }
 
     const to = request.to.trim();
-    if (to.toLowerCase() !== config.emailRecipient.toLowerCase()) {
-      return failureResult(createError(
-        SendSoonErrorCode.INVALID_RECIPIENT,
-        'Recipient must match SENDSOON_EMAIL_RECIPIENT.',
-      ));
-    }
-
     const subject = request.subject.trim();
     const payload = {
       to,

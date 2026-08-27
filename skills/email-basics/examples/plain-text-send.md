@@ -1,11 +1,5 @@
 # Example: Plain text send
 
-## Setup
-
-```bash
-export SENDSOON_EMAIL_RECIPIENT="influencer@example.com"
-```
-
 ## MCP tool call
 
 Tool: `send_email`

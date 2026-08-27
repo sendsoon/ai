@@ -66,7 +66,6 @@ sendsoon-mcp
 
 | 設定項目 | 必須 | 入力する値 |
 | --- | --- | --- |
-| `SENDSOON_EMAIL_RECIPIENT` | はい | `<YOUR_EMAIL>` を受信先メールアドレスに置換 |
 | `SENDSOON_API_KEY` | いいえ | 未登録で試す場合は空欄。同じパブリック IP から1日3通まで無料でテスト送信できます。継続利用する場合は生成した Key を入力 |
 | `SENDSOON_API_BASE_URL` | いいえ | 既定値は `https://www.sendsoonai.com`。別環境に接続する場合のみ設定 |
 
@@ -96,7 +95,6 @@ Cursor の `Settings > Tools & MCP` を開いて MCP Server を追加します�
       "command": "npx",
       "args": ["-y", "@sendsoon/mcp"],
       "env": {
-        "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
       }
     }
@@ -113,7 +111,6 @@ Cursor の `Settings > Tools & MCP` を開いて MCP Server を追加します�
       "command": "uvx",
       "args": ["sendsoon-mcp"],
       "env": {
-        "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
       }
     }
@@ -133,7 +130,6 @@ command = "npx"
 args = ["-y", "@sendsoon/mcp"]
 
 [mcp_servers.sendsoon.env]
-SENDSOON_EMAIL_RECIPIENT = "<YOUR_EMAIL>"
 SENDSOON_API_KEY = ""
 ```
 
@@ -144,7 +140,7 @@ SENDSOON_API_KEY = ""
 プレースホルダーを置き換えて実行します：
 
 ```powershell
-claude mcp add --transport stdio --scope user --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- npx -y @sendsoon/mcp
+claude mcp add --transport stdio --scope user sendsoon -- npx -y @sendsoon/mcp
 ```
 
 Claude Code で `/mcp` を実行し、`sendsoon` が接続されていることを確認します。API Key を使用する場合は、サーバー名 `sendsoon` の前に `--env SENDSOON_API_KEY=<SENDSOON_API_KEY>` を追加します。
@@ -160,7 +156,6 @@ Claude Code で `/mcp` を実行し、`sendsoon` が接続されていること�
       "command": "npx",
       "args": ["-y", "@sendsoon/mcp"],
       "env": {
-        "SENDSOON_EMAIL_RECIPIENT": "<YOUR_EMAIL>",
         "SENDSOON_API_KEY": ""
       }
     }
@@ -197,7 +192,7 @@ Windsurf、Cline、Continue など、ローカル stdio MCP サーバーに対�
 <YOUR_EMAIL> に件名「SendSoon MCP テスト」、本文「設定に成功しました。」のテストメールを送信してください。
 ```
 
-メールアドレスは `SENDSOON_EMAIL_RECIPIENT` と完全に一致する必要があります。初回のツール実行時にクライアントが許可を求める場合は、許可して続行してください。
+受信先は `send_email` の `to` パラメータで指定します。初回のツール実行時にクライアントが許可を求める場合は、許可して続行してください。
 
 ## 普段の使い方
 

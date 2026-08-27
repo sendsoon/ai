@@ -176,19 +176,25 @@ export function decodedBase64ByteLength(value: string): number | null {
   return normalized === null ? null : Buffer.from(normalized, 'base64').byteLength;
 }
 
-export function validateMarkitdownRequest(request: MarkitdownConvertRequest): SendSoonError | null {
-  const filename = request.filename.trim();
-  if (!filename) {
+export function validateMarkitdownFilename(filename: string): SendSoonError | null {
+  const trimmed = filename.trim();
+  if (!trimmed) {
     return createError(SendSoonErrorCode.INVALID_INPUT, 'filename is required and cannot be empty.');
   }
-  if (filename.includes('/') || filename.includes('\\') || filename.includes('\0')) {
+  if (trimmed.includes('/') || trimmed.includes('\\') || trimmed.includes('\0')) {
     return createError(SendSoonErrorCode.INVALID_INPUT, 'filename must be a base name without path separators.');
   }
-  const dot = filename.lastIndexOf('.');
-  const extension = dot >= 0 ? filename.slice(dot).toLowerCase() : '';
+  const dot = trimmed.lastIndexOf('.');
+  const extension = dot >= 0 ? trimmed.slice(dot).toLowerCase() : '';
   if (!SUPPORTED_MARKITDOWN_EXTENSIONS.has(extension)) {
     return createError(SendSoonErrorCode.INVALID_INPUT, `Unsupported file extension: ${extension || '(none)'}.`);
   }
+  return null;
+}
+
+export function validateMarkitdownRequest(request: MarkitdownConvertRequest): SendSoonError | null {
+  const filenameError = validateMarkitdownFilename(request.filename);
+  if (filenameError) return filenameError;
 
   const byteLength = decodedBase64ByteLength(request.content_base64);
   if (byteLength === null) {

@@ -1,11 +1,5 @@
 # Example: HTML test send
 
-## Setup
-
-```bash
-export SENDSOON_EMAIL_RECIPIENT="influencer@example.com"
-```
-
 ## MCP tool call
 
 Tool: `send_email`
@@ -22,7 +16,6 @@ Tool: `send_email`
 ## Notes
 
 - `content_type` must be `text/html` when the body contains HTML tags
-- `to` must match `SENDSOON_EMAIL_RECIPIENT`
 
 ## Expected result
 

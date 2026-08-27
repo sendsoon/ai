@@ -52,7 +52,7 @@ export const sendEmailToolDefinition = {
   config: {
     title: '发送邮件',
     description:
-      'Send one test email through SendSoon. The recipient must match SENDSOON_EMAIL_RECIPIENT. Without SENDSOON_API_KEY, one public IP can send up to 3 free test emails per day; after that, register on SendSoon, generate an API Key, and configure SENDSOON_API_KEY. Set content_type to text/html for HTML body.',
+      'Send one test email through SendSoon. Pass the recipient in the to parameter. Without SENDSOON_API_KEY, one public IP can send up to 3 free test emails per day; after that, register on SendSoon, generate an API Key, and configure SENDSOON_API_KEY. Set content_type to text/html for HTML body.',
     inputSchema: sendEmailInputSchema,
     outputSchema: sendEmailOutputSchema,
   },

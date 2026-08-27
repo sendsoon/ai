@@ -1,5 +1,5 @@
 import {
-  validateMarkitdownRequest,
+  loadMarkitdownFileFromPath,
   markitdownFailureResult,
   type MarkitdownConvertResult,
   type SendSoonClient,
@@ -8,12 +8,11 @@ import * as z from 'zod/v4';
 import { formatToolResult } from './format.js';
 
 const markitdownConvertInputSchema = {
-  filename: z
-    .string().trim().min(1)
-    .describe('File name including extension, e.g. report.pdf'),
-  content_base64: z
-    .string().trim().min(1)
-    .describe('Base64-encoded file content (max 10 MB decoded)'),
+  file_path: z
+    .string()
+    .trim()
+    .min(1)
+    .describe('Local path to the file to convert. The file name is detected automatically.'),
 };
 
 const markitdownConvertOutputSchema = {
@@ -30,8 +29,7 @@ const markitdownConvertOutputSchema = {
 };
 
 export type MarkitdownConvertInput = {
-  filename: string;
-  content_base64: string;
+  file_path: string;
 };
 
 export type MarkitdownConvertOutput = MarkitdownConvertResult;
@@ -41,22 +39,18 @@ export const markitdownConvertToolDefinition = {
   config: {
     title: '文件转 Markdown',
     description:
-      'Convert a file (pdf, docx, pptx, xlsx, images, audio, csv, json, html, zip, epub, txt, etc.) to Markdown text via SendSoon API. Provide the raw file bytes as base64 (max 10 MB decoded).',
+      'Convert a local file (pdf, docx, pptx, xlsx, images, audio, csv, json, html, zip, epub, txt, etc.) to Markdown text via SendSoon. Provide file_path; the file name is detected automatically (max 10 MB).',
     inputSchema: markitdownConvertInputSchema,
     outputSchema: markitdownConvertOutputSchema,
   },
   createHandler(client: SendSoonClient) {
     return async (input: MarkitdownConvertInput) => {
-      const request = {
-        filename: input.filename.trim(),
-        content_base64: input.content_base64.trim(),
-      };
-      const validationError = validateMarkitdownRequest(request);
-      if (validationError) {
-        return formatToolResult(markitdownFailureResult(validationError));
+      const loaded = await loadMarkitdownFileFromPath(input.file_path);
+      if ('error' in loaded) {
+        return formatToolResult(markitdownFailureResult(loaded.error));
       }
 
-      const result = await client.markitdownConvert(request);
+      const result = await client.markitdownConvert(loaded.request);
       return formatToolResult(result);
     };
   },
