@@ -14,6 +14,26 @@ SendSoon MCP は [Model Context Protocol (MCP)](https://modelcontextprotocol.io/
 | `ip_lookup` | パブリック IP 情報を検索 | 「8.8.8.8 の所在地を調べて」 |
 | `markitdown_convert` | ローカル文書を Markdown に変換 | 「この PDF を Markdown に変換して」 |
 
+## 普段の使い方
+
+```text
+user@example.com に件名「会議のリマインダー」、本文「本日15時から会議です。」のメールを送信してください。
+```
+
+```text
+8.8.8.8 の所在地と ISP を調べてください。
+```
+
+```text
+/path/to/report.pdf を Markdown に変換し、要点をまとめてください。
+```
+
+エージェントが自動的にツールを選択しない場合は、次のように指定します：
+
+```text
+sendsoon MCP を使ってこのタスクを完了してください。
+```
+
 ## AI クライアントへのインストール
 
 以下は **Codex** と **Claude Desktop** 向けです。
@@ -82,26 +102,6 @@ Claude Desktop 内の `Settings > Developer > Edit Config` から直接編集す
 4. 設定を保存して MCP クライアントを再起動します。有効な Key を使ったリクエストは匿名 IP の1日あたりの上限を消費しません。
 
 匿名枠を使い切った場合、`send_email` は登録と Key 設定を案内します。無効または取り消された Key は拒否され、匿名枠には自動的に切り替わりません。
-
-## 普段の使い方
-
-```text
-8.8.8.8 の所在地と ISP を調べてください。
-```
-
-```text
-/path/to/report.pdf を Markdown に変換し、要点をまとめてください。
-```
-
-```text
-user@example.com に件名「会議のリマインダー」、本文「本日15時から会議です。」のメールを送信してください。
-```
-
-エージェントが自動的にツールを選択しない場合は、次のように指定します：
-
-```text
-sendsoon MCP を使ってこのタスクを完了してください。
-```
 
 ## Google Colab で試す
 

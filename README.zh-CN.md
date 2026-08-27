@@ -14,6 +14,26 @@ SendSoon MCP 是一个 [Model Context Protocol (MCP)](https://modelcontextprotoc
 | `ip_lookup` | 查询公网 IP 信息 | “查询 8.8.8.8 的归属地” |
 | `markitdown_convert` | 将本地文档转换成 Markdown | “把这份 PDF 转成 Markdown” |
 
+## 日常使用示例
+
+```text
+给 user@example.com 发一封邮件，主题是“会议提醒”，正文是“今天下午三点开会”。
+```
+
+```text
+查询 8.8.8.8 的 IP 归属地和运营商。
+```
+
+```text
+把 D:\docs\report.pdf 转换成 Markdown，并总结重点。
+```
+
+如果 Agent 没有自动选择工具，可以明确说：
+
+```text
+请调用 sendsoon MCP 完成这个任务。
+```
+
 ## 安装到 AI 客户端
 
 以下说明适用于 **Codex** 与 **Claude Desktop**。
@@ -82,26 +102,6 @@ SENDSOON_API_KEY = ""
 4. 保存配置并重启 MCP 客户端。带有效 Key 的请求不会消耗匿名 IP 的每日 3 次额度。
 
 如果匿名额度已经用完，`send_email` 会返回注册与配置 Key 的提示；配置无效或已撤销的 Key 会被拒绝，不会自动退回匿名额度。
-
-## 日常使用示例
-
-```text
-查询 8.8.8.8 的 IP 归属地和运营商。
-```
-
-```text
-把 D:\docs\report.pdf 转换成 Markdown，并总结重点。
-```
-
-```text
-给 user@example.com 发一封邮件，主题是“会议提醒”，正文是“今天下午三点开会”。
-```
-
-如果 Agent 没有自动选择工具，可以明确说：
-
-```text
-请调用 sendsoon MCP 完成这个任务。
-```
 
 ## 在 Google Colab 中试用
 

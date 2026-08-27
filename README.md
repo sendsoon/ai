@@ -14,6 +14,26 @@ Configure it once, then describe tasks in natural language. You usually do not n
 | `ip_lookup` | Look up public IP information | “Look up the location of 8.8.8.8” |
 | `markitdown_convert` | Convert a local document to Markdown | “Convert this PDF to Markdown” |
 
+## Everyday examples
+
+```text
+Send an email to user@example.com with the subject “Meeting reminder” and the body “The meeting starts at 3 PM today.”
+```
+
+```text
+Look up the location and ISP for 8.8.8.8.
+```
+
+```text
+Convert /path/to/report.pdf to Markdown and summarize the key points.
+```
+
+If the agent does not select a tool automatically, say:
+
+```text
+Use the sendsoon MCP to complete this task.
+```
+
 ## Install in your AI client
 
 The instructions below cover **Codex** and **Claude Desktop**.
@@ -82,26 +102,6 @@ Never commit a real Key to Git or share it with anyone.
 4. Save the configuration and restart your MCP client. Requests with a valid Key do not use the anonymous IP daily quota.
 
 If the anonymous quota is exhausted, `send_email` will tell you to register and configure a Key. An invalid or revoked Key is rejected and does not fall back to the anonymous quota.
-
-## Everyday examples
-
-```text
-Look up the location and ISP for 8.8.8.8.
-```
-
-```text
-Convert /path/to/report.pdf to Markdown and summarize the key points.
-```
-
-```text
-Send an email to user@example.com with the subject “Meeting reminder” and the body “The meeting starts at 3 PM today.”
-```
-
-If the agent does not select a tool automatically, say:
-
-```text
-Use the sendsoon MCP to complete this task.
-```
 
 ## Try it in Google Colab
 
