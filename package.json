@@ -5,15 +5,20 @@
   "description": "Private monorepo root (not published). Public npm package is @sendsoon/mcp under npm/.",
   "type": "module",
   "packageManager": "pnpm@11.9.0",
-  "workspaces": ["npm"],
-  "engines": { "node": ">=20" },
+  "workspaces": [
+    "npm"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "tsc -b",
     "bundle": "pnpm --filter @sendsoon/mcp run bundle",
     "clean": "tsc -b --clean",
     "typecheck": "tsc -b --pretty false",
     "lint": "eslint npm/src",
-    "check": "pnpm run lint && pnpm run typecheck"
+    "check": "pnpm run lint && pnpm run typecheck",
+    "version:sync": "node scripts/sync-release-versions.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",

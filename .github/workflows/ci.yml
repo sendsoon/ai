@@ -1,53 +1,53 @@
-name: CI
-
-on:
-  push:
-    branches: [main]
-  pull_request:
-
-jobs:
-  version-gate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Assert npm and PyPI release versions match
-        run: bash scripts/assert-release-versions.sh
-
-  npm:
-    needs: version-gate
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run check
-
-  pypi:
-    needs: version-gate
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: pypi
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: pip
-          cache-dependency-path: pypi/pyproject.toml
-      - run: python -m pip install -e ".[dev]" build twine
-      - run: ruff check src tests
-      - run: mypy
-      - run: pytest
-      - run: python -m build
-      - run: twine check dist/*
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  version-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Assert npm and PyPI release versions match VERSION
+        run: bash scripts/assert-release-versions.sh
+
+  npm:
+    needs: version-gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run check
+
+  pypi:
+    needs: version-gate
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pypi
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pypi/pyproject.toml
+      - run: python -m pip install -e ".[dev]" build twine
+      - run: ruff check src tests
+      - run: mypy
+      - run: pytest
+      - run: python -m build
+      - run: twine check dist/*

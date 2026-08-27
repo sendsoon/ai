@@ -1,9 +1,20 @@
 #!/usr/bin/env bash
-# Ensure npm, PyPI, and MCP registry version fields stay in sync.
+# Verify all manifest versions match the single source of truth: VERSION.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
+
+if [ ! -f VERSION ]; then
+  echo "VERSION file is missing at repository root." >&2
+  exit 1
+fi
+
+CANON="$(tr -d '\r\n' < VERSION)"
+if [ -z "$CANON" ]; then
+  echo "VERSION file is empty." >&2
+  exit 1
+fi
 
 read_version() {
   case "$1" in
@@ -41,10 +52,9 @@ SOURCES=(
   server.json[pypi]
 )
 
-CANON="$(read_version npm/package.json)"
 MISMATCH=0
 
-echo "Release version gate (canonical: ${CANON})"
+echo "Release version gate (source: VERSION = ${CANON})"
 
 for source in "${SOURCES[@]}"; do
   version="$(read_version "$source")"
@@ -57,17 +67,18 @@ for source in "${SOURCES[@]}"; do
 done
 
 if [ "$MISMATCH" -ne 0 ]; then
-  echo "Version mismatch: npm and PyPI release versions must match across all manifest files." >&2
+  echo "Run: node scripts/sync-release-versions.mjs" >&2
   exit 1
 fi
 
 if [ -n "${EXPECTED_TAG:-}" ]; then
   tag="${EXPECTED_TAG#v}"
   if [ "$CANON" != "$tag" ]; then
-    echo "Tag mismatch: git tag v${tag} but repository version is ${CANON}" >&2
+    echo "Tag mismatch: git tag v${tag} but VERSION is ${CANON}" >&2
+    echo "Run: node scripts/sync-release-versions.mjs ${tag}" >&2
     exit 1
   fi
-  echo "  ok: git tag v${tag} matches repository version"
+  echo "  ok: git tag v${tag} matches VERSION"
 fi
 
 echo "All release versions are consistent."
