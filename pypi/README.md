@@ -1,5 +1,7 @@
 # sendsoon-mcp
 
+<!-- mcp-name: io.github.sendsoon/mcp -->
+
 MCP server for [SendSoon](https://sendsoonai.com/). Lets Codex and Claude use SendSoon capabilities: send email, look up public IPs, and convert local documents to Markdown.
 
 **PyPI:** [`sendsoon-mcp`](https://pypi.org/project/sendsoon-mcp/)  
