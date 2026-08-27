@@ -1,0 +1,198 @@
+# Release pipeline for v* tags:
+#   1. check-npm + check-pypi (parallel)
+#   2. publish-npm + publish-pypi (parallel, after checks)
+#   3. publish-mcp (after both registries are live)
+#
+# Trusted Publishers (update if you rename this workflow):
+#   npm  → sendsoon/mcp, release.yml, environment: npm
+#   PyPI → sendsoon/mcp, release.yml, environment: pypi
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  check-npm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Assert package versions match tag
+        run: |
+          TAG="${GITHUB_REF#refs/tags/v}"
+          NPM="$(node -p "require('./npm/package.json').version")"
+          PY="$(python3 -c "import re,pathlib; t=pathlib.Path('pypi/pyproject.toml').read_text(); print(re.search(r'(?m)^version = \"([^\"]+)\"$', t).group(1))")"
+          SV="$(node -p "require('./server.json').version")"
+          test "$NPM" = "$TAG" && test "$PY" = "$TAG" && test "$SV" = "$TAG"
+      - run: pnpm run check
+
+  check-pypi:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pypi
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pypi/pyproject.toml
+      - run: python -m pip install -e ".[dev]" build twine
+      - run: ruff check src tests
+      - run: mypy
+      - run: pytest
+      - run: python -m build
+      - run: twine check dist/*
+
+  publish-npm:
+    needs: check-npm
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: npm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+        working-directory: .
+      - name: Set version from tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          export VERSION
+          node <<'NODE'
+          const fs = require('fs');
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          pkg.version = process.env.VERSION;
+          fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+          console.log('npm version ->', process.env.VERSION);
+          NODE
+      - name: Publish to npm
+        continue-on-error: true
+        run: pnpm publish --no-git-checks --access public
+        env:
+          NPM_CONFIG_PROVENANCE: true
+      - name: Verify publish
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          for i in $(seq 1 18); do
+            if npm view "@sendsoon/mcp@${VERSION}" version >/dev/null 2>&1; then
+              echo "@sendsoon/mcp@${VERSION} is on npm"
+              exit 0
+            fi
+            echo "Waiting for npm registry (${i}/18)..."
+            sleep 10
+          done
+          echo "npm publish failed: @sendsoon/mcp@${VERSION} not found on registry"
+          exit 1
+
+  publish-pypi:
+    needs: check-pypi
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: pypi
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Set version from tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          export VERSION
+          python <<'PY'
+          import os
+          import pathlib
+          import re
+
+          version = os.environ["VERSION"]
+          path = pathlib.Path("pyproject.toml")
+          text = path.read_text(encoding="utf-8")
+          updated, count = re.subn(
+              r'(?m)^version = "[^"]+"$',
+              f'version = "{version}"',
+              text,
+              count=1,
+          )
+          if count != 1:
+              raise SystemExit("failed to update version in pyproject.toml")
+          path.write_text(updated, encoding="utf-8")
+          print(f"pyproject version -> {version}")
+          PY
+      - run: python -m pip install build twine
+      - run: python -m build
+      - run: twine check dist/*
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: pypi/dist
+          skip-existing: true
+          attestations: true
+
+  publish-mcp:
+    needs: [publish-npm, publish-pypi]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install mcp-publisher
+        run: |
+          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
+          sudo mv mcp-publisher /usr/local/bin/
+      - name: Set version from tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          jq --arg v "$VERSION" '
+            .version = $v
+            | .packages |= map(.version = $v)
+          ' server.json > server.tmp.json
+          mv server.tmp.json server.json
+      - name: Verify npm and PyPI packages
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          for i in $(seq 1 12); do
+            NPM_OK=0
+            PYPI_OK=0
+            npm view "@sendsoon/mcp@${VERSION}" version >/dev/null 2>&1 && NPM_OK=1
+            curl -fsS "https://pypi.org/pypi/sendsoon-mcp/${VERSION}/json" >/dev/null 2>&1 && PYPI_OK=1
+            if [ "$NPM_OK" = "1" ] && [ "$PYPI_OK" = "1" ]; then
+              echo "Both registries have version ${VERSION}"
+              exit 0
+            fi
+            echo "Waiting for npm/PyPI (${i}/12)..."
+            sleep 5
+          done
+          echo "Timed out waiting for @sendsoon/mcp@${VERSION} and sendsoon-mcp@${VERSION}"
+          exit 1
+      - run: mcp-publisher validate
+      - run: mcp-publisher login github-oidc
+      - run: mcp-publisher publish
