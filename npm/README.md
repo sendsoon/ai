@@ -1,12 +1,15 @@
 # @sendsoon/mcp
 
-MCP server for [SendSoon](https://www.sendsoonai.com/). Gives Codex and Claude the ability to send email, look up public IP information, and convert files to Markdown.
+MCP server for [SendSoon](https://sendsoonai.com/). Lets Codex and Claude use SendSoon capabilities: send email, look up public IPs, and convert local documents to Markdown.
 
+**npm:** [`@sendsoon/mcp`](https://www.npmjs.com/package/@sendsoon/mcp)  
 **Server name:** `sendsoon`  
 **Transport:** `stdio`  
 **Tools:** `send_email`, `ip_lookup`, `markitdown_convert`
 
----
+Configure it once, then describe tasks in natural language. You usually do not need to mention SendSoon in every prompt.
+
+Full guide (multilingual): [github.com/sendsoon/mcp](https://github.com/sendsoon/mcp) ([简体中文](https://github.com/sendsoon/mcp/blob/main/README.zh-CN.md) · [日本語](https://github.com/sendsoon/mcp/blob/main/README.ja.md))
 
 ## Install
 
@@ -23,30 +26,41 @@ sendsoon-mcp
 
 **Requirements:** Node.js 20+, and a client that supports local stdio MCP servers.
 
----
+## What you can do
 
-## Configuration
-
-| Variable | Required | Description |
+| Tool | Purpose | Example |
 | --- | --- | --- |
-| `SENDSOON_API_KEY` | No | Leave empty for anonymous trial: one public IP may send up to **3 test emails per day**. After that, register at [sendsoonai.com](https://sendsoonai.com/login-register), generate an `ssk_live_...` Key at [Profile](https://www.sendsoonai.com/profile), and set it here. |
+| `send_email` | Send a single email | “Send me a test email” |
+| `ip_lookup` | Look up public IP information | “Look up the location of 8.8.8.8” |
+| `markitdown_convert` | Convert a local document to Markdown | “Convert this PDF to Markdown” |
 
-Never commit a real Key to Git or share it with anyone.
+## Everyday examples
 
-### Get an API Key
+```text
+Send an email to user@example.com with the subject “Meeting reminder” and the body “The meeting starts at 3 PM today.”
+```
 
-1. Sign up or sign in at [sendsoonai.com/login-register](https://sendsoonai.com/login-register).
-2. Open [Profile](https://www.sendsoonai.com/profile) and generate a Key.
-3. Copy the one-time `ssk_live_...` Key and set `SENDSOON_API_KEY` in your MCP config.
-4. Restart the MCP client. Valid Keys do not consume the anonymous daily quota.
+```text
+Look up the location and ISP for 8.8.8.8.
+```
 
-If the anonymous quota is exhausted, `send_email` returns an `AUTH_ERROR` asking you to register and configure a Key. Invalid or revoked Keys are rejected and do **not** fall back to anonymous quota.
+```text
+Convert /path/to/report.pdf to Markdown and summarize the key points.
+```
 
-### Client configuration
+If the agent does not select a tool automatically, say:
 
-For **Codex** and **Claude Desktop** only.
+```text
+Use the sendsoon MCP to complete this task.
+```
 
-**Codex** — `~/.codex/config.toml`:
+## Install in your AI client
+
+The instructions below cover **Codex** and **Claude Desktop**.
+
+### Codex
+
+**Config file:** user-level `~/.codex/config.toml` (macOS / Linux) or `%USERPROFILE%\.codex\config.toml` (Windows).
 
 ```toml
 [mcp_servers.sendsoon]
@@ -57,9 +71,20 @@ args = ["-y", "@sendsoon/mcp"]
 SENDSOON_API_KEY = ""
 ```
 
-Verify with `/mcp` after restart.
+**Verify:** Save the file, restart Codex, and run `/mcp` in a chat. You should see `sendsoon` connected. In the desktop app, also check `Settings > MCP servers`.
 
-**Claude Desktop** — `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+**First use:** Start a new conversation and ask for a simple task (e.g. “Look up 8.8.8.8”). Approve the tool if Codex asks for permission.
+
+### Claude Desktop
+
+**Config file:**
+
+| OS | Path |
+| --- | --- |
+| macOS | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| Windows | `%APPDATA%\Claude\claude_desktop_config.json` |
+
+You can also open `Settings > Developer > Edit Config` inside Claude Desktop.
 
 ```json
 {
@@ -67,244 +92,65 @@ Verify with `/mcp` after restart.
     "sendsoon": {
       "command": "npx",
       "args": ["-y", "@sendsoon/mcp"],
-      "env": { "SENDSOON_API_KEY": "" }
+      "env": {
+        "SENDSOON_API_KEY": ""
+      }
     }
   }
 }
 ```
 
-Fully quit and restart Claude Desktop after saving.
+**Verify:** Save the file, **fully quit** Claude Desktop (including the system tray), then relaunch. Start a new chat and confirm `sendsoon` tools appear in the tools menu or settings.
+
+**First use:** Claude may ask to approve tool access on the first invocation; allow it to continue.
+
+## Prepare the configuration
+
+Optional environment variable:
+
+| Setting | Required | What to enter |
+| --- | --- | --- |
+| `SENDSOON_API_KEY` | No | Leave empty for an unregistered trial. One public IP can send up to three free test emails per day. Enter your generated Key for continued use |
+
+Never commit a real Key to Git or share it with anyone.
+
+### Get an API Key
+
+1. Sign up or sign in on the [SendSoon registration page](https://sendsoonai.com/login-register).
+2. Open [Profile](https://sendsoonai.com/profile) and generate a Key in the API Key section.
+3. Copy the one-time `ssk_live_...` Key immediately and enter it as `SENDSOON_API_KEY` in your MCP configuration.
+4. Save the configuration and restart your MCP client. Requests with a valid Key do not use the anonymous IP daily quota.
+
+If the anonymous quota is exhausted, `send_email` will tell you to register and configure a Key. An invalid or revoked Key is rejected and does not fall back to the anonymous quota.
+
+## Try it in Google Colab
+
+Skip local setup and try `ip_lookup`, `markitdown_convert`, and `send_email` in the browser.
+
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sendsoon/mcp/blob/main/docs/SendSoon.ipynb)
+
+The notebook calls the same SendSoon HTTP APIs used by these MCP tools.
 
 ---
 
-## For AI agents — how to use this server
+## Visual local testing (MCP Inspector)
 
-Read this section before calling any tool.
+To **see all three tools in a browser and click through them manually** before installing into an AI client, use the [MCP Inspector](https://github.com/modelcontextprotocol/inspector).
 
-### Tool selection
+Requires Node.js 20+. Run the command below in a terminal; Inspector opens a web UI automatically:
 
-| User intent | Call this tool | Do **not** use for |
-| --- | --- | --- |
-| Send / test an email | `send_email` | Batch sends, arbitrary recipients, attachments |
-| Look up geolocation or ISP of a known IP | `ip_lookup` | Detecting the user's own IP, batch lookups |
-| Extract text from a document as Markdown | `markitdown_convert` | Saving files to disk, batch conversion |
-
-### Global rules
-
-1. **Always check `success`** in every tool response before treating the call as successful.
-2. On failure, read `error.code` and `error.retryable`. Retry only when `retryable` is `true`.
-3. `send_email` accepts the recipient directly in the `to` parameter.
-4. `ip_lookup` and `markitdown_convert` do not require an API Key on the public endpoint.
-5. One tool call = one email / one IP / one file. No batch endpoints exist.
-6. Do not invent parameters not listed in the schema below.
-
----
-
-## Tool reference
-
-### `send_email`
-
-Send one test email through SendSoon.
-
-**When to call:** User asks to send email, test email, 发邮件, or deliver one message.
-
-**Parameters:**
-
-| Parameter | Required | Constraints |
-| --- | --- | --- |
-| `to` | Yes | Valid email address. |
-| `subject` | Yes | Non-empty, max 998 characters. |
-| `body` | Yes | Non-empty, max 512,000 UTF-8 bytes. Plain text or HTML. |
-| `content_type` | No | `text/plain` (default) or `text/html`. |
-| `idempotency_key` | No | 1–128 chars, `[A-Za-z0-9._:-]+`. Supply on first attempt and reuse when retrying the same logical send. |
-
-**Success response:**
-
-```json
-{ "success": true, "remaining": 2 }
+```bash
+npx @modelcontextprotocol/inspector npx -y @sendsoon/mcp
 ```
 
-`remaining` is the anonymous daily allowance left (when no API Key). A `message_id` may appear on production deployments.
+### How to test
 
-**Example — plain text:**
-
-```json
-{
-  "to": "you@example.com",
-  "subject": "SendSoon MCP test",
-  "body": "Configuration successful."
-}
-```
-
-**Example — HTML:**
-
-```json
-{
-  "to": "you@example.com",
-  "subject": "Hello",
-  "body": "<p>Hello <strong>there</strong></p>",
-  "content_type": "text/html"
-}
-```
-
-**Tool-specific errors:**
-
-| `error.code` | Meaning | Retry? |
-| --- | --- | --- |
-| `INVALID_RECIPIENT` | Bad email format | No |
-| `INVALID_INPUT` | Empty subject/body, bad `idempotency_key` | No |
-| `AUTH_ERROR` | Quota exhausted (register + set Key) or invalid/revoked Key | No |
-| `PAYLOAD_TOO_LARGE` | Body exceeds 512 KB UTF-8 | No |
-
----
-
-### `ip_lookup`
-
-Look up geolocation and ISP info for a public IPv4 or IPv6 address.
-
-**When to call:** User asks to look up, geolocate, or check ISP/ASN for an IP (查IP, IP归属地).
-
-**Parameters:**
-
-| Parameter | Required | Constraints |
-| --- | --- | --- |
-| `ip` | Yes | Public IPv4 or IPv6. Private, reserved, loopback, link-local, and multicast addresses are **rejected**. |
-
-**Success response:**
-
-```json
-{
-  "success": true,
-  "ip": "8.8.8.8",
-  "ip2region": {
-    "country": "United States",
-    "countryCode": "US",
-    "region": "",
-    "city": "",
-    "postalCode": "",
-    "timezone": "",
-    "latitude": null,
-    "longitude": null
-  },
-  "network": {
-    "isp": "Google LLC",
-    "asn": "",
-    "organization": "Google LLC"
-  },
-  "source": "local"
-}
-```
-
-**Example:**
-
-```json
-{ "ip": "8.8.8.8" }
-```
-
-**Tool-specific errors:**
-
-| `error.code` | Meaning | Retry? |
-| --- | --- | --- |
-| `INVALID_INPUT` | Not a valid IP, or not a public address | No |
-
----
-
-### `markitdown_convert`
-
-Convert a single file to Markdown text.
-
-**When to call:** User wants to convert a PDF/Word/Excel/PPT/text/HTML file to Markdown or extract text (转Markdown, 文件转文本).
-
-**Parameters:**
-
-| Parameter | Required | Constraints |
-| --- | --- | --- |
-| `file_path` | Yes | Local path to the file to convert. The file name is detected automatically. Max file size **10 MB**. |
-
-**Supported extensions:**
-
-`.pdf` `.docx` `.pptx` `.xlsx` `.xls` `.txt` `.md` `.html` `.htm`
-
-**Not supported:** images (`.png`, `.jpg`, etc.), direct URLs (save as `.html` first), audio, `.zip`, `.epub`, `.csv`, `.json`, `.xml`.
-
-Legacy `.doc` (pre-2007 Word) is **not** supported — ask the user to re-save as `.docx`.
-
-**Success response:**
-
-```json
-{
-  "success": true,
-  "filename": "report.pdf",
-  "markdown": "# Report\n\n..."
-}
-```
-
-The tool returns text only; saving to disk is the caller's responsibility.
-
-**Example:**
-
-```json
-{
-  "file_path": "/path/to/quarterly-report.pdf"
-}
-```
-
-**Tool-specific errors:**
-
-| `error.code` | Meaning | Retry? |
-| --- | --- | --- |
-| `INVALID_INPUT` | Unsupported extension (e.g. images), missing file, empty file, empty conversion result | No |
-| `PAYLOAD_TOO_LARGE` | Decoded file > 10 MB | No |
-
----
-
-## Shared error codes
-
-All tools may return these codes. Always inspect `success` first, then `error.code` and `error.retryable`.
-
-| `error.code` | Typical cause | Retry when `retryable` is true? |
-| --- | --- | --- |
-| `INVALID_INPUT` | Validation failed | No (always `retryable: false`) |
-| `INVALID_RECIPIENT` | Bad email (`send_email` only) | No |
-| `INVALID_CONFIG` | Internal configuration error | No |
-| `AUTH_ERROR` | Auth failed or quota exhausted | No |
-| `PAYLOAD_TOO_LARGE` | Body or file too large | No |
-| `RATE_LIMITED` | Rate limit hit | Yes |
-| `SERVER_ERROR` | Upstream 5xx | Yes |
-| `NETWORK_ERROR` | Connectivity failure | Yes |
-| `TIMEOUT` | Request timed out | Yes |
-| `INVALID_RESPONSE` | Unexpected API response shape | Yes |
-
-**Retry policy for agents:** If `retryable` is `false`, explain the error to the user and do not retry. For `send_email` retries after uncertain results, reuse the same `idempotency_key`.
-
----
-
-## Verify the connection
-
-Restart the client, open a new conversation, and ask:
-
-```text
-Look up the location and ISP for 8.8.8.8.
-```
-
-Success = agent calls `ip_lookup` and returns a result.
-
-To test email (replace with your configured address):
-
-```text
-Send a test email to <YOUR_EMAIL> with the subject "SendSoon MCP test" and the body "Configuration successful."
-```
-
-Pass the recipient in the `to` parameter of `send_email`.
-
----
-
-## More documentation
-
-Full user guide (multilingual): [github.com/sendsoon/mcp](https://github.com/sendsoon/mcp) ([简体中文](https://github.com/sendsoon/mcp/blob/main/README.zh-CN.md) · [日本語](https://github.com/sendsoon/mcp/blob/main/README.ja.md))
-
-Try APIs in browser: [Google Colab notebook](https://colab.research.google.com/github/sendsoon/mcp/blob/main/docs/SendSoon.ipynb)
+1. Wait for `MCP Inspector Web is up and running` in the terminal. If the browser does not open, paste the `http://127.0.0.1:6274?...` URL from the terminal.
+2. Confirm the page header shows **Connected**.
+3. Open the **Tools** tab in the top-right area of the page.
+4. Select a tool from the list on the left, fill in the parameters, and click **Execute Tool**.
+5. Read the response in the **Results** panel on the right. On failure, inspect `error.code` and `error.message`.
 
 ## License
 
-MIT
+MIT — see [LICENSE](../LICENSE).
