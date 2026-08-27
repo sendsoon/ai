@@ -11,9 +11,7 @@ import {
 } from './types/send-request.js';
 
 const SUPPORTED_MARKITDOWN_EXTENSIONS = new Set([
-  '.pdf', '.pptx', '.docx', '.xlsx', '.xls', '.jpg', '.jpeg', '.png',
-  '.gif', '.bmp', '.tiff', '.mp3', '.wav', '.m4a', '.html', '.htm',
-  '.csv', '.json', '.xml', '.zip', '.epub', '.txt', '.md',
+  '.pdf', '.docx', '.pptx', '.xlsx', '.xls', '.html', '.htm', '.txt', '.md',
 ]);
 
 function ipv4Bytes(address: string): number[] {

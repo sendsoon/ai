@@ -2,7 +2,7 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md)
 
-Use [SendSoon](https://sendsoonai.com/) email, IP lookup, and file-to-Markdown capabilities from Codex, Claude, Cursor, and other AI agents.
+SendSoon MCP is a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server that lets Codex, Claude, Cursor, and other AI agents use [SendSoon](https://sendsoonai.com/) capabilities: send email, look up public IPs, and convert local documents to Markdown.
 
 Configure it once, then describe tasks in natural language. You usually do not need to mention SendSoon in every prompt.
 
@@ -12,53 +12,18 @@ Configure it once, then describe tasks in natural language. You usually do not n
 | --- | --- | --- |
 | `send_email` | Send a single email | “Send me a test email” |
 | `ip_lookup` | Look up public IP information | “Look up the location of 8.8.8.8” |
-| `markitdown_convert` | Convert a file to Markdown | “Convert this PDF to Markdown” |
+| `markitdown_convert` | Convert a local document to Markdown | “Convert this PDF to Markdown” |
 
-## Try it in Google Colab
+## Packages
 
-Skip local setup and try `ip_lookup`, `markitdown_convert`, and `send_email` in the browser.
+Choose **npm (Node)** or **PyPI (Python)** as the MCP runtime. Tool names and environment variables are the same.
 
-[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sendsoon/mcp/blob/main/docs/SendSoon.ipynb)
+| Channel | Package | Requirement |
+| --- | --- | --- |
+| npm | [`@sendsoon/mcp`](https://www.npmjs.com/package/@sendsoon/mcp) | Node.js 20+ |
+| PyPI | [`sendsoon-mcp`](https://pypi.org/project/sendsoon-mcp/) | Python 3.10+; see [`pypi/README.md`](pypi/README.md) |
 
-The notebook calls the same SendSoon HTTP APIs used by these MCP tools. To use them from Cursor, Claude, or Codex, continue with the local MCP setup below.
-
-## Install MCP
-
-Choose **npm (Node)** or **PyPI (Python)**. Tool names and environment variables are the same.
-
-### npm (Node)
-
-Published as [`@sendsoon/mcp`](https://www.npmjs.com/package/@sendsoon/mcp). Clients can start it with `npx` (downloads on first use):
-
-```bash
-npx -y @sendsoon/mcp
-```
-
-Optional global install:
-
-```bash
-npm install -g @sendsoon/mcp
-sendsoon-mcp
-```
-
-Requires Node.js 20+.
-
-### PyPI (Python)
-
-Published as [`sendsoon-mcp`](https://pypi.org/project/sendsoon-mcp/). Prefer `uvx` so no global install is needed:
-
-```bash
-uvx sendsoon-mcp
-```
-
-Or:
-
-```bash
-pip install sendsoon-mcp
-sendsoon-mcp
-```
-
-Requires Python 3.10+. See [`python/README.md`](python/README.md) for details.
+Client configs start the server with `npx -y @sendsoon/mcp` or `uvx sendsoon-mcp`. A global install is optional.
 
 ## Prepare the configuration
 
@@ -80,7 +45,7 @@ Never commit a real Key to Git or share it with anyone.
 
 If the anonymous quota is exhausted, `send_email` will tell you to register and configure a Key. An invalid or revoked Key is rejected and does not fall back to the anonymous quota.
 
-## Choose your client
+## Install in your AI client
 
 ### Cursor
 
@@ -102,7 +67,7 @@ Open `Settings > Tools & MCP` in Cursor and add an MCP server. You can also save
 }
 ```
 
-**Python (PyPI):**
+**PyPI:**
 
 ```json
 {
@@ -176,36 +141,20 @@ For Windsurf, Cline, Continue, or another client that supports local stdio MCP s
 | Arguments | `-y @sendsoon/mcp` |
 | Environment | The environment variables listed above |
 
-## Confirm that it works
+After installation, restart the client and start a new conversation. Your client may ask for permission the first time a tool runs; approve it to continue.
 
-Restart the client, open a new conversation, and enter:
+## Everyday examples
 
 ```text
 Look up the location and ISP for 8.8.8.8.
 ```
 
-The MCP connection works if the agent calls `ip_lookup` and returns the result.
-
-To test email, enter:
-
 ```text
-Send a test email to <YOUR_EMAIL> with the subject “SendSoon MCP test” and the body “Configuration successful.”
-```
-
-Pass the recipient in the `to` parameter of `send_email`. Your client may ask for permission the first time a tool runs; approve it to continue.
-
-## Everyday examples
-
-```text
-Look up information about 1.1.1.1.
+Convert /path/to/report.pdf to Markdown and summarize the key points.
 ```
 
 ```text
-Convert <YOUR_FILE_PATH> to Markdown and summarize the key points.
-```
-
-```text
-Send an email to <YOUR_EMAIL> with the subject “Meeting reminder” and the body “The meeting starts at 3 PM today.”
+Send an email to user@example.com with the subject “Meeting reminder” and the body “The meeting starts at 3 PM today.”
 ```
 
 If the agent does not select a tool automatically, say:
@@ -214,29 +163,69 @@ If the agent does not select a tool automatically, say:
 Use the sendsoon MCP to complete this task.
 ```
 
-You usually need this explicit instruction only on the first use.
+## Try it in Google Colab
 
-## Install Agent Skills
+Skip local setup and try `ip_lookup`, `markitdown_convert`, and `send_email` in the browser.
 
-Agent Skills teach the agent when to call each MCP tool and how to handle error codes. Install the MCP server first, then add skills.
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sendsoon/mcp/blob/main/docs/SendSoon.ipynb)
 
-### Claude Code (plugin marketplace)
+The notebook calls the same SendSoon HTTP APIs used by these MCP tools.
 
-```text
-/plugin marketplace add sendsoon/mcp
-/plugin install sendsoon-skills@sendsoon
+---
+
+## Visual local testing (MCP Inspector)
+
+To **see all three tools in a browser and click through them manually** before installing into an AI client, use the [MCP Inspector](https://github.com/modelcontextprotocol/inspector).
+
+Requires Node.js 20+. Run one of the commands below in a terminal; Inspector opens a web UI automatically:
+
+**npm (Node) SendSoon MCP:**
+
+```bash
+npx @modelcontextprotocol/inspector npx -y @sendsoon/mcp
 ```
 
-### Cursor / Claude (copy skills)
+**PyPI SendSoon MCP:**
 
-Copy any folder under [`skills/`](skills) into your agent skills directory:
+```bash
+npx @modelcontextprotocol/inspector uvx sendsoon-mcp
+```
 
-| Client | Project path | User path |
-| --- | --- | --- |
-| Cursor | `.cursor/skills/<name>/` | `~/.cursor/skills/<name>/` |
-| Claude Code | `.claude/skills/<name>/` | `~/.claude/skills/<name>/` |
+### How to test
 
-Available skills: `email-basics`, `ip-lookup`, `markitdown`.
+1. Wait for `MCP Inspector Web is up and running` in the terminal. If the browser does not open, paste the `http://127.0.0.1:6274?...` URL from the terminal.
+2. Confirm the page header shows **Connected**.
+3. Open the **Tools** tab in the top-right area of the page.
+4. Select a tool from the list on the left, fill in the parameters, and click **Execute Tool**.
+5. Read the response in the **Results** panel on the right. On failure, inspect `error.code` and `error.message`.
+
+### Quick test cases
+
+**IP lookup (`ip_lookup`)**
+
+| Parameter | Value |
+| --- | --- |
+| `ip` | `8.8.8.8` |
+
+**Send email (`send_email`)**
+
+| Parameter | Value |
+| --- | --- |
+| `to` | your email address |
+| `subject` | `SendSoon MCP test` |
+| `body` | `Configuration successful` |
+
+Without `SENDSOON_API_KEY`, one public IP can send up to three free test emails per day.
+
+**File to Markdown (`markitdown_convert`)**
+
+| Parameter | Value |
+| --- | --- |
+| `file_path` | absolute local path, e.g. `/path/to/report.pdf` |
+
+Supported: `.pdf` `.docx` `.pptx` `.xlsx` `.xls` `.txt` `.md` `.html` `.htm`. Images (`.png`, `.jpg`, etc.) and direct URLs are not supported; save web pages as `.html` first.
+
+Press `Ctrl+C` in the terminal when you are done.
 
 ## License
 

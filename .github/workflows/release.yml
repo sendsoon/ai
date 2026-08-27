@@ -25,10 +25,10 @@ jobs:
           PY_VERSION="$(python3 - <<'PY'
           import pathlib
           import re
-          text = pathlib.Path('python/pyproject.toml').read_text(encoding='utf-8')
+          text = pathlib.Path('pypi/pyproject.toml').read_text(encoding='utf-8')
           match = re.search(r'(?m)^version = "([^"]+)"$', text)
           if not match:
-              raise SystemExit('python/pyproject.toml version not found')
+              raise SystemExit('pypi/pyproject.toml version not found')
           print(match.group(1))
           PY
           )"
@@ -36,7 +36,7 @@ jobs:
           NPM_PKG="$(node -p "require('./server.json').packages.find(p => p.registryType === 'npm').version")"
           PY_PKG="$(node -p "require('./server.json').packages.find(p => p.registryType === 'pypi').version")"
           echo "npm/package.json=$NPM_VERSION"
-          echo "python/pyproject.toml=$PY_VERSION"
+          echo "pypi/pyproject.toml=$PY_VERSION"
           echo "server.json.version=$SERVER_VERSION"
           echo "server.json.npm=$NPM_PKG"
           echo "server.json.pypi=$PY_PKG"
@@ -46,9 +46,9 @@ jobs:
           test "$NPM_VERSION" = "$PY_PKG"
       - run: pnpm run check
 
-  check-python:
+  check-pypi:
     if: github.event_name == 'pull_request' || (github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/'))
-    uses: ./.github/workflows/python-check.yml
+    uses: ./.github/workflows/pypi-check.yml
 
   publish-npm:
     if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'

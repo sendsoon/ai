@@ -2,7 +2,7 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md)
 
-让 Codex、Claude、Cursor 等 AI Agent 使用 [SendSoon](https://sendsoonai.com/) 的邮件发送、IP 查询和文件转 Markdown 能力。
+SendSoon MCP 是一个 [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) 服务端，让 Codex、Claude、Cursor 等 AI Agent 调用 [SendSoon](https://sendsoonai.com/) 的能力：发邮件、查 IP、把本地文档转成 Markdown。
 
 配置一次后，直接用自然语言描述任务即可，通常不需要每次强调“使用 SendSoon”。
 
@@ -12,53 +12,18 @@
 | --- | --- | --- |
 | `send_email` | 发送单封邮件 | “给我发一封测试邮件” |
 | `ip_lookup` | 查询公网 IP 信息 | “查询 8.8.8.8 的归属地” |
-| `markitdown_convert` | 将文件转换成 Markdown | “把这份 PDF 转成 Markdown” |
+| `markitdown_convert` | 将本地文档转换成 Markdown | “把这份 PDF 转成 Markdown” |
 
-## 在 Google Colab 中试用
+## 安装包
 
-免去本地环境配置，点击即可在浏览器中试用 `ip_lookup`、`markitdown_convert` 和 `send_email`。
+任选 **npm（Node）** 或 **PyPI（Python）** 作为 MCP 运行时，工具名称与环境变量相同。
 
-[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sendsoon/mcp/blob/main/docs/SendSoon.ipynb)
+| 渠道 | 包名 | 要求 |
+| --- | --- | --- |
+| npm | [`@sendsoon/mcp`](https://www.npmjs.com/package/@sendsoon/mcp) | Node.js 20+ |
+| PyPI | [`sendsoon-mcp`](https://pypi.org/project/sendsoon-mcp/) | Python 3.10+，详见 [`pypi/README.md`](pypi/README.md) |
 
-该 Notebook 调用的是 MCP 工具背后同一套 SendSoon HTTP API。若要在 Cursor、Claude 或 Codex 中使用，请继续完成下面的本地 MCP 配置。
-
-## 安装 MCP
-
-可选 **npm（Node）** 或 **PyPI（Python）**。工具名称与环境变量相同。
-
-### npm（Node）
-
-已发布为 [`@sendsoon/mcp`](https://www.npmjs.com/package/@sendsoon/mcp)。客户端可用 `npx` 启动（首次自动下载）：
-
-```bash
-npx -y @sendsoon/mcp
-```
-
-可选全局安装：
-
-```bash
-npm install -g @sendsoon/mcp
-sendsoon-mcp
-```
-
-需要 Node.js 20+。
-
-### PyPI（Python）
-
-已发布为 [`sendsoon-mcp`](https://pypi.org/project/sendsoon-mcp/)。推荐用 `uvx`，无需全局安装：
-
-```bash
-uvx sendsoon-mcp
-```
-
-或：
-
-```bash
-pip install sendsoon-mcp
-sendsoon-mcp
-```
-
-需要 Python 3.10+。详见 [`python/README.md`](python/README.md)。
+客户端配置里使用 `npx -y @sendsoon/mcp` 或 `uvx sendsoon-mcp` 启动服务即可，无需单独全局安装。
 
 ## 准备配置
 
@@ -80,7 +45,7 @@ sendsoon-mcp
 
 如果匿名额度已经用完，`send_email` 会返回注册与配置 Key 的提示；配置无效或已撤销的 Key 会被拒绝，不会自动退回匿名额度。
 
-## 选择你的客户端
+## 安装到 AI 客户端
 
 ### Cursor
 
@@ -102,7 +67,7 @@ sendsoon-mcp
 }
 ```
 
-**Python（PyPI）：**
+**PyPI：**
 
 ```json
 {
@@ -176,36 +141,20 @@ Windsurf、Cline、Continue 等支持本地 stdio MCP 的客户端，填写以�
 | Arguments | `-y @sendsoon/mcp` |
 | Environment | 上方列出的环境变量 |
 
-## 确认配置成功
+安装完成后，重启客户端并在新对话中用自然语言发起任务。第一次调用工具时，客户端可能要求确认授权，选择允许即可。
 
-重新启动客户端并打开一个新对话，然后输入：
+## 日常使用示例
 
 ```text
 查询 8.8.8.8 的 IP 归属地和运营商。
 ```
 
-Agent 调用 `ip_lookup` 并返回查询结果，说明 MCP 已经连接成功。
-
-需要验证邮件时，再输入：
-
 ```text
-给 <YOUR_EMAIL> 发送一封测试邮件，主题是“SendSoon MCP 测试”，正文是“配置成功”。
-```
-
-收件人通过 `send_email` 的 `to` 参数传入。第一次调用工具时，客户端可能要求确认授权，选择允许即可。
-
-## 日常使用示例
-
-```text
-查询 1.1.1.1 的 IP 信息。
+把 D:\docs\report.pdf 转换成 Markdown，并总结重点。
 ```
 
 ```text
-把 <YOUR_FILE_PATH> 转换成 Markdown，并总结重点。
-```
-
-```text
-给 <YOUR_EMAIL> 发一封邮件，主题是“会议提醒”，正文是“今天下午三点开会”。
+给 user@example.com 发一封邮件，主题是“会议提醒”，正文是“今天下午三点开会”。
 ```
 
 如果 Agent 没有自动选择工具，可以明确说：
@@ -214,29 +163,69 @@ Agent 调用 `ip_lookup` 并返回查询结果，说明 MCP 已经连接成功�
 请调用 sendsoon MCP 完成这个任务。
 ```
 
-通常只需在首次使用时这样提示，后续可以直接描述任务。
+## 在 Google Colab 中试用
 
-## 安装 Agent Skills
+免去本地环境配置，点击即可在浏览器中试用 `ip_lookup`、`markitdown_convert` 和 `send_email`。
 
-Skills 告诉 Agent 何时调用各 MCP 工具、以及如何处理错误码。请先安装 MCP，再安装 Skills。
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sendsoon/mcp/blob/main/docs/SendSoon.ipynb)
 
-### Claude Code（插件市场）
+该 Notebook 调用的是 MCP 工具背后同一套 SendSoon HTTP API，适合快速体验 API 行为。
 
-```text
-/plugin marketplace add sendsoon/mcp
-/plugin install sendsoon-skills@sendsoon
+---
+
+## 本地可视化测试（MCP Inspector）
+
+若想在安装到 AI 客户端之前，**在浏览器里直接看到三个工具并手动点击测试**，请使用 [MCP Inspector](https://github.com/modelcontextprotocol/inspector)。
+
+需要 Node.js 20+。在终端运行下列命令之一，Inspector 会自动打开浏览器页面：
+
+**npm（Node）版 SendSoon MCP：**
+
+```bash
+npx @modelcontextprotocol/inspector npx -y @sendsoon/mcp
 ```
 
-### Cursor / Claude（复制目录）
+**PyPI 版 SendSoon MCP：**
 
-将 [`skills/`](skills) 下的目录复制到对应 Skills 路径：
+```bash
+npx @modelcontextprotocol/inspector uvx sendsoon-mcp
+```
 
-| 客户端 | 项目路径 | 用户路径 |
-| --- | --- | --- |
-| Cursor | `.cursor/skills/<name>/` | `~/.cursor/skills/<name>/` |
-| Claude Code | `.claude/skills/<name>/` | `~/.claude/skills/<name>/` |
+### 操作步骤
 
-可用 Skills：`email-basics`、`ip-lookup`、`markitdown`。
+1. 等待终端出现 `MCP Inspector Web is up and running`，浏览器会自动打开；若未打开，复制终端里的 `http://127.0.0.1:6274?...` 地址手动访问。
+2. 确认页面顶部显示 **Connected**（已连接）。
+3. 点击页面右上角的 **Tools** 标签。
+4. 在左侧工具列表中选择要测试的工具，填写参数后点击 **Execute Tool**。
+5. 在右侧 **Results** 面板查看返回结果；若失败，查看 `error.code` 与 `error.message`。
+
+### 快速测试用例
+
+**IP 归属查询（`ip_lookup`）**
+
+| 参数 | 值 |
+| --- | --- |
+| `ip` | `8.8.8.8` |
+
+**发送邮件（`send_email`）**
+
+| 参数 | 值 |
+| --- | --- |
+| `to` | 你的邮箱 |
+| `subject` | `SendSoon MCP 测试` |
+| `body` | `配置成功` |
+
+未配置 `SENDSOON_API_KEY` 时，同一公网 IP 每天最多 3 封免费测试邮件。
+
+**文件转 Markdown（`markitdown_convert`）**
+
+| 参数 | 值 |
+| --- | --- |
+| `file_path` | 本地文件绝对路径，例如 `D:\docs\report.pdf` |
+
+支持：`.pdf` `.docx` `.pptx` `.xlsx` `.xls` `.txt` `.md` `.html` `.htm`。不支持图片（`.png`、`.jpg` 等）和直接 URL；网页请先另存为 `.html` 再传入路径。
+
+测试完成后，在终端按 `Ctrl+C` 停止 Inspector。
 
 ## License
 

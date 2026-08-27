@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Annotated, Any, Literal
+
+from pydantic import Field
 
 from sendsoon_mcp.validation import validate_send_request
 
@@ -13,6 +15,7 @@ if TYPE_CHECKING:
 
 ContentType = Literal["text/plain", "text/html"]
 
+TOOL_TITLE = "Send Email"
 TOOL_DESCRIPTION = (
     "Send one test email through SendSoon. Pass the recipient in the to parameter. "
     "Without SENDSOON_API_KEY, one public IP can send up to 3 free test emails per day; "
@@ -22,13 +25,28 @@ TOOL_DESCRIPTION = (
 
 
 def register(mcp: FastMCP, client: SendSoonClient) -> None:
-    @mcp.tool(name="send_email", description=TOOL_DESCRIPTION)
+    @mcp.tool(name="send_email", title=TOOL_TITLE, description=TOOL_DESCRIPTION)
     async def send_email(
-        to: str,
-        subject: str,
-        body: str,
-        content_type: ContentType | None = None,
-        idempotency_key: str | None = None,
+        to: Annotated[str, Field(description="Recipient email address")],
+        subject: Annotated[str, Field(description="Email subject line", max_length=998)],
+        body: Annotated[
+            str,
+            Field(description="Email body (plain text or HTML; max 512,000 UTF-8 bytes)"),
+        ],
+        content_type: Annotated[
+            ContentType | None,
+            Field(description="MIME content type for body (default: text/plain)"),
+        ] = None,
+        idempotency_key: Annotated[
+            str | None,
+            Field(
+                description=(
+                    "Optional stable key that prevents duplicate delivery when callers retry"
+                ),
+                max_length=128,
+                pattern=r"^[A-Za-z0-9._:-]+$",
+            ),
+        ] = None,
     ) -> dict[str, Any]:
         """Send one test email through SendSoon."""
         request = {

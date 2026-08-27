@@ -18,26 +18,12 @@ MAX_MARKITDOWN_FILE_BYTES = 10 * 1024 * 1024
 SUPPORTED_MARKITDOWN_EXTENSIONS = frozenset(
     {
         ".pdf",
-        ".pptx",
         ".docx",
+        ".pptx",
         ".xlsx",
         ".xls",
-        ".jpg",
-        ".jpeg",
-        ".png",
-        ".gif",
-        ".bmp",
-        ".tiff",
-        ".mp3",
-        ".wav",
-        ".m4a",
         ".html",
         ".htm",
-        ".csv",
-        ".json",
-        ".xml",
-        ".zip",
-        ".epub",
         ".txt",
         ".md",
     }
@@ -135,6 +121,9 @@ def decoded_base64_byte_length(value: str) -> int | None:
     if normalized is None:
         return None
     return len(base64.b64decode(normalized, validate=True))
+
+
+MARKITDOWN_EXTENSIONS = tuple(sorted(SUPPORTED_MARKITDOWN_EXTENSIONS))
 
 
 def validate_markitdown_filename(filename: str) -> SendSoonError | None:

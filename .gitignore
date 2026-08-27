@@ -19,5 +19,6 @@ __pycache__/
 .ruff_cache/
 .venv/
 venv/
-python/dist/
+pypi/dist/
+.pnpm-store/
 *.egg-info/

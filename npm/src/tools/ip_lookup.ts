@@ -52,7 +52,7 @@ export type IpLookupOutput = IpLookupResult;
 export const ipLookupToolDefinition = {
   name: 'ip_lookup' as const,
   config: {
-    title: 'IP 归属查询',
+    title: 'IP Lookup',
     description:
       'Look up geolocation and ISP info for a public IPv4 or IPv6 address via SendSoon',
     inputSchema: ipLookupInputSchema,

@@ -37,6 +37,12 @@ def test_validate_markitdown_extension() -> None:
     assert "Unsupported file extension" in error.message
 
 
+def test_validate_markitdown_rejects_images() -> None:
+    error = validate_markitdown_filename("photo.png")
+    assert error is not None
+    assert "Unsupported file extension" in error.message
+
+
 class _FakeClient:
     def __init__(self, result: dict[str, Any]) -> None:
         self.result = result
@@ -59,10 +65,11 @@ class _FakeMcp:
     def __init__(self) -> None:
         self.tools: dict[str, Any] = {}
 
-    def tool(self, name: str, description: str):  # noqa: ANN201
+    def tool(self, name: str, description: str, **kwargs: object):  # noqa: ANN201
         def decorator(fn):  # noqa: ANN001, ANN202
             self.tools[name] = fn
             fn.__tool_description__ = description
+            fn.__tool_title__ = kwargs.get("title")
             return fn
 
         return decorator

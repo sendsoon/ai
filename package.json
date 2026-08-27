@@ -1,6 +1,6 @@
 {
   "name": "sendsoon-mcp",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "description": "Private monorepo root (not published). Public npm package is @sendsoon/mcp under npm/.",
   "type": "module",

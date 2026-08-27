@@ -37,9 +37,9 @@ export type MarkitdownConvertOutput = MarkitdownConvertResult;
 export const markitdownConvertToolDefinition = {
   name: 'markitdown_convert' as const,
   config: {
-    title: '文件转 Markdown',
+    title: 'File to Markdown',
     description:
-      'Convert a local file (pdf, docx, pptx, xlsx, images, audio, csv, json, html, zip, epub, txt, etc.) to Markdown text via SendSoon. Provide file_path; the file name is detected automatically (max 10 MB).',
+      'Convert a local document to Markdown via SendSoon. Supported: pdf, docx, pptx, xlsx, xls, txt, md, html, htm. Images (png, jpg, etc.) and direct URLs are not supported. Provide file_path; the file name is detected automatically (max 10 MB).',
     inputSchema: markitdownConvertInputSchema,
     outputSchema: markitdownConvertOutputSchema,
   },

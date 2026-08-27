@@ -219,7 +219,7 @@ Look up geolocation and ISP info for a public IPv4 or IPv6 address.
 
 Convert a single file to Markdown text.
 
-**When to call:** User wants to convert a PDF/Word/Excel/PPT/image/audio file to Markdown or extract text (转Markdown, 文件转文本).
+**When to call:** User wants to convert a PDF/Word/Excel/PPT/text/HTML file to Markdown or extract text (转Markdown, 文件转文本).
 
 **Parameters:**
 
@@ -229,7 +229,9 @@ Convert a single file to Markdown text.
 
 **Supported extensions:**
 
-`.pdf` `.pptx` `.docx` `.xlsx` `.xls` `.jpg` `.jpeg` `.png` `.gif` `.bmp` `.tiff` `.mp3` `.wav` `.m4a` `.html` `.htm` `.csv` `.json` `.xml` `.zip` `.epub` `.txt` `.md`
+`.pdf` `.docx` `.pptx` `.xlsx` `.xls` `.txt` `.md` `.html` `.htm`
+
+**Not supported:** images (`.png`, `.jpg`, etc.), direct URLs (save as `.html` first), audio, `.zip`, `.epub`, `.csv`, `.json`, `.xml`.
 
 Legacy `.doc` (pre-2007 Word) is **not** supported — ask the user to re-save as `.docx`.
 
@@ -257,7 +259,7 @@ The tool returns text only; saving to disk is the caller's responsibility.
 
 | `error.code` | Meaning | Retry? |
 | --- | --- | --- |
-| `INVALID_INPUT` | Unsupported extension, missing file, empty file, empty conversion result | No |
+| `INVALID_INPUT` | Unsupported extension (e.g. images), missing file, empty file, empty conversion result | No |
 | `PAYLOAD_TOO_LARGE` | Decoded file > 10 MB | No |
 
 ---
@@ -300,23 +302,6 @@ Send a test email to <YOUR_EMAIL> with the subject "SendSoon MCP test" and the b
 ```
 
 Pass the recipient in the `to` parameter of `send_email`.
-
----
-
-## Agent Skills (optional)
-
-Skills teach agents when to call each tool and how to handle errors. They are **not** bundled in this npm package — install from [github.com/sendsoon/mcp](https://github.com/sendsoon/mcp).
-
-**Claude Code:**
-
-```text
-/plugin marketplace add sendsoon/mcp
-/plugin install sendsoon-skills@sendsoon
-```
-
-**Manual copy:** copy `skills/email-basics`, `skills/ip-lookup`, and/or `skills/markitdown` into `.cursor/skills/` (Cursor) or `.claude/skills/` (Claude).
-
-MCP must be installed first; Skills alone do not provide tools.
 
 ---
 

@@ -1,11 +1,11 @@
 # Publishes sendsoon-mcp to PyPI via Trusted Publishing (OIDC).
 # PyPI pending publisher must match:
-#   owner=sendsoon, repo=ai, workflow=publish-pypi.yml, environment=pypi
+#   owner=sendsoon, repo=mcp, workflow=publish-pypi.yml, environment=pypi
 #
 # Tag convention (keep in sync with npm):
 #   python-vX.Y.Z  → publish Python X.Y.Z
 #   vX.Y.Z         → also publish Python X.Y.Z (same number as npm tag)
-name: Publish Python package
+name: Publish PyPI package
 
 on:
   push:
@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: python
+        working-directory: pypi
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -78,8 +78,8 @@ jobs:
       - name: Upload dist artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: python-dist
-          path: python/dist/*
+          name: pypi-dist
+          path: pypi/dist/*
           if-no-files-found: error
 
   publish:
@@ -93,7 +93,7 @@ jobs:
       - name: Download dist artifacts
         uses: actions/download-artifact@v4
         with:
-          name: python-dist
+          name: pypi-dist
           path: dist
 
       - name: Publish to PyPI

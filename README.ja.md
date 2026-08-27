@@ -2,7 +2,7 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md)
 
-Codex、Claude、Cursor などの AI エージェントから、[SendSoon](https://sendsoonai.com/) のメール送信、IP 検索、ファイルの Markdown 変換機能を利用できます。
+SendSoon MCP は [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) サーバーです。Codex、Claude、Cursor などの AI エージェントから [SendSoon](https://sendsoonai.com/) のメール送信、IP 検索、ローカル文書の Markdown 変換を利用できます。
 
 一度設定すれば、あとは自然言語で依頼するだけです。通常、毎回 SendSoon を指定する必要はありません。
 
@@ -12,53 +12,18 @@ Codex、Claude、Cursor などの AI エージェントから、[SendSoon](https
 | --- | --- | --- |
 | `send_email` | メールを1通送信 | 「テストメールを送って」 |
 | `ip_lookup` | パブリック IP 情報を検索 | 「8.8.8.8 の所在地を調べて」 |
-| `markitdown_convert` | ファイルを Markdown に変換 | 「この PDF を Markdown に変換して」 |
+| `markitdown_convert` | ローカル文書を Markdown に変換 | 「この PDF を Markdown に変換して」 |
 
-## Google Colab で試す
+## パッケージ
 
-ローカル環境のセットアップなしで、ブラウザから `ip_lookup`、`markitdown_convert`、`send_email` を試せます。
+**npm（Node）** または **PyPI（Python）** を MCP ランタイムとして選びます。ツール名と環境変数は共通です。
 
-[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sendsoon/mcp/blob/main/docs/SendSoon.ipynb)
+| チャネル | パッケージ | 要件 |
+| --- | --- | --- |
+| npm | [`@sendsoon/mcp`](https://www.npmjs.com/package/@sendsoon/mcp) | Node.js 20 以降 |
+| PyPI | [`sendsoon-mcp`](https://pypi.org/project/sendsoon-mcp/) | Python 3.10 以降。詳細は [`pypi/README.md`](pypi/README.md) |
 
-このノートブックは、MCP ツールと同じ SendSoon HTTP API を呼び出します。Cursor、Claude、Codex から使う場合は、この後のローカル MCP 設定を続けてください。
-
-## MCP のインストール
-
-**npm（Node）** または **PyPI（Python）** を選べます。ツール名と環境変数は共通です。
-
-### npm（Node）
-
-[`@sendsoon/mcp`](https://www.npmjs.com/package/@sendsoon/mcp) として公開されています。クライアントは `npx` で起動できます（初回にダウンロード）：
-
-```bash
-npx -y @sendsoon/mcp
-```
-
-任意のグローバルインストール：
-
-```bash
-npm install -g @sendsoon/mcp
-sendsoon-mcp
-```
-
-要件：Node.js 20 以降。
-
-### PyPI（Python）
-
-[`sendsoon-mcp`](https://pypi.org/project/sendsoon-mcp/) として公開されています。グローバルインストール不要の `uvx` を推奨します：
-
-```bash
-uvx sendsoon-mcp
-```
-
-または：
-
-```bash
-pip install sendsoon-mcp
-sendsoon-mcp
-```
-
-要件：Python 3.10 以降。詳細は [`python/README.md`](python/README.md)。
+クライアント設定では `npx -y @sendsoon/mcp` または `uvx sendsoon-mcp` でサーバーを起動します。グローバルインストールは任意です。
 
 ## 設定値を準備
 
@@ -80,7 +45,7 @@ sendsoon-mcp
 
 匿名枠を使い切った場合、`send_email` は登録と Key 設定を案内します。無効または取り消された Key は拒否され、匿名枠には自動的に切り替わりません。
 
-## クライアントを選択
+## AI クライアントへのインストール
 
 ### Cursor
 
@@ -102,7 +67,7 @@ Cursor の `Settings > Tools & MCP` を開いて MCP Server を追加します�
 }
 ```
 
-**Python（PyPI）：**
+**PyPI：**
 
 ```json
 {
@@ -176,36 +141,20 @@ Windsurf、Cline、Continue など、ローカル stdio MCP サーバーに対�
 | Arguments | `-y @sendsoon/mcp` |
 | Environment | 上記の環境変数 |
 
-## 接続を確認
+インストール後、クライアントを再起動して新しい会話を開始します。初回のツール実行時に許可を求められる場合があります。
 
-クライアントを再起動して新しい会話を開き、次のように入力します：
+## 普段の使い方
 
 ```text
 8.8.8.8 の所在地と ISP を調べてください。
 ```
 
-エージェントが `ip_lookup` を呼び出して結果を返せば、MCP は正常に接続されています。
-
-メールを確認する場合は、次のように入力します：
-
 ```text
-<YOUR_EMAIL> に件名「SendSoon MCP テスト」、本文「設定に成功しました。」のテストメールを送信してください。
-```
-
-受信先は `send_email` の `to` パラメータで指定します。初回のツール実行時にクライアントが許可を求める場合は、許可して続行してください。
-
-## 普段の使い方
-
-```text
-1.1.1.1 の IP 情報を調べてください。
+/path/to/report.pdf を Markdown に変換し、要点をまとめてください。
 ```
 
 ```text
-<YOUR_FILE_PATH> を Markdown に変換し、要点をまとめてください。
-```
-
-```text
-<YOUR_EMAIL> に件名「会議のリマインダー」、本文「本日15時から会議です。」のメールを送信してください。
+user@example.com に件名「会議のリマインダー」、本文「本日15時から会議です。」のメールを送信してください。
 ```
 
 エージェントが自動的にツールを選択しない場合は、次のように指定します：
@@ -214,29 +163,69 @@ Windsurf、Cline、Continue など、ローカル stdio MCP サーバーに対�
 sendsoon MCP を使ってこのタスクを完了してください。
 ```
 
-通常、この明示的な指定が必要なのは初回だけです。
+## Google Colab で試す
 
-## Agent Skills をインストール
+ローカル環境のセットアップなしで、ブラウザから `ip_lookup`、`markitdown_convert`、`send_email` を試せます。
 
-Skills は、各 MCP ツールをいつ呼び出すか、エラーコードをどう扱うかをエージェントに教えます。先に MCP を入れ、その後 Skills を追加してください。
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sendsoon/mcp/blob/main/docs/SendSoon.ipynb)
 
-### Claude Code（プラグイン）
+このノートブックは MCP ツールと同じ SendSoon HTTP API を呼び出します。
 
-```text
-/plugin marketplace add sendsoon/mcp
-/plugin install sendsoon-skills@sendsoon
+---
+
+## ローカル可視化テスト（MCP Inspector）
+
+AI クライアントにインストールする前に、**ブラウザ上で3つのツールを表示して手動で試す**には [MCP Inspector](https://github.com/modelcontextprotocol/inspector) を使います。
+
+Node.js 20 以降が必要です。ターミナルで次のいずれかを実行すると、Web UI が自動的に開きます：
+
+**npm（Node）版 SendSoon MCP：**
+
+```bash
+npx @modelcontextprotocol/inspector npx -y @sendsoon/mcp
 ```
 
-### Cursor / Claude（フォルダーをコピー）
+**PyPI 版 SendSoon MCP：**
 
-[`skills/`](skills) 配下のフォルダーを、次のパスにコピーします：
+```bash
+npx @modelcontextprotocol/inspector uvx sendsoon-mcp
+```
 
-| クライアント | プロジェクト | ユーザー |
-| --- | --- | --- |
-| Cursor | `.cursor/skills/<name>/` | `~/.cursor/skills/<name>/` |
-| Claude Code | `.claude/skills/<name>/` | `~/.claude/skills/<name>/` |
+### 操作手順
 
-利用可能な Skills：`email-basics`、`ip-lookup`、`markitdown`。
+1. ターミナルに `MCP Inspector Web is up and running` と表示されるまで待ちます。ブラウザが開かない場合は、表示された `http://127.0.0.1:6274?...` URL を開きます。
+2. ページ上部が **Connected** になっていることを確認します。
+3. ページ右上の **Tools** タブを開きます。
+4. 左側のツール一覧からツールを選び、パラメータを入力して **Execute Tool** をクリックします。
+5. 右側の **Results** パネルで結果を確認します。失敗時は `error.code` と `error.message` を確認します。
+
+### クイックテスト
+
+**IP 検索（`ip_lookup`）**
+
+| パラメータ | 値 |
+| --- | --- |
+| `ip` | `8.8.8.8` |
+
+**メール送信（`send_email`）**
+
+| パラメータ | 値 |
+| --- | --- |
+| `to` | 自分のメールアドレス |
+| `subject` | `SendSoon MCP test` |
+| `body` | `Configuration successful` |
+
+`SENDSOON_API_KEY` 未設定時、同一パブリック IP から1日3通まで無料でテスト送信できます。
+
+**ファイルを Markdown に変換（`markitdown_convert`）**
+
+| パラメータ | 値 |
+| --- | --- |
+| `file_path` | ローカルファイルの絶対パス（例：`/path/to/report.pdf`） |
+
+対応：`.pdf` `.docx` `.pptx` `.xlsx` `.xls` `.txt` `.md` `.html` `.htm`。画像（`.png`、`.jpg` など）と直接 URL は非対応。Web ページは `.html` として保存してから指定してください。
+
+終了時はターミナルで `Ctrl+C` を押します。
 
 ## License
 
