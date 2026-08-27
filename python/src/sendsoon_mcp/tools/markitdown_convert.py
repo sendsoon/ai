@@ -12,8 +12,9 @@ if TYPE_CHECKING:
     from sendsoon_mcp.client import SendSoonClient
 
 TOOL_DESCRIPTION = (
-    "Convert a local file (pdf, docx, pptx, xlsx, images, audio, csv, json, html, zip, epub, txt, etc.) "
-    "to Markdown text via SendSoon. Provide file_path; the file name is detected automatically (max 10 MB)."
+    "Convert a local file (pdf, docx, pptx, xlsx, images, audio, csv, json, html, zip, "
+    "epub, txt, etc.) to Markdown text via SendSoon. Provide file_path; the file name is "
+    "detected automatically (max 10 MB)."
 )
 
 
